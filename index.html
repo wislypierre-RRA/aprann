@@ -1,0 +1,1948 @@
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aprann Ak Nou!</title>
+<meta name="theme-color" content="#00209F">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Aprann">
+<style>
+  :root{
+    --blue:#00209F;
+    --red:#D21034;
+    --green:#1a7a3c;
+    --gold:#f4b400;
+    --ink:#1c2130;
+    --paper:#fffdf8;
+    --card:#ffffff;
+    --muted:#6b7280;
+    --ring:#e6e2d8;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    padding:0;
+    background:linear-gradient(180deg,#f7f5ef 0%,#fffdf8 400px);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.5;
+    -webkit-text-size-adjust:100%;
+  }
+  .wrap{
+    max-width:900px;
+    margin:0 auto;
+    padding:20px 16px 64px;
+  }
+  header.top{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:18px 0 8px;
+    flex-wrap:wrap;
+  }
+  header.top .badge{
+    width:48px;height:48px;border-radius:14px;
+    background:linear-gradient(135deg,var(--blue),var(--red));
+    display:flex;align-items:center;justify-content:center;
+    font-size:24px;flex-shrink:0;
+  }
+  header.top h1{
+    font-size:1.35rem;
+    margin:0;
+  }
+  header.top p.sub{
+    margin:2px 0 0;
+    color:var(--muted);
+    font-size:0.9rem;
+  }
+  .header-actions{
+    margin-left:auto;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .user-badge{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:var(--card);
+    border:1px solid var(--ring);
+    border-radius:999px;
+    padding:6px 8px 6px 14px;
+    font-size:0.9rem;
+    font-weight:600;
+  }
+  .lang-toggle{
+    background:var(--card);
+    border:1px solid var(--ring);
+    border-radius:999px;
+    padding:8px 14px;
+    font-size:0.85rem;
+    font-weight:600;
+    cursor:pointer;
+    color:var(--ink);
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .lang-toggle:hover{border-color:var(--blue);}
+  .btn.secondary.small{
+    padding:6px 12px;
+    font-size:0.8rem;
+    border-radius:999px;
+  }
+  .name-chip{
+    background:#fff;
+    border:1px solid var(--ring);
+    border-radius:999px;
+    padding:8px 14px;
+    cursor:pointer;
+    font-size:0.9rem;
+  }
+  .name-chip:hover{border-color:var(--blue);}
+  .progress-table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:14px;
+    background:var(--card);
+    border:1px solid var(--ring);
+    border-radius:14px;
+    overflow:hidden;
+  }
+  .progress-table th, .progress-table td{
+    padding:10px 12px;
+    text-align:left;
+    border-bottom:1px solid var(--ring);
+    font-size:0.92rem;
+  }
+  .progress-table th{background:#faf9f5;}
+  .empty-note{color:var(--muted);font-size:0.92rem;margin-top:14px;}
+  .screen{display:none;}
+  .screen.active{display:block;}
+  .intro-card{
+    background:var(--card);
+    border:1px solid var(--ring);
+    border-radius:18px;
+    padding:18px 20px;
+    margin:18px 0 24px;
+  }
+  .intro-card p{margin:0 0 8px;}
+  .intro-card p:last-child{margin-bottom:0;}
+  .tracks{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+    gap:16px;
+  }
+  .track-card{
+    background:var(--card);
+    border:1px solid var(--ring);
+    border-radius:18px;
+    padding:20px;
+    cursor:pointer;
+    transition:transform .12s ease,box-shadow .12s ease;
+    text-align:left;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .track-card:hover, .track-card:focus-visible{
+    transform:translateY(-2px);
+    box-shadow:0 8px 20px rgba(0,0,0,0.08);
+  }
+  .track-card .emoji{font-size:2.2rem;}
+  .track-card h3{margin:0;font-size:1.15rem;}
+  .track-card p{margin:0;color:var(--muted);font-size:0.9rem;}
+  .track-card .cert-pill{
+    display:inline-block;
+    background:#fff8e6;
+    border:1px solid var(--gold);
+    color:#8a6300;
+    border-radius:999px;
+    padding:3px 10px;
+    font-size:0.78rem;
+    font-weight:700;
+    width:fit-content;
+  }
+  .progress-bar{
+    height:10px;
+    border-radius:6px;
+    background:#eee;
+    overflow:hidden;
+  }
+  .progress-bar > div{
+    height:100%;
+    border-radius:6px;
+    background:var(--track-color,var(--blue));
+    transition:width .3s ease;
+  }
+  .progress-label{font-size:0.8rem;color:var(--muted);}
+  button{
+    font-family:inherit;
+  }
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:var(--blue);
+    color:#fff;
+    border:none;
+    border-radius:12px;
+    padding:12px 18px;
+    font-size:1rem;
+    cursor:pointer;
+    font-weight:600;
+  }
+  .btn.secondary{
+    background:transparent;
+    color:var(--ink);
+    border:1px solid var(--ring);
+  }
+  .btn.gold{
+    background:linear-gradient(135deg,var(--gold),#e08e00);
+    color:#3a2900;
+  }
+  .btn.back{
+    background:transparent;
+    color:var(--blue);
+    padding:8px 4px;
+    font-weight:600;
+  }
+  .btn:disabled{opacity:0.5;cursor:not-allowed;}
+  .lesson-list{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    margin-top:16px;
+  }
+  .lesson-item{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    background:var(--card);
+    border:1px solid var(--ring);
+    border-radius:14px;
+    padding:14px 16px;
+    cursor:pointer;
+    text-align:left;
+  }
+  .lesson-item:hover{background:#faf9f5;}
+  .lesson-item .num{
+    width:34px;height:34px;border-radius:50%;
+    background:var(--ring);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:700;flex-shrink:0;
+    font-size:0.95rem;
+  }
+  .lesson-item.done .num{background:var(--green);color:#fff;}
+  .lesson-item .title{font-weight:600;}
+  .lesson-item .check{margin-left:auto;font-size:1.2rem;color:var(--green);}
+  .track-title-row{
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+    margin-top:6px;
+  }
+  .track-title-row .emoji{font-size:1.8rem;}
+  .lesson-content{
+    background:var(--card);
+    border:1px solid var(--ring);
+    border-radius:18px;
+    padding:22px;
+    margin-top:16px;
+  }
+  .lesson-content h2{margin-top:0;}
+  .section{margin:18px 0;}
+  .section h4{margin:0 0 6px;color:var(--blue);}
+  .vocab-table{
+    width:100%;
+    border-collapse:collapse;
+    margin:10px 0;
+  }
+  .vocab-table td, .vocab-table th{
+    border-bottom:1px solid var(--ring);
+    padding:8px 6px;
+    text-align:left;
+    font-size:0.95rem;
+  }
+  code.block{
+    display:block;
+    background:#1c2130;
+    color:#e9f1ff;
+    padding:14px 16px;
+    border-radius:10px;
+    font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    white-space:pre;
+    overflow-x:auto;
+    margin:10px 0;
+    font-size:0.92rem;
+  }
+  .tip{
+    background:#fff8e6;
+    border:1px solid #f0dca0;
+    border-radius:12px;
+    padding:10px 14px;
+    font-size:0.92rem;
+    margin:10px 0;
+  }
+  .activity{
+    margin-top:22px;
+    border-top:2px dashed var(--ring);
+    padding-top:18px;
+  }
+  .activity h3{margin-top:0;}
+  .q-block{
+    background:#faf9f5;
+    border:1px solid var(--ring);
+    border-radius:14px;
+    padding:14px 16px;
+    margin-bottom:14px;
+  }
+  .q-block p.q-text{font-weight:600;margin:0 0 10px;}
+  .q-options{display:flex;flex-direction:column;gap:8px;}
+  .q-opt{
+    text-align:left;
+    background:#fff;
+    border:1px solid var(--ring);
+    border-radius:10px;
+    padding:10px 12px;
+    cursor:pointer;
+    font-size:0.95rem;
+  }
+  .q-opt:hover{border-color:var(--blue);}
+  .q-opt.correct{background:#e6f6ec;border-color:var(--green);}
+  .q-opt.wrong{background:#fdeaea;border-color:var(--red);}
+  .q-opt[disabled]{cursor:default;}
+  .q-feedback{margin-top:8px;font-size:0.9rem;color:var(--muted);}
+  .click-area{
+    position:relative;
+    height:220px;
+    background:#f3f6ff;
+    border:2px dashed #c9d4f5;
+    border-radius:14px;
+    margin:14px 0;
+    overflow:hidden;
+  }
+  .click-target{
+    position:absolute;
+    width:56px;height:56px;
+    border-radius:50%;
+    background:var(--red);
+    color:#fff;
+    border:none;
+    font-size:1.4rem;
+    cursor:pointer;
+  }
+  .type-practice input{
+    width:100%;
+    font-size:1.1rem;
+    padding:10px 12px;
+    border:1px solid var(--ring);
+    border-radius:10px;
+    font-family:monospace;
+  }
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px;}
+  .score-banner{
+    background:#e6f6ec;
+    border:1px solid var(--green);
+    border-radius:14px;
+    padding:14px 16px;
+    margin-top:14px;
+    font-weight:600;
+  }
+  .celebrate-banner{
+    background:linear-gradient(135deg,#fff8e6,#ffe9c7);
+    border:1px solid var(--gold);
+    border-radius:14px;
+    padding:16px 18px;
+    margin-top:14px;
+    font-weight:600;
+  }
+  .celebrate-banner p{margin:0 0 10px;}
+  .celebrate-banner p:last-child{margin-bottom:0;}
+  footer.note{
+    margin-top:40px;
+    padding-top:16px;
+    border-top:1px solid var(--ring);
+    color:var(--muted);
+    font-size:0.85rem;
+  }
+  details.trainer{
+    margin-top:20px;
+    background:#f3f6ff;
+    border:1px solid #c9d4f5;
+    border-radius:14px;
+    padding:12px 16px;
+  }
+  details.trainer summary{cursor:pointer;font-weight:600;color:var(--blue);}
+  details.trainer ul{margin:10px 0 0;padding-left:20px;}
+
+  /* ---------- Confetti / balloon celebration ---------- */
+  #celebrate-layer{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    overflow:hidden;
+    z-index:999;
+  }
+  .confetti-piece{
+    position:absolute;
+    top:-20px;
+    width:10px;height:16px;
+    opacity:0.95;
+    animation-name:confetti-fall;
+    animation-timing-function:ease-in;
+    animation-fill-mode:forwards;
+  }
+  @keyframes confetti-fall{
+    0%{ transform:translateY(0) rotate(0deg); opacity:1; }
+    100%{ transform:translateY(110vh) rotate(540deg); opacity:0.3; }
+  }
+  .balloon-piece{
+    position:absolute;
+    bottom:-60px;
+    font-size:2.2rem;
+    animation-name:balloon-rise;
+    animation-timing-function:ease-out;
+    animation-fill-mode:forwards;
+  }
+  @keyframes balloon-rise{
+    0%{ transform:translateY(0) rotate(0deg); opacity:1; }
+    100%{ transform:translateY(-115vh) rotate(12deg); opacity:0; }
+  }
+
+  /* ---------- Certificate ---------- */
+  .cert-wrap{
+    background:var(--card);
+    border:3px solid var(--gold);
+    border-radius:20px;
+    padding:36px 28px;
+    margin-top:16px;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+  }
+  .cert-wrap::before{
+    content:"";
+    position:absolute;
+    top:0;left:0;right:0;height:10px;
+    background:repeating-linear-gradient(90deg,var(--blue) 0 20px,var(--red) 20px 40px);
+  }
+  .cert-seal{font-size:2.6rem;margin-bottom:6px;}
+  .cert-kicker{
+    text-transform:uppercase;
+    letter-spacing:2px;
+    color:var(--muted);
+    font-size:0.8rem;
+    font-weight:700;
+    margin:0 0 6px;
+  }
+  .cert-title{
+    font-size:1.7rem;
+    margin:0 0 18px;
+    color:var(--blue);
+  }
+  .cert-line{margin:6px 0;font-size:1rem;}
+  .cert-name{
+    font-size:1.8rem;
+    font-weight:800;
+    margin:10px 0;
+    color:var(--ink);
+    border-bottom:2px solid var(--ring);
+    display:inline-block;
+    padding:0 10px 6px;
+  }
+  .cert-course{font-size:1.15rem;font-weight:700;color:var(--green);margin:8px 0 4px;}
+  .cert-org{margin-top:22px;font-weight:700;color:var(--blue);}
+  .cert-date{color:var(--muted);font-size:0.9rem;margin-top:4px;}
+  @media print{
+    body *{visibility:hidden;}
+    #cert-print-area, #cert-print-area *{visibility:visible;}
+    #cert-print-area{position:absolute;top:0;left:0;width:100%;}
+    .no-print{display:none !important;}
+  }
+
+  @media (max-width:480px){
+    header.top h1{font-size:1.15rem;}
+    .lesson-content{padding:16px;}
+    .cert-wrap{padding:24px 16px;}
+    .cert-name{font-size:1.4rem;}
+  }
+</style>
+</head>
+<body>
+<div id="celebrate-layer"></div>
+<div class="wrap">
+
+  <header class="top">
+    <div class="badge">🇭🇹</div>
+    <div>
+      <h1>Aprann Ak Nou!</h1>
+      <p class="sub" id="header-sub"></p>
+    </div>
+    <div class="header-actions">
+      <button class="lang-toggle" id="lang-toggle-btn" onclick="toggleLang()"></button>
+      <div id="user-badge" class="user-badge" style="display:none;">
+        <span id="user-badge-name"></span>
+        <button class="btn secondary small" id="change-name-btn" onclick="changeUser()"></button>
+      </div>
+    </div>
+  </header>
+
+  <!-- NAME / PROFILE SCREEN -->
+  <section id="screen-name" class="screen active">
+    <div class="intro-card">
+      <p id="name-prompt"></p>
+      <div class="row">
+        <input type="text" id="name-input" style="flex:1;min-width:200px;font-size:1.05rem;padding:12px 14px;border:1px solid var(--ring);border-radius:10px;">
+        <button class="btn" id="start-btn" onclick="startWithName()"></button>
+      </div>
+      <p id="name-list-wrap" style="display:none;margin-top:14px;">
+        <span class="progress-label" id="or-choose-name"></span><br>
+        <span id="name-list" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;"></span>
+      </p>
+    </div>
+    <details class="trainer">
+      <summary id="trainer-summary"></summary>
+      <ul id="trainer-list"></ul>
+    </details>
+  </section>
+
+  <!-- HOME SCREEN -->
+  <section id="screen-home" class="screen">
+    <div class="intro-card">
+      <p id="home-intro-1"></p>
+      <p id="home-intro-2"></p>
+    </div>
+
+    <div class="tracks" id="track-cards"></div>
+
+    <div id="overall-cert-row" class="row" style="margin-top:18px;display:none;">
+      <button class="btn gold" onclick="openCertificate('all')">🏆 <span id="view-overall-cert-label"></span></button>
+    </div>
+
+    <div class="row" style="margin-top:18px;">
+      <button class="btn secondary" id="progress-all-btn" onclick="openProgressView()"></button>
+    </div>
+  </section>
+
+  <!-- PROGRESS OVERVIEW SCREEN (for trainers) -->
+  <section id="screen-progress" class="screen">
+    <button class="btn back" onclick="goHome()" id="back-btn-1"></button>
+    <h2 id="progress-title"></h2>
+    <p class="progress-label" id="progress-sub"></p>
+    <div id="progress-table-wrap"></div>
+    <div class="row" style="margin-top:18px;">
+      <button class="btn secondary" id="clear-data-btn" onclick="clearAllData()"></button>
+    </div>
+  </section>
+
+  <!-- TRACK LIST SCREEN -->
+  <section id="screen-track" class="screen">
+    <button class="btn back" onclick="goHome()" id="back-btn-2"></button>
+    <div class="track-title-row">
+      <span class="emoji" id="track-emoji"></span>
+      <h2 id="track-title" style="margin:0;"></h2>
+    </div>
+    <p class="progress-label" id="track-progress-label"></p>
+    <div class="progress-bar"><div id="track-progress-fill" style="width:0%"></div></div>
+    <div id="track-cert-row" class="row" style="display:none;">
+      <button class="btn gold" id="track-cert-btn">🏆</button>
+    </div>
+    <div class="lesson-list" id="lesson-list"></div>
+  </section>
+
+  <!-- LESSON SCREEN -->
+  <section id="screen-lesson" class="screen">
+    <button class="btn back" onclick="goToTrack()" id="back-btn-3"></button>
+    <div class="lesson-content" id="lesson-content"></div>
+  </section>
+
+  <!-- CERTIFICATE SCREEN -->
+  <section id="screen-cert" class="screen">
+    <button class="btn back no-print" onclick="goHome()" id="back-btn-4"></button>
+    <div id="cert-print-area">
+      <div class="cert-wrap" id="cert-wrap"></div>
+    </div>
+    <div class="row no-print" style="margin-top:16px;">
+      <button class="btn" onclick="window.print()" id="print-cert-btn"></button>
+    </div>
+  </section>
+
+  <footer class="note" id="footer-note"></footer>
+</div>
+
+<script>
+/* ---------------------------------------------------------
+   DATA: TRACKS, LESSONS, ACTIVITIES
+   Every text field that can appear in English has a matching
+   "<field>_en" sibling. When one is missing, English mode
+   falls back to the base (Kreyòl) value — used on purpose for
+   the English-track vocabulary itself, which is bilingual by
+   nature and doesn't need a separate translation.
+--------------------------------------------------------- */
+const TRACKS = {
+
+  konpite: {
+    key:'konpite', label:'Konpitè Debaz', label_en:'Basic Computers', emoji:'💻', color:'var(--blue)',
+    lessons:[
+      {
+        title:'Ki sa yon Òdinatè ye?', title_en:'What is a Computer?',
+        sections:[
+          {h:'Entwodiksyon', h_en:'Introduction', body:`
+            <p>Yon <strong>òdinatè</strong> se yon machin ki ka ede nou aprann, ekri, jwe, ak kominike ak lòt moun. Gen kèk pati enpòtan nan yon òdinatè ke nou dwe konnen:</p>
+            <table class="vocab-table">
+              <tr><th>Pati a</th><th>Sa li fè</th></tr>
+              <tr><td><strong>Ekran</strong> (Screen)</td><td>Kote nou wè tout bagay — tèks, imaj, videyo</td></tr>
+              <tr><td><strong>Klavye</strong> (Keyboard)</td><td>Zouti ak lèt ak nimewo pou nou ekri</td></tr>
+              <tr><td><strong>Sourit</strong> (Mouse)</td><td>Zouti pou pwente ak klike sou bagay sou ekran an</td></tr>
+              <tr><td><strong>Inite Santral</strong> (CPU/Tower)</td><td>"Sèvo" òdinatè a — kote tout enfòmasyon trete</td></tr>
+            </table>
+            <div class="tip">💡 Astis: Panse ak yon òdinatè tankou yon moun — ekran an se je l, klavye ak sourit se men l, epi inite santral la se sèvo l.</div>
+          `, body_en:`
+            <p>A <strong>computer</strong> is a machine that can help us learn, write, play, and communicate with other people. There are a few important parts of a computer we should know:</p>
+            <table class="vocab-table">
+              <tr><th>Part</th><th>What it does</th></tr>
+              <tr><td><strong>Screen</strong></td><td>Where we see everything — text, images, video</td></tr>
+              <tr><td><strong>Keyboard</strong></td><td>Tool with letters and numbers for typing</td></tr>
+              <tr><td><strong>Mouse</strong></td><td>Tool to point and click on things on the screen</td></tr>
+              <tr><td><strong>Central Unit</strong> (CPU/Tower)</td><td>The computer's "brain" — where all information is processed</td></tr>
+            </table>
+            <div class="tip">💡 Tip: Think of a computer like a person — the screen is its eyes, the keyboard and mouse are its hands, and the central unit is its brain.</div>
+          `}
+        ],
+        quiz:[
+          {q:'Ki pati òdinatè a nou itilize pou ekri lèt ak nimewo?', q_en:'Which computer part do we use to type letters and numbers?', opts:['Ekran','Klavye','Sourit','Inite Santral'], opts_en:['Screen','Keyboard','Mouse','Central Unit'], correct:1, exp:'Klavye a gen tout lèt ak nimewo yo pou nou ekri.', exp_en:'The keyboard has all the letters and numbers for typing.'},
+          {q:"Ki pati a yo rele 'sèvo' òdinatè a?", q_en:"Which part is called the computer's 'brain'?", opts:['Ekran','Sourit','Inite Santral','Klavye'], opts_en:['Screen','Mouse','Central Unit','Keyboard'], correct:2, exp:'Inite santral la trete tout enfòmasyon, tankou sèvo nou.', exp_en:'The central unit processes all information, like our brain.'},
+          {q:'Kisa nou itilize pou klike sou yon bagay sou ekran an?', q_en:'What do we use to click on something on the screen?', opts:['Klavye','Sourit','Ekran','Kab'], opts_en:['Keyboard','Mouse','Screen','Cable'], correct:1, exp:'Sourit la se zouti pou pwente ak klike.', exp_en:'The mouse is the tool to point and click.'}
+        ]
+      },
+      {
+        title:'Aprann Itilize Sourit la', title_en:'Learning to Use the Mouse',
+        sections:[
+          {h:'Twa mouvman debaz', h_en:'Three basic movements', body:`
+            <p>Gen twa bagay prensipal ou ka fè ak yon sourit:</p>
+            <table class="vocab-table">
+              <tr><td><strong>Klike</strong> (Click)</td><td>Peze bouton goch la yon sèl fwa</td></tr>
+              <tr><td><strong>Doub-klike</strong> (Double-click)</td><td>Peze bouton goch la de fwa vit vit</td></tr>
+              <tr><td><strong>Trennen</strong> (Drag)</td><td>Peze bouton an epi deplase sourit la san lage l</td></tr>
+            </table>
+            <div class="tip">💡 Pratike se pi bon fason pou aprann. Eseye jwèt anba a: klike sou wonn wouj la 5 fwa pou w pratike.</div>
+          `, body_en:`
+            <p>There are three main things you can do with a mouse:</p>
+            <table class="vocab-table">
+              <tr><td><strong>Click</strong></td><td>Press the left button once</td></tr>
+              <tr><td><strong>Double-click</strong></td><td>Press the left button twice quickly</td></tr>
+              <tr><td><strong>Drag</strong></td><td>Press the button and move the mouse without releasing it</td></tr>
+            </table>
+            <div class="tip">💡 Practice is the best way to learn. Try the game below: click the red circle 5 times to practice.</div>
+          `}
+        ],
+        activity:{type:'click', goal:5, label:'Klike sou wonn nan', label_en:'Click on the circle'},
+        quiz:[
+          {q:"Ki jan yo rele lè w peze bouton sourit la de fwa vit vit?", q_en:"What do we call it when you press the mouse button twice quickly?", opts:['Klike','Doub-klike','Trennen','Woule'], opts_en:['Click','Double-click','Drag','Scroll'], correct:1, exp:'Doub-klike se de klike vit vit.', exp_en:'Double-click is two quick clicks.'},
+          {q:'Kisa "trennen" (drag) vle di?', q_en:"What does 'drag' mean?", opts:['Peze yon sèl fwa','Deplase sourit san lage bouton an','Retire sourit la','Fèmen aplikasyon an'], opts_en:['Press once','Move the mouse without releasing the button','Remove the mouse','Close the application'], correct:1, exp:'Trennen se lè w kenbe bouton an epi deplase sourit la.', exp_en:'Drag is when you hold the button and move the mouse.'}
+        ]
+      },
+      {
+        title:'Aprann Itilize Klavye a', title_en:'Learning to Use the Keyboard',
+        sections:[
+          {h:'Konnen klavye a', h_en:'Getting to know the keyboard', body:`
+            <p>Klavye a gen anpil ti bouton (kle) sou li. Men kèk ki enpòtan:</p>
+            <table class="vocab-table">
+              <tr><td><strong>Espas</strong> (Space bar)</td><td>Bouton long anba a — li fè yon espas ant mo</td></tr>
+              <tr><td><strong>Antre</strong> (Enter)</td><td>Li fè yon nouvo liy oswa konfime yon bagay</td></tr>
+              <tr><td><strong>Shift</strong></td><td>Kenbe l pou ekri yon lèt an majiskil</td></tr>
+              <tr><td><strong>Efase</strong> (Backspace)</td><td>Retire dènye lèt ou ekri a</td></tr>
+            </table>
+            <p>Eseye tape fraz sa a nan bwat anba a pou w pratike:</p>
+          `, body_en:`
+            <p>The keyboard has lots of little buttons (keys) on it. Here are a few important ones:</p>
+            <table class="vocab-table">
+              <tr><td><strong>Space bar</strong></td><td>The long button at the bottom — it makes a space between words</td></tr>
+              <tr><td><strong>Enter</strong></td><td>Makes a new line or confirms something</td></tr>
+              <tr><td><strong>Shift</strong></td><td>Hold it to type a capital letter</td></tr>
+              <tr><td><strong>Backspace</strong></td><td>Removes the last letter you typed</td></tr>
+            </table>
+            <p>Try typing this sentence in the box below to practice:</p>
+          `}
+        ],
+        activity:{type:'typing', target:'Mwen renmen aprann', target_en:'I love learning', label:'Tape fraz la egzakteman jan li ekri a', label_en:"Type the sentence exactly as it's written"},
+        quiz:[
+          {q:'Ki bouton nou itilize pou fè yon espas ant de mo?', q_en:'Which button do we use to make a space between two words?', opts:['Enter','Espas','Shift','Backspace'], opts_en:['Enter','Space','Shift','Backspace'], correct:1, exp:'Bouton Espas la fè yon vid ant de mo.', exp_en:'The Space button makes a gap between two words.'},
+          {q:'Ki bouton nou peze pou retire yon lèt nou fenk ekri?', q_en:'Which button do we press to remove a letter we just typed?', opts:['Espas','Enter','Backspace','Shift'], opts_en:['Space','Enter','Backspace','Shift'], correct:2, exp:'Backspace efase dènye lèt la.', exp_en:'Backspace erases the last letter.'}
+        ]
+      },
+      {
+        title:'Dosye ak Fichye', title_en:'Files and Folders',
+        sections:[
+          {h:'Konprann òganizasyon', h_en:'Understanding organization', body:`
+            <p>Yon <strong>fichye</strong> (file) se tankou yon dokiman — pa egzanp, yon foto, yon istwa ou ekri, oswa yon desen.</p>
+            <p>Yon <strong>dosye</strong> (folder) se tankou yon bwat oswa yon klasè kote nou mete plizyè fichye ansanm pou nou ka jwenn yo fasil pita.</p>
+            <div class="tip">💡 Egzanp: Si w gen 10 foto ou pran nan yon fèt, ou ka mete yo tout nan yon dosye ki rele "Fèt" pou w pa pèdi yo.</div>
+          `, body_en:`
+            <p>A <strong>file</strong> is like a document — for example, a photo, a story you wrote, or a drawing.</p>
+            <p>A <strong>folder</strong> is like a box or binder where we put several files together so we can find them easily later.</p>
+            <div class="tip">💡 Example: If you have 10 photos from a party, you can put them all in a folder called "Party" so you don't lose them.</div>
+          `}
+        ],
+        quiz:[
+          {q:'Kisa yon "fichye" ye?', q_en:"What is a 'file'?", opts:['Yon bwat pou mete dokiman','Yon dokiman tankou yon foto oswa yon istwa','Yon kalite sourit','Yon kouran elektrik'], opts_en:['A box to put documents in','A document like a photo or a story','A type of mouse','An electric current'], correct:1, exp:'Fichye a se dokiman an menm.', exp_en:'The file is the document itself.'},
+          {q:'Poukisa nou itilize dosye (folder)?', q_en:'Why do we use folders?', opts:['Pou fè òdinatè a mache pi vit','Pou òganize fichye yo ansanm pou n jwenn yo fasil','Pou chanje koulè ekran an','Pou konekte ak entènèt'], opts_en:['To make the computer run faster','To organize files together so we can find them easily','To change the screen color','To connect to the internet'], correct:1, exp:'Dosye yo ede nou rete òganize.', exp_en:'Folders help us stay organized.'}
+        ]
+      },
+      {
+        title:'Sekirite sou Entènèt', title_en:'Internet Safety',
+        sections:[
+          {h:'Kèk règ enpòtan', h_en:'Some important rules', body:`
+            <p>Entènèt la se yon zouti ki itil anpil, men fòk nou toujou pridan:</p>
+            <ul>
+              <li>🔒 <strong>Pa janm bay modpas ou</strong> a lòt moun, menm zanmi.</li>
+              <li>🖱️ <strong>Pa klike</strong> sou lyen oswa mesaj ou pa konnen.</li>
+              <li>🙋 <strong>Mande yon granmoun ede w</strong> si yon bagay fè w pè oswa ki sanble dwòl.</li>
+              <li>🤐 <strong>Pa pataje enfòmasyon prive</strong> (non lekòl ou, adrès ou) ak moun ou pa konnen.</li>
+            </ul>
+          `, body_en:`
+            <p>The internet is a very useful tool, but we always have to be careful:</p>
+            <ul>
+              <li>🔒 <strong>Never give your password</strong> to anyone, even friends.</li>
+              <li>🖱️ <strong>Don't click</strong> on links or messages you don't recognize.</li>
+              <li>🙋 <strong>Ask an adult for help</strong> if something scares you or seems strange.</li>
+              <li>🤐 <strong>Don't share private information</strong> (your school's name, your address) with people you don't know.</li>
+            </ul>
+          `}
+        ],
+        quiz:[
+          {q:'Si yon mesaj dwòl mande w modpas ou, kisa ou dwe fè?', q_en:'If a strange message asks for your password, what should you do?', opts:['Bay li imedyatman','Pa reponn epi di yon granmoun','Ekri yon lòt modpas fo','Ignore l epi kontinye klike sou lyen an'], opts_en:['Give it right away',"Don't answer and tell an adult",'Write a fake password','Ignore it and keep clicking the link'], correct:1, exp:'Toujou di yon granmoun konfyans lè yon bagay sanble dwòl.', exp_en:'Always tell a trusted adult when something seems strange.'},
+          {q:'Èske li san danje pou pataje adrès lakay ou ak yon enkoni sou entènèt?', q_en:'Is it safe to share your home address with a stranger online?', opts:['Wi, toujou','Non, sa pa an sekirite','Sèlman si yo mande souple','Wi si se yon jwèt'], opts_en:['Yes, always',"No, that's not safe",'Only if they ask nicely',"Yes if it's a game"], correct:1, exp:'Pa janm pataje enfòmasyon prive ak moun ou pa konnen.', exp_en:"Never share private information with people you don't know."}
+        ]
+      },
+      {
+        title:'Revizyon Final — Konpitè', title_en:'Final Review — Computers',
+        sections:[
+          {h:'Ann repase!', h_en:"Let's review!", body:`<p>Ou fin aprann anpil bagay sou konpitè debaz. Ann fè yon ti revizyon pou wè sa ou sonje.</p>`, body_en:`<p>You've learned a lot about basic computers. Let's do a quick review to see what you remember.</p>`}
+        ],
+        quiz:[
+          {q:'Ki pati òdinatè a nou pwente ak li pou klike?', q_en:'Which computer part do we point with to click?', opts:['Klavye','Sourit','Ekran','Tou'], opts_en:['Keyboard','Mouse','Screen','Both'], correct:1, exp:'Se sourit la nou itilize pou pwente ak klike.', exp_en:"It's the mouse we use to point and click."},
+          {q:'Kisa yon dosye (folder) itil pou fè?', q_en:'What is a folder useful for?', opts:['Òganize fichye yo','Louvri entènèt la','Chanje modpas la','Fè òdinatè a limen'], opts_en:['Organizing files','Opening the internet','Changing the password','Turning the computer on'], correct:0, exp:'Dosye yo ede nou òganize fichye.', exp_en:'Folders help us organize files.'},
+          {q:'Ki bouton ki fè yon espas ant de mo lè n ap tape?', q_en:'Which button makes a space between two words when typing?', opts:['Enter','Shift','Espas','Backspace'], opts_en:['Enter','Shift','Space','Backspace'], correct:2, exp:'Espas la separe mo yo.', exp_en:'Space separates words.'},
+          {q:'Si yon lyen sanble dwòl sou entènèt, ki sa ki pi bon bagay pou fè?', q_en:"If a link looks strange online, what's the best thing to do?", opts:['Klike sou li pou wè','Pa klike, mande yon granmoun','Pataje l ak zanmi','Ekri modpas ou'], opts_en:['Click it to see', "Don't click, ask an adult",'Share it with friends','Type your password'], correct:1, exp:'Toujou pridan ak lyen dwòl — mande èd.', exp_en:'Always be careful with strange links — ask for help.'}
+        ]
+      },
+      {
+        title:'Navige sou Entènèt', title_en:'Browsing the Internet',
+        sections:[
+          {h:'Jwenn enfòmasyon sou entènèt', h_en:'Finding information on the internet', body:`
+            <p>Yon <strong>navigatè web</strong> (browser) se pwogram nou itilize pou vizite sit entènèt yo — tankou Chrome, Safari, oswa Firefox. Chak sit gen yon <strong>adrès</strong> (URL) — tankou yon adrès lakay pou sit la.</p>
+            <table class="vocab-table">
+              <tr><td><strong>Navigatè web</strong> (Browser)</td><td>Pwogram pou vizite sit entènèt</td></tr>
+              <tr><td><strong>Motè rechèch</strong> (Search engine)</td><td>Sit tankou Google ki ede nou jwenn enfòmasyon</td></tr>
+              <tr><td><strong>Onglè</strong> (Tab)</td><td>Yon fenèt ki louvri anndan navigatè a, ou ka gen plizyè an menm tan</td></tr>
+              <tr><td><strong>Favori</strong> (Bookmark)</td><td>Yon fason pou sove yon sit ou vle vizite ankò</td></tr>
+            </table>
+            <div class="tip">💡 Lè w ap chèche yon bagay sou Google, itilize mo kle senp — pa ekri yon fraz antye. Egzanp: "meteyo Ayiti" pi bon pase "ki tan li ap fè an Ayiti jodi a".</div>
+          `, body_en:`
+            <p>A <strong>web browser</strong> is the program we use to visit websites — like Chrome, Safari, or Firefox. Every site has an <strong>address</strong> (URL) — like a home address for the site.</p>
+            <table class="vocab-table">
+              <tr><td><strong>Web browser</strong></td><td>Program for visiting websites</td></tr>
+              <tr><td><strong>Search engine</strong></td><td>A site like Google that helps us find information</td></tr>
+              <tr><td><strong>Tab</strong></td><td>A window open inside the browser — you can have several at once</td></tr>
+              <tr><td><strong>Bookmark</strong></td><td>A way to save a site you want to visit again</td></tr>
+            </table>
+            <div class="tip">💡 When searching for something on Google, use simple keywords — don't write a whole sentence. Example: "Haiti weather" works better than "what will the weather be like in Haiti today".</div>
+          `}
+        ],
+        quiz:[
+          {q:'Kisa yon navigatè web (browser) itil pou fè?', q_en:'What is a web browser used for?', opts:['Pou ekri dokiman','Pou vizite sit entènèt','Pou pran foto','Pou jwe mizik'], opts_en:['Writing documents','Visiting websites','Taking photos','Playing music'], correct:1, exp:'Navigatè a se pwogram ki ouvri sit entènèt yo.', exp_en:'The browser is the program that opens websites.'},
+          {q:"Kisa yon 'motè rechèch' (search engine) tankou Google fè?", q_en:"What does a 'search engine' like Google do?", opts:['Li efase fichye','Li ede nou jwenn enfòmasyon sou entènèt','Li chanje modpas nou','Li limen òdinatè a'], opts_en:['It deletes files','It helps us find information on the internet','It changes our password','It turns the computer on'], correct:1, exp:'Motè rechèch la ede nou jwenn enfòmasyon.', exp_en:'A search engine helps us find information.'},
+          {q:'Poukisa nou itilize onglè (tabs) nan yon navigatè?', q_en:'Why do we use tabs in a browser?', opts:['Pou fèmen òdinatè a','Pou louvri plizyè sit anmenm tan','Pou chanje koulè ekran an','Pou efase istwa nou'], opts_en:['To close the computer','To have several sites open at once','To change the screen color','To delete our history'], correct:1, exp:'Onglè yo kite nou louvri plizyè paj anmenm tan.', exp_en:'Tabs let us have multiple pages open at once.'}
+        ]
+      }
+    ]
+  },
+
+  angle: {
+    key:'angle', label:'Angle Debaz', label_en:'Basic English', emoji:'🔤', color:'var(--red)',
+    lessons:[
+      {
+        title:'Salitasyon (Greetings)', title_en:'Greetings (Salitasyon)',
+        sections:[
+          {h:'Premye mo yo', h_en:'First words', body:`
+            <table class="vocab-table">
+              <tr><th>Kreyòl</th><th>Angle</th></tr>
+              <tr><td>Bonjou</td><td><strong>Hello</strong></td></tr>
+              <tr><td>Orevwa</td><td><strong>Goodbye</strong></td></tr>
+              <tr><td>Souple</td><td><strong>Please</strong></td></tr>
+              <tr><td>Mèsi</td><td><strong>Thank you</strong></td></tr>
+              <tr><td>Wi</td><td><strong>Yes</strong></td></tr>
+              <tr><td>Non</td><td><strong>No</strong></td></tr>
+            </table>
+          `}
+        ],
+        quiz:[
+          {q:"Kijan pou di 'Mèsi' an Angle?", q_en:"How do you say 'Mèsi' in English?", opts:['Hello','Thank you','Please','Goodbye'], correct:1, exp:'"Thank you" vle di Mèsi.', exp_en:'"Thank you" means Mèsi.'},
+          {q:"Kijan pou di 'Wi' an Angle?", q_en:"How do you say 'Wi' in English?", opts:['No','Please','Yes','Hello'], correct:2, exp:'"Yes" vle di Wi.', exp_en:'"Yes" means Wi.'},
+          {q:"Ki mo Angle a ki vle di 'Souple'?", q_en:"Which English word means 'Souple'?", opts:['Please','Sorry','Goodbye','Thanks'], correct:0, exp:'"Please" vle di Souple.', exp_en:'"Please" means Souple.'}
+        ]
+      },
+      {
+        title:'Nimewo 1-20 (Numbers)', title_en:'Numbers 1-20',
+        sections:[
+          {h:'Konte an Angle', h_en:'Counting in English', body:`
+            <table class="vocab-table">
+              <tr><th>Kreyòl</th><th>Angle</th></tr>
+              <tr><td>Youn</td><td><strong>One (1)</strong></td></tr>
+              <tr><td>De</td><td><strong>Two (2)</strong></td></tr>
+              <tr><td>Twa</td><td><strong>Three (3)</strong></td></tr>
+              <tr><td>Kat</td><td><strong>Four (4)</strong></td></tr>
+              <tr><td>Senk</td><td><strong>Five (5)</strong></td></tr>
+              <tr><td>Sis</td><td><strong>Six (6)</strong></td></tr>
+              <tr><td>Sèt</td><td><strong>Seven (7)</strong></td></tr>
+              <tr><td>Uit</td><td><strong>Eight (8)</strong></td></tr>
+              <tr><td>Nèf</td><td><strong>Nine (9)</strong></td></tr>
+              <tr><td>Dis</td><td><strong>Ten (10)</strong></td></tr>
+            </table>
+            <p id="numbers-more-ht">Kontinye konte: Eleven (11), Twelve (12), Thirteen (13)... rive Twenty (20)!</p>
+          `, body_en:`
+            <table class="vocab-table">
+              <tr><th>Kreyòl</th><th>English</th></tr>
+              <tr><td>Youn</td><td><strong>One (1)</strong></td></tr>
+              <tr><td>De</td><td><strong>Two (2)</strong></td></tr>
+              <tr><td>Twa</td><td><strong>Three (3)</strong></td></tr>
+              <tr><td>Kat</td><td><strong>Four (4)</strong></td></tr>
+              <tr><td>Senk</td><td><strong>Five (5)</strong></td></tr>
+              <tr><td>Sis</td><td><strong>Six (6)</strong></td></tr>
+              <tr><td>Sèt</td><td><strong>Seven (7)</strong></td></tr>
+              <tr><td>Uit</td><td><strong>Eight (8)</strong></td></tr>
+              <tr><td>Nèf</td><td><strong>Nine (9)</strong></td></tr>
+              <tr><td>Dis</td><td><strong>Ten (10)</strong></td></tr>
+            </table>
+            <p>Keep counting: Eleven (11), Twelve (12), Thirteen (13)... up to Twenty (20)!</p>
+          `}
+        ],
+        activity:{type:'typing', target:'five', target_en:'five', label:"Tape mo Angle a pou 'senk'", label_en:"Type the English word for 'senk' (five)"},
+        quiz:[
+          {q:"Ki mo sa a: 'Three'?", q_en:"What does this word mean: 'Three'?", opts:['De','Twa','Kat','Senk'], correct:1, exp:"'Three' vle di Twa.", exp_en:"'Three' means Twa."},
+          {q:"Kijan pou di 'Dis' an Angle?", q_en:"How do you say 'Dis' in English?", opts:['Nine','Ten','Eight','Seven'], correct:1, exp:"'Ten' vle di Dis.", exp_en:"'Ten' means Dis."},
+          {q:"Ki nimewo sa a ye: 'Seven'?", q_en:"What number is this: 'Seven'?", opts:['6','7','8','9'], correct:1, exp:"'Seven' se 7.", exp_en:"'Seven' is 7."}
+        ]
+      },
+      {
+        title:'Koulè (Colors)', title_en:'Colors (Koulè)',
+        sections:[
+          {h:'Aprann koulè yo', h_en:'Learning the colors', body:`
+            <table class="vocab-table">
+              <tr><th>Kreyòl</th><th>Angle</th></tr>
+              <tr><td>Wouj</td><td><strong>Red</strong></td></tr>
+              <tr><td>Ble</td><td><strong>Blue</strong></td></tr>
+              <tr><td>Vèt</td><td><strong>Green</strong></td></tr>
+              <tr><td>Jòn</td><td><strong>Yellow</strong></td></tr>
+              <tr><td>Nwa</td><td><strong>Black</strong></td></tr>
+              <tr><td>Blan</td><td><strong>White</strong></td></tr>
+              <tr><td>Woz</td><td><strong>Pink</strong></td></tr>
+            </table>
+            <div class="tip">🇭🇹 Drapo Ayiti a gen koulè Blue (Ble) ak Red (Wouj)!</div>
+          `, body_en:`
+            <table class="vocab-table">
+              <tr><th>Kreyòl</th><th>English</th></tr>
+              <tr><td>Wouj</td><td><strong>Red</strong></td></tr>
+              <tr><td>Ble</td><td><strong>Blue</strong></td></tr>
+              <tr><td>Vèt</td><td><strong>Green</strong></td></tr>
+              <tr><td>Jòn</td><td><strong>Yellow</strong></td></tr>
+              <tr><td>Nwa</td><td><strong>Black</strong></td></tr>
+              <tr><td>Blan</td><td><strong>White</strong></td></tr>
+              <tr><td>Woz</td><td><strong>Pink</strong></td></tr>
+            </table>
+            <div class="tip">🇭🇹 The Haiti flag has the colors Blue and Red!</div>
+          `}
+        ],
+        quiz:[
+          {q:"Ki koulè sa a: 'Green'?", q_en:"What color is this: 'Green'?", opts:['Jòn','Vèt','Nwa','Wouj'], correct:1, exp:"'Green' vle di Vèt.", exp_en:"'Green' means Vèt."},
+          {q:"Kijan pou di 'Nwa' an Angle?", q_en:"How do you say 'Nwa' in English?", opts:['White','Black','Pink','Yellow'], correct:1, exp:"'Black' vle di Nwa.", exp_en:"'Black' means Nwa."},
+          {q:'Ki de koulè ki nan drapo Ayiti a?', q_en:'Which two colors are in the Haiti flag?', opts:['Red & Green','Blue & Red','Yellow & Black','White & Pink'], correct:1, exp:'Drapo Ayiti a se Blue (Ble) ak Red (Wouj).', exp_en:'The Haiti flag is Blue and Red.'}
+        ]
+      },
+      {
+        title:'Mo Konpitè yo an Angle', title_en:'Computer Words in English',
+        sections:[
+          {h:'Vokabilè teknoloji', h_en:'Technology vocabulary', body:`
+            <table class="vocab-table">
+              <tr><th>Kreyòl</th><th>Angle</th></tr>
+              <tr><td>Òdinatè</td><td><strong>Computer</strong></td></tr>
+              <tr><td>Sourit</td><td><strong>Mouse</strong></td></tr>
+              <tr><td>Klavye</td><td><strong>Keyboard</strong></td></tr>
+              <tr><td>Ekran</td><td><strong>Screen</strong></td></tr>
+              <tr><td>Fichye</td><td><strong>File</strong></td></tr>
+              <tr><td>Dosye</td><td><strong>Folder</strong></td></tr>
+              <tr><td>Entènèt</td><td><strong>Internet</strong></td></tr>
+            </table>
+          `, body_en:`
+            <table class="vocab-table">
+              <tr><th>Kreyòl</th><th>English</th></tr>
+              <tr><td>Òdinatè</td><td><strong>Computer</strong></td></tr>
+              <tr><td>Sourit</td><td><strong>Mouse</strong></td></tr>
+              <tr><td>Klavye</td><td><strong>Keyboard</strong></td></tr>
+              <tr><td>Ekran</td><td><strong>Screen</strong></td></tr>
+              <tr><td>Fichye</td><td><strong>File</strong></td></tr>
+              <tr><td>Dosye</td><td><strong>Folder</strong></td></tr>
+              <tr><td>Entènèt</td><td><strong>Internet</strong></td></tr>
+            </table>
+          `}
+        ],
+        quiz:[
+          {q:"Ki mo Angle a pou 'Klavye'?", q_en:"What's the English word for 'Klavye'?", opts:['Mouse','Screen','Keyboard','File'], correct:2, exp:"'Keyboard' vle di Klavye.", exp_en:"'Keyboard' means Klavye."},
+          {q:"Kijan pou di 'Ekran' an Angle?", q_en:"How do you say 'Ekran' in English?", opts:['Screen','Folder','Computer','Internet'], correct:0, exp:"'Screen' vle di Ekran.", exp_en:"'Screen' means Ekran."},
+          {q:"Ki mo sa a vle di: 'Folder'?", q_en:"What does this word mean: 'Folder'?", opts:['Fichye','Dosye','Sourit','Òdinatè'], correct:1, exp:"'Folder' vle di Dosye.", exp_en:"'Folder' means Dosye."}
+        ]
+      },
+      {
+        title:'Fraz Itil (Useful Phrases)', title_en:'Useful Phrases (Fraz Itil)',
+        sections:[
+          {h:'Kèk fraz debaz', h_en:'Some basic phrases', body:`
+            <table class="vocab-table">
+              <tr><th>Kreyòl</th><th>Angle</th></tr>
+              <tr><td>Ki jan ou rele?</td><td><strong>What is your name?</strong></td></tr>
+              <tr><td>Mwen rele...</td><td><strong>My name is...</strong></td></tr>
+              <tr><td>Kijan ou ye?</td><td><strong>How are you?</strong></td></tr>
+              <tr><td>Mwen byen</td><td><strong>I am fine</strong></td></tr>
+              <tr><td>Mwen pa konprann</td><td><strong>I don't understand</strong></td></tr>
+              <tr><td>Èske ou ka ede m?</td><td><strong>Can you help me?</strong></td></tr>
+            </table>
+          `, body_en:`
+            <table class="vocab-table">
+              <tr><th>Kreyòl</th><th>English</th></tr>
+              <tr><td>Ki jan ou rele?</td><td><strong>What is your name?</strong></td></tr>
+              <tr><td>Mwen rele...</td><td><strong>My name is...</strong></td></tr>
+              <tr><td>Kijan ou ye?</td><td><strong>How are you?</strong></td></tr>
+              <tr><td>Mwen byen</td><td><strong>I am fine</strong></td></tr>
+              <tr><td>Mwen pa konprann</td><td><strong>I don't understand</strong></td></tr>
+              <tr><td>Èske ou ka ede m?</td><td><strong>Can you help me?</strong></td></tr>
+            </table>
+          `}
+        ],
+        quiz:[
+          {q:"Kijan pou mande 'Ki jan ou rele?' an Angle?", q_en:"How do you ask 'Ki jan ou rele?' in English?", opts:['How are you?','What is your name?','Can you help me?','Thank you'], correct:1, exp:"'What is your name?' vle di Ki jan ou rele?", exp_en:"'What is your name?' means Ki jan ou rele?"},
+          {q:"Ki fraz sa a vle di: 'I don't understand'?", q_en:"What does this phrase mean: 'I don't understand'?", opts:['Mwen byen','Mwen rele...','Mwen pa konprann','Mèsi anpil'], correct:2, exp:"'I don't understand' vle di Mwen pa konprann.", exp_en:"'I don't understand' means Mwen pa konprann."}
+        ]
+      },
+      {
+        title:'Revizyon Final — Angle', title_en:'Final Review — English',
+        sections:[
+          {h:'Ann repase!', h_en:"Let's review!", body:`<p>Ann teste sa ou sonje nan tout leson Angle yo.</p>`, body_en:`<p>Let's test what you remember from all the English lessons.</p>`}
+        ],
+        quiz:[
+          {q:"Kijan pou di 'Mèsi' an Angle?", q_en:"How do you say 'Mèsi' in English?", opts:['Please','Thank you','Sorry','Hello'], correct:1, exp:'Thank you = Mèsi.', exp_en:'Thank you = Mèsi.'},
+          {q:"Ki koulè sa a: 'Blue'?", q_en:"What color is this: 'Blue'?", opts:['Wouj','Vèt','Ble','Jòn'], correct:2, exp:'Blue = Ble.', exp_en:'Blue = Ble.'},
+          {q:"Kijan pou di 'Sourit' an Angle?", q_en:"How do you say 'Sourit' in English?", opts:['Keyboard','Screen','Mouse','File'], correct:2, exp:'Mouse = Sourit.', exp_en:'Mouse = Sourit.'},
+          {q:"Ki mo sa a vle di: 'Five'?", q_en:"What does this word mean: 'Five'?", opts:['Senk','Kat','Sis','Sèt'], correct:0, exp:'Five = Senk (5).', exp_en:'Five = Senk (5).'}
+        ]
+      },
+      {
+        title:'Fanmi ak Lè', title_en:'Family & Time (Fanmi ak Lè)',
+        sections:[
+          {h:'Moun nan fanmi ak jou yo', h_en:'Family members and days', body:`
+            <table class="vocab-table">
+              <tr><th>Kreyòl</th><th>Angle</th></tr>
+              <tr><td>Manman</td><td><strong>Mother</strong></td></tr>
+              <tr><td>Papa</td><td><strong>Father</strong></td></tr>
+              <tr><td>Sè</td><td><strong>Sister</strong></td></tr>
+              <tr><td>Frè</td><td><strong>Brother</strong></td></tr>
+              <tr><td>Grann</td><td><strong>Grandmother</strong></td></tr>
+              <tr><td>Granpè</td><td><strong>Grandfather</strong></td></tr>
+            </table>
+            <table class="vocab-table">
+              <tr><th>Kreyòl</th><th>Angle</th></tr>
+              <tr><td>Lendi</td><td><strong>Monday</strong></td></tr>
+              <tr><td>Madi</td><td><strong>Tuesday</strong></td></tr>
+              <tr><td>Mèkredi</td><td><strong>Wednesday</strong></td></tr>
+              <tr><td>Jedi</td><td><strong>Thursday</strong></td></tr>
+              <tr><td>Vandredi</td><td><strong>Friday</strong></td></tr>
+              <tr><td>Samdi</td><td><strong>Saturday</strong></td></tr>
+              <tr><td>Dimanch</td><td><strong>Sunday</strong></td></tr>
+            </table>
+            <div class="tip">💡 Nou woste kafe a chak Dimanch — "We roast coffee every Sunday" an Angle!</div>
+          `, body_en:`
+            <table class="vocab-table">
+              <tr><th>Kreyòl</th><th>English</th></tr>
+              <tr><td>Manman</td><td><strong>Mother</strong></td></tr>
+              <tr><td>Papa</td><td><strong>Father</strong></td></tr>
+              <tr><td>Sè</td><td><strong>Sister</strong></td></tr>
+              <tr><td>Frè</td><td><strong>Brother</strong></td></tr>
+              <tr><td>Grann</td><td><strong>Grandmother</strong></td></tr>
+              <tr><td>Granpè</td><td><strong>Grandfather</strong></td></tr>
+            </table>
+            <table class="vocab-table">
+              <tr><th>Kreyòl</th><th>English</th></tr>
+              <tr><td>Lendi</td><td><strong>Monday</strong></td></tr>
+              <tr><td>Madi</td><td><strong>Tuesday</strong></td></tr>
+              <tr><td>Mèkredi</td><td><strong>Wednesday</strong></td></tr>
+              <tr><td>Jedi</td><td><strong>Thursday</strong></td></tr>
+              <tr><td>Vandredi</td><td><strong>Friday</strong></td></tr>
+              <tr><td>Samdi</td><td><strong>Saturday</strong></td></tr>
+              <tr><td>Dimanch</td><td><strong>Sunday</strong></td></tr>
+            </table>
+            <div class="tip">💡 We roast coffee every Sunday — "Nou woste kafe a chak Dimanch" in Kreyòl!</div>
+          `}
+        ],
+        quiz:[
+          {q:"Kijan pou di 'Manman' an Angle?", q_en:"How do you say 'Manman' in English?", opts:['Father','Mother','Sister','Brother'], correct:1, exp:"'Mother' vle di Manman.", exp_en:"'Mother' means Manman."},
+          {q:"Ki jou sa a ye: 'Sunday'?", q_en:"What day is this: 'Sunday'?", opts:['Samdi','Dimanch','Lendi','Vandredi'], correct:1, exp:"'Sunday' vle di Dimanch.", exp_en:"'Sunday' means Dimanch."},
+          {q:"Kijan pou di 'Frè' an Angle?", q_en:"How do you say 'Frè' in English?", opts:['Sister','Grandfather','Brother','Father'], correct:2, exp:"'Brother' vle di Frè.", exp_en:"'Brother' means Frè."}
+        ]
+      }
+    ]
+  },
+
+  python: {
+    key:'python', label:'Premye Pa nan Python', label_en:'First Steps in Python', emoji:'🐍', color:'var(--green)',
+    lessons:[
+      {
+        title:'Ki sa yon Pwogram Konpitè ye?', title_en:'What is a Computer Program?',
+        sections:[
+          {h:'Yon seri enstriksyon egzat', h_en:'A precise set of instructions', body:`
+            <p>Yon <strong>pwogram</strong> se tankou yon resèt kizin (recipe) — se yon seri enstriksyon egzat, nan yon lòd espesifik, pou reyalize yon bagay.</p>
+            <p>Egzanp — men enstriksyon pou leve maten:</p>
+            <ol>
+              <li>Leve nan kabann</li>
+              <li>Abiye</li>
+              <li>Bwose dan</li>
+              <li>Manje</li>
+              <li>Ale lekòl</li>
+            </ol>
+            <div class="tip">💡 Si nou chanje lòd la (pa egzanp, ale lekòl anvan nou leve!), sa pa ka mache. Nan pwogramasyon, lòd enstriksyon yo rele yon <strong>sekans</strong> (sequence), epi li trè enpòtan.</div>
+            <p>Python se yon <strong>langaj pwogramasyon</strong> — yon fason espesyal pou nou bay òdinatè a enstriksyon egzat.</p>
+          `, body_en:`
+            <p>A <strong>program</strong> is like a kitchen recipe — it's a precise set of instructions, in a specific order, to accomplish something.</p>
+            <p>Example — here are the instructions for getting up in the morning:</p>
+            <ol>
+              <li>Get out of bed</li>
+              <li>Get dressed</li>
+              <li>Brush your teeth</li>
+              <li>Eat</li>
+              <li>Go to school</li>
+            </ol>
+            <div class="tip">💡 If we change the order (for example, going to school before getting up!), it can't work. In programming, the order of instructions is called a <strong>sequence</strong>, and it's very important.</div>
+            <p>Python is a <strong>programming language</strong> — a special way for us to give the computer precise instructions.</p>
+          `}
+        ],
+        quiz:[
+          {q:'Poukisa lòd (sekans) enpòtan nan yon pwogram?', q_en:'Why is order (sequence) important in a program?', opts:['Li pa enpòtan ditou','Si lòd la mal, pwogram nan ka pa mache byen','Sa fè òdinatè a limen pi vit','Sa chanje koulè ekran an'], opts_en:["It's not important at all",'If the order is wrong, the program might not work correctly','It makes the computer turn on faster','It changes the screen color'], correct:1, exp:'Menm jan ak yon resèt kizin, lòd la konte.', exp_en:'Just like a recipe, the order matters.'},
+          {q:'Kisa Python ye?', q_en:'What is Python?', opts:['Yon kalite sourit','Yon langaj pwogramasyon','Yon dosye','Yon aplikasyon pou foto'], opts_en:['A type of mouse','A programming language','A folder','A photo app'], correct:1, exp:'Python se yon langaj pwogramasyon.', exp_en:'Python is a programming language.'}
+        ]
+      },
+      {
+        title:'Premye Kòd Ou: print()', title_en:'Your First Code: print()',
+        sections:[
+          {h:'Fè òdinatè a pale', h_en:'Making the computer talk', body:`
+            <p>Kòmand <code>print()</code> mande òdinatè a pou l montre yon bagay sou ekran an. Gade egzanp sa a:</p>
+            <code class="block">print("Bonjou!")</code>
+            <p>Lè n egzekite kòd sa a, òdinatè a ap montre:</p>
+            <code class="block">Bonjou!</code>
+            <p>Remake: tèks la mete ant de ti guillemet ("..."). Yo rele sa yon <strong>string</strong> — se fason Python konnen se tèks, pa yon nimewo oswa yon lòt kòd.</p>
+          `, body_en:`
+            <p>The <code>print()</code> command tells the computer to show something on the screen. Look at this example:</p>
+            <code class="block">print("Hello!")</code>
+            <p>When we run this code, the computer will show:</p>
+            <code class="block">Hello!</code>
+            <p>Notice: the text is placed between two quote marks ("..."). This is called a <strong>string</strong> — it's how Python knows it's text, not a number or other code.</p>
+          `}
+        ],
+        quiz:[
+          {q:'Sa kòd sa a ap montre sou ekran an?\n\nprint("Mwen renmen Ayiti")', q_en:'What will this code show on screen?\n\nprint("I love Haiti")', opts:['Mwen renmen Ayiti','print','Error','Anyen'], opts_en:['I love Haiti','print','Error','Nothing'], correct:0, exp:'print() montre egzakteman tèks ki nan guillemet yo.', exp_en:'print() shows exactly the text inside the quotes.'},
+          {q:'Ki senbòl ki mete alantou yon tèks (string) nan Python?', q_en:'What symbol goes around a text (string) in Python?', opts:['Parantèz ( )','Guillemet " "','Kwochè [ ]','Vigil ,'], opts_en:['Parentheses ( )','Quote marks " "','Brackets [ ]','Comma ,'], correct:1, exp:'Guillemet yo montre kote tèks la kòmanse ak fini.', exp_en:'Quote marks show where the text starts and ends.'}
+        ]
+      },
+      {
+        title:'Varyab (Variables)', title_en:'Variables',
+        sections:[
+          {h:'Bwat pou kenbe enfòmasyon', h_en:'A box for holding information', body:`
+            <p>Yon <strong>varyab</strong> se tankou yon ti bwat ki gen yon non, epi nou ka mete yon valè ladan l.</p>
+            <code class="block">non = "Albert"
+laj = 10
+print(non)</code>
+            <p>Nan egzanp sa a: <code>non</code> se yon bwat ki kenbe tèks "Albert", epi <code>laj</code> se yon bwat ki kenbe nimewo 10. Lè n ekri <code>print(non)</code>, li montre sa ki nan bwat "non" an:</p>
+            <code class="block">Albert</code>
+          `, body_en:`
+            <p>A <strong>variable</strong> is like a little box with a name, and we can put a value inside it.</p>
+            <code class="block">name = "Albert"
+age = 10
+print(name)</code>
+            <p>In this example: <code>name</code> is a box holding the text "Albert", and <code>age</code> is a box holding the number 10. When we write <code>print(name)</code>, it shows what's in the "name" box:</p>
+            <code class="block">Albert</code>
+          `}
+        ],
+        quiz:[
+          {q:'Sa kòd sa a ap montre?\n\nvil = "Okap"\nprint(vil)', q_en:'What will this code show?\n\ncity = "Okap"\nprint(city)', opts:['vil','Okap','Error','Anyen'], opts_en:['city','Okap','Error','Nothing'], correct:1, exp:'print(vil) montre valè ki nan bwat "vil" la, ki se "Okap".', exp_en:'print(city) shows the value inside the "city" box, which is "Okap".'},
+          {q:'Yon varyab se tankou...', q_en:'A variable is like...', opts:['Yon kòmand pou efase enfòmasyon','Yon bwat ki kenbe yon valè ak yon non','Yon koulè sou ekran','Yon zouti pou klike'], opts_en:['A command to delete information','A box with a name that holds a value','A color on the screen','A tool for clicking'], correct:1, exp:'Varyab se yon bwat ak yon non ki kenbe yon valè.', exp_en:'A variable is a named box that holds a value.'}
+        ]
+      },
+      {
+        title:'Bouk / Repetisyon (Loops)', title_en:'Loops',
+        sections:[
+          {h:'Repete yon aksyon', h_en:'Repeating an action', body:`
+            <p>Si nou vle fè menm bagay la plizyè fwa (tankou fè 3 pous), nou ka itilize yon <strong>bouk</strong> (loop) olye nou ekri menm bagay la ankò e ankò.</p>
+            <code class="block">for i in range(3):
+    print("Bonjou!")</code>
+            <p>Kòd sa a ap montre:</p>
+            <code class="block">Bonjou!
+Bonjou!
+Bonjou!</code>
+            <p><code>range(3)</code> vle di "fè sa 3 fwa".</p>
+          `, body_en:`
+            <p>If we want to do the same thing several times (like doing 3 push-ups), we can use a <strong>loop</strong> instead of writing the same thing over and over.</p>
+            <code class="block">for i in range(3):
+    print("Hello!")</code>
+            <p>This code will show:</p>
+            <code class="block">Hello!
+Hello!
+Hello!</code>
+            <p><code>range(3)</code> means "do this 3 times".</p>
+          `}
+        ],
+        quiz:[
+          {q:'Konbyen fwa kòd sa a ap montre "Ale!"?\n\nfor i in range(4):\n    print("Ale!")', q_en:'How many times will this code show "Go!"?\n\nfor i in range(4):\n    print("Go!")', opts:['2 fwa','3 fwa','4 fwa','5 fwa'], opts_en:['2 times','3 times','4 times','5 times'], correct:2, exp:'range(4) vle di repete 4 fwa.', exp_en:'range(4) means repeat 4 times.'},
+          {q:'Poukisa nou itilize yon bouk (loop)?', q_en:'Why do we use a loop?', opts:['Pou efase kòd la','Pou repete yon aksyon san n ekri l plizyè fwa','Pou chanje koulè ekran an','Pou fèmen pwogram nan'], opts_en:['To delete code','To repeat an action without writing it many times','To change the screen color','To close the program'], correct:1, exp:'Bouk yo ede nou repete yon aksyon fasilman.', exp_en:'Loops help us repeat an action easily.'}
+        ]
+      },
+      {
+        title:'Desizyon (Si...)', title_en:'Decisions (If...)',
+        sections:[
+          {h:'Fè yon chwa', h_en:'Making a choice', body:`
+            <p>Pafwa, nou vle òdinatè a pran yon desizyon selon sitiyasyon an — tankou "Si lapli ap tonbe, pran parapli w."</p>
+            <p>Nan Python, nou itilize <code>if</code> (si) ak <code>else</code> (sinon):</p>
+            <code class="block">laj = 10
+if laj >= 10:
+    print("Ou gen dwa antre")
+else:
+    print("Ou twò piti")</code>
+            <p>Paske <code>laj</code> egal 10, epi 10 pi gran oswa egal a 10, kòd la ap montre:</p>
+            <code class="block">Ou gen dwa antre</code>
+          `, body_en:`
+            <p>Sometimes, we want the computer to make a decision based on a situation — like "If it's raining, take your umbrella."</p>
+            <p>In Python, we use <code>if</code> and <code>else</code>:</p>
+            <code class="block">age = 10
+if age >= 10:
+    print("You may enter")
+else:
+    print("You're too young")</code>
+            <p>Because <code>age</code> equals 10, and 10 is greater than or equal to 10, the code will show:</p>
+            <code class="block">You may enter</code>
+          `}
+        ],
+        quiz:[
+          {q:'Sa kòd sa a ap montre si laj = 7?\n\nlaj = 7\nif laj >= 10:\n    print("Ou gen dwa antre")\nelse:\n    print("Ou twò piti")', q_en:'What will this code show if age = 7?\n\nage = 7\nif age >= 10:\n    print("You may enter")\nelse:\n    print("You\'re too young")', opts:['Ou gen dwa antre','Ou twò piti','Error','Anyen'], opts_en:['You may enter',"You're too young",'Error','Nothing'], correct:1, exp:'7 pa pi gran ni egal a 10, donk kòd la ale nan "else".', exp_en:'7 is not greater than or equal to 10, so the code goes to "else".'},
+          {q:'Kisa "if" (si) fè nan yon pwogram?', q_en:'What does "if" do in a program?', opts:['Li repete yon aksyon plizyè fwa','Li kite pwogram nan pran yon desizyon selon yon kondisyon','Li montre koulè sou ekran','Li efase yon varyab'], opts_en:['It repeats an action several times','It lets the program make a decision based on a condition','It shows a color on screen','It deletes a variable'], correct:1, exp:'"if" ede pwogram nan chwazi ki chemen pou pran.', exp_en:'"if" helps the program choose which path to take.'}
+        ]
+      },
+      {
+        title:'Ti Defi Final — Python', title_en:'Final Challenge — Python',
+        sections:[
+          {h:'Mete tout sa ou aprann ansanm', h_en:'Putting it all together', body:`<p>Ann gade si ou ka predi sa kèk ti pwogram ap fè, ann konbine varyab, bouk, ak desizyon!</p>`, body_en:`<p>Let's see if you can predict what a few little programs will do, combining variables, loops, and decisions!</p>`}
+        ],
+        quiz:[
+          {q:'Sa kòd sa a ap montre?\n\nnon = "Roseline"\nprint(non)', q_en:'What will this code show?\n\nname = "Roseline"\nprint(name)', opts:['non','Roseline','Error','print'], opts_en:['name','Roseline','Error','print'], correct:1, exp:'print(non) montre valè ki nan bwat "non".', exp_en:'print(name) shows the value inside the "name" box.'},
+          {q:'Konbyen fwa "Mèsi!" ap parèt?\n\nfor i in range(2):\n    print("Mèsi!")', q_en:'How many times will "Thanks!" appear?\n\nfor i in range(2):\n    print("Thanks!")', opts:['1 fwa','2 fwa','3 fwa','0 fwa'], opts_en:['1 time','2 times','3 times','0 times'], correct:1, exp:'range(2) vle di repete 2 fwa.', exp_en:'range(2) means repeat 2 times.'},
+          {q:'Sa kòd sa a montre si nòt = 15?\n\nnòt = 15\nif nòt >= 10:\n    print("Ou reyisi")\nelse:\n    print("Eseye ankò")', q_en:'What does this code show if grade = 15?\n\ngrade = 15\nif grade >= 10:\n    print("You passed")\nelse:\n    print("Try again")', opts:['Ou reyisi','Eseye ankò','Error','Anyen'], opts_en:['You passed','Try again','Error','Nothing'], correct:0, exp:'15 pi gran pase 10, donk se "Ou reyisi".', exp_en:'15 is greater than 10, so it\'s "You passed".'}
+        ]
+      },
+      {
+        title:'Lis (Lists)', title_en:'Lists',
+        sections:[
+          {h:'Kenbe plizyè bagay ansanm', h_en:'Keeping several things together', body:`
+            <p>Yon <strong>lis</strong> (list) se yon fason pou kenbe plizyè valè ansanm nan yon sèl varyab, ant kwochè <code>[ ]</code>:</p>
+            <code class="block">timoun = ["Albert", "Roseline", "Camila"]
+print(timoun[0])</code>
+            <p>Kòd sa a ap montre:</p>
+            <code class="block">Albert</code>
+            <p>Remake: nimewo yo kòmanse nan <strong>0</strong>, pa 1! Donk <code>timoun[0]</code> se premye moun nan lis la ("Albert"), epi <code>timoun[1]</code> ta ye "Roseline".</p>
+          `, body_en:`
+            <p>A <strong>list</strong> is a way to keep several values together in one variable, between square brackets <code>[ ]</code>:</p>
+            <code class="block">kids = ["Albert", "Roseline", "Camila"]
+print(kids[0])</code>
+            <p>This code will show:</p>
+            <code class="block">Albert</code>
+            <p>Notice: numbering starts at <strong>0</strong>, not 1! So <code>kids[0]</code> is the first person in the list ("Albert"), and <code>kids[1]</code> would be "Roseline".</p>
+          `}
+        ],
+        quiz:[
+          {q:'Sa kòd sa a ap montre?\n\nkafe = ["La Fleur", "La Revolution"]\nprint(kafe[1])', q_en:'What will this code show?\n\ncoffee = ["La Fleur", "La Revolution"]\nprint(coffee[1])', opts:['La Fleur','La Revolution','Error','0'], correct:1, exp:'Nimewo yo kòmanse nan 0, donk kafe[1] se dezyèm eleman an, "La Revolution".', exp_en:'Numbering starts at 0, so coffee[1] is the second item, "La Revolution".'},
+          {q:'Ki senbòl nou itilize pou fè yon lis nan Python?', q_en:'Which symbol do we use to make a list in Python?', opts:['Parantèz ( )','Kwochè [ ]','Guillemet " "','Vigil ,'], opts_en:['Parentheses ( )','Square brackets [ ]','Quote marks " "','Comma ,'], correct:1, exp:'Kwochè [ ] antoure yon lis.', exp_en:'Square brackets [ ] surround a list.'},
+          {q:'Ki premye nimewo yon lis kòmanse ladan l nan Python?', q_en:'What number does a list start counting from in Python?', opts:['0','1','2','10'], correct:0, exp:"Python konte kòmanse nan 0, se sa yo rele 'zero-indexed'.", exp_en:"Python starts counting at 0 — this is called 'zero-indexed'."}
+        ]
+      }
+    ]
+  }
+};
+
+/* ---------------------------------------------------------
+   LANGUAGE
+--------------------------------------------------------- */
+const LANG_KEY = 'aprann-ak-nou-lang-v1';
+let lang = 'ht';
+try{
+  const savedLang = localStorage.getItem(LANG_KEY);
+  if(savedLang === 'ht' || savedLang === 'en') lang = savedLang;
+}catch(e){}
+
+const UI = {
+  headerSub:{ht:'Yon pwogram aprantisaj pou timoun Running Revolution Ayiti — fonksyone san entènèt', en:'A learning program for Running Revolution Ayiti kids — works offline'},
+  changeName:{ht:'Chanje Non', en:'Change Name'},
+  langBtn:{ht:'🌐 English', en:'🌐 Kreyòl'},
+  namePrompt:{ht:'Anvan nou kòmanse, ekri non ou pou nou ka konnen ki leson ou fin fè.', en:"Before we start, write your name so we know which lessons you've finished."},
+  nameInputPh:{ht:'Ekri non ou isit la...', en:'Type your name here...'},
+  startBtn:{ht:'Kòmanse →', en:'Start →'},
+  orChoose:{ht:'Oswa chwazi non ou si ou deja itilize l:', en:"Or choose your name if you've already used it:"},
+  trainerSummary:{ht:'Pou Fòmatè yo (Albert, Roseline, elatriye)', en:'For Trainers (Albert, Roseline, etc.)'},
+  trainerList:{
+    ht:[
+      'Chak timoun dwe ekri pwòp non yo lè yo kòmanse, konsa nou ka swiv pwogrè chak moun apa.',
+      'Pwogram sa a fonksyone san entènèt — ou ka sove fichye a sou nenpòt òdinatè epi louvri l nenpòt kote.',
+      'Sijere fè yon sèl leson pou chak sesyon, epi kite timoun yo eseye quiz la plizyè fwa si yo bezwen.',
+      'Pwogrè chak moun sove otomatikman sou aparèy la, epi lè telefòn nan gen entènèt, li voye pwogrè a bay RRA pou Wisly ka wè ki leson yo fin fè.',
+      'Klike sou "Pwogrè Tout Moun" sou paj akèy la pou wè yon rezime tout moun ki itilize l.',
+      'Klike sou bouton lang lan (🌐) anlè paj la pou chanje ant Kreyòl ak Angle nenpòt kilè.',
+      'Lè yon moun fin konplete tout twa kou yo, yo ka enprime yon Sètifika Debaz ki gen non yo sou li.'
+    ],
+    en:[
+      "Each child should write their own name when they start, so we can track each person's progress separately.",
+      'This program works offline — you can save the file on any computer and open it anywhere.',
+      'We suggest doing one lesson per session, and letting kids try the quiz multiple times if they need to.',
+      "Everyone's progress saves automatically on the device, and when the phone has internet it is also sent to RRA so Wisly can see which lessons are finished.",
+      'Click "Everyone\'s Progress" on the home page to see a summary of everyone using it.',
+      'Click the language button (🌐) at the top of the page to switch between Kreyòl and English anytime.',
+      'When someone completes all three courses, they can print a Basic Certificate with their name on it.'
+    ]
+  },
+  homeIntro1:{ht:'Byenveni! Isit la, ou pral aprann <strong>Konpitè Debaz</strong>, <strong>Angle</strong>, ak <strong>Premye pa nan Python</strong> (pwogramasyon). Chwazi yon kou anba a pou kòmanse.', en:'Welcome! Here, you\'ll learn <strong>Basic Computers</strong>, <strong>English</strong>, and <strong>First Steps in Python</strong> (programming). Choose a course below to start.'},
+  homeIntro2:{ht:'Pa gen pwoblem si ou fè yon erè nan yon quiz — ou ka eseye ankò. Objektif la se aprann, pa gen presyon!', en:"It's okay to make a mistake on a quiz — you can try again. The goal is to learn, no pressure!"},
+  progressAllBtn:{ht:'📋 Pwogrè Tout Moun', en:"📋 Everyone's Progress"},
+  backBtn:{ht:'← Tounen', en:'← Back'},
+  progressTitle:{ht:'Pwogrè Tout Moun', en:"Everyone's Progress"},
+  progressSub:{ht:'Lis moun ki itilize pwogram sa a sou aparèy sa a, ak konbyen leson yo fin fè nan chak kou.', en:'List of people using this program on this device, and how many lessons they\'ve finished in each course.'},
+  noOneYet:{ht:'Pèsonn poko itilize pwogram sa a sou aparèy sa a.', en:'No one has used this program on this device yet.'},
+  clearDataBtn:{ht:'🗑️ Efase Tout Done (Tès)', en:'🗑️ Clear All Data (Test)'},
+  clearConfirm:{ht:'Ou sèten ou vle efase pwogrè TOUT moun sou aparèy sa a? Sa pa ka anile.', en:"Are you sure you want to erase EVERYONE's progress on this device? This cannot be undone."},
+  backToLessonList:{ht:'← Tounen nan lis leson yo', en:'← Back to lesson list'},
+  quizHeading:{ht:'🧠 Ti Kesyon', en:'🧠 Quick Quiz'},
+  finishBtnText:{ht:'Wè Rezilta ak Fini Leson', en:'See Results & Finish Lesson'},
+  finishBtnDone:{ht:'Leson Fini ✓', en:'Lesson Finished ✓'},
+  finishLessonPlain:{ht:'Fini Leson', en:'Finish Lesson'},
+  lessonDoneMsg:{ht:'✅ Leson fini! Ou ka tounen nan lis leson yo pou kontinye.', en:'✅ Lesson finished! You can go back to the lesson list to continue.'},
+  nextLessonBtn:{ht:'Pwochèn Leson →', en:'Next Lesson →'},
+  practiceHeading:{ht:'🖱️ Pratike', en:'🖱️ Practice'},
+  typingHeading:{ht:'⌨️ Pratike', en:'⌨️ Practice'},
+  clickDoneMsg:{ht:'🎉 Byen fèt! Ou fin pratike ak sourit la.', en:"🎉 Well done! You've finished practicing with the mouse."},
+  typingVerifyBtn:{ht:'Verifye', en:'Check'},
+  typingInputPh:{ht:'Tape isit la...', en:'Type here...'},
+  typingCorrect:{ht:'✓ Egzat! Byen fèt.', en:'✓ Correct! Well done.'},
+  typingWrong:{ht:'Poko bon — eseye ankò.', en:'Not quite — try again.'},
+  footerNote:{ht:'Fèt pou Running Revolution Ayiti — yon pwogram ki soutni edikasyon, nitrisyon ak aktivite fizik pou timoun ak jèn ann Ayiti.', en:'Made for Running Revolution Ayiti — a program supporting education, nutrition, and physical activity for children and young adults in Haiti.'},
+  viewOverallCert:{ht:'Wè Sètifika Debaz Ou', en:'View Your Basic Certificate'},
+  trackCertBtn:{ht:'Wè Sètifika pou Kou Sa a', en:'View Certificate for This Course'},
+  printCertBtn:{ht:'🖨️ Enprime Sètifika a', en:'🖨️ Print Certificate'},
+  certKicker:{ht:'Sètifika Rekonesans', en:'Certificate of Recognition'},
+  certTitleTrack:{ht:'Sètifika Konplesyon', en:'Certificate of Completion'},
+  certTitleAll:{ht:'Sètifika Nivo Debaz', en:'Basic Level Certificate'},
+  certLineThisCertifies:{ht:'Sa a sètifye ke', en:'This certifies that'},
+  certLineCompletedTrack:{ht:'fin konplete avèk siksè tout leson nan kou', en:'has successfully completed every lesson in'},
+  certLineCompletedAll:{ht:'fin konplete avèk siksè Nivo Debaz la — tout twa kou yo: Konpitè Debaz, Angle, ak Premye Pa nan Python', en:'has successfully completed the Basic Level — all three courses: Basic Computers, English, and First Steps in Python'},
+  certOrg:{ht:'Running Revolution Ayiti — Aprann Ak Nou!', en:'Running Revolution Ayiti — Aprann Ak Nou!'},
+  certDatePrefix:{ht:'Dat', en:'Date'},
+  celebrateLessonMsg:{ht:'🎉 Byen fèt! Ou fin fini yon lòt leson.', en:"🎉 Great job! You've finished another lesson."},
+  celebrateTrackTitle:{ht:'🎉 Felisitasyon!', en:'🎉 Congratulations!'},
+  celebrateTrackMsg:{ht:'Ou fin konplete TOUT leson nan kou sa a!', en:"You've completed EVERY lesson in this course!"},
+  celebrateAllMsg:{ht:'Ou fin konplete TOUT TWA kou yo! Ou merite yon Sètifika Debaz — klike anba a pou wè l.', en:"You've completed ALL THREE courses! You've earned a Basic Certificate — click below to view it."},
+  viewCertNowBtn:{ht:'🏆 Wè Sètifika a Kounye a', en:'🏆 View Certificate Now'},
+  syncAllSent:{ht:'✅ Tout pwogrè voye bay RRA.', en:'✅ All progress has been sent to RRA.'},
+  syncPending:{ht:'⏳ {n} mizajou ap tann entènèt pou voye bay RRA.', en:'⏳ {n} updates waiting for internet to send to RRA.'},
+  syncOff:{ht:'Voye pwogrè bay RRA poko aktive.', en:'Sending progress to RRA is not turned on yet.'}
+};
+
+function t(key){
+  const entry = UI[key];
+  if(!entry) return '';
+  return entry[lang] !== undefined ? entry[lang] : entry.ht;
+}
+
+/* Look up a bilingual field on a lesson/section/quiz object: L(obj,'title')
+   returns obj.title_en when in English mode and present, else obj.title. */
+function L(obj, field){
+  if(lang === 'en'){
+    const enVal = obj[field + '_en'];
+    if(enVal !== undefined) return enVal;
+  }
+  return obj[field];
+}
+
+function fmtProgress(done,total){
+  return lang==='en' ? (done+'/'+total+' lessons finished') : (done+'/'+total+' leson fini');
+}
+function fmtLessonCount(total){
+  return lang==='en' ? (total+' lesson'+(total!==1?'s':'')) : (total+' leson');
+}
+function formatToday(){
+  const d = new Date();
+  if(lang==='en'){
+    return d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+  }
+  const months=['Janvye','Fevriye','Mas','Avril','Me','Jen','Jiyè','Out','Septanm','Oktòb','Novanm','Desanm'];
+  return d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
+}
+
+function toggleLang(){
+  lang = (lang==='ht') ? 'en' : 'ht';
+  try{ localStorage.setItem(LANG_KEY, lang); }catch(e){}
+  document.documentElement.lang = lang;
+  applyStaticText();
+  rerenderCurrentScreen();
+}
+
+function applyStaticText(){
+  document.getElementById('header-sub').textContent = t('headerSub');
+  document.getElementById('lang-toggle-btn').textContent = t('langBtn');
+  document.getElementById('change-name-btn').textContent = t('changeName');
+  document.getElementById('name-prompt').textContent = t('namePrompt');
+  document.getElementById('name-input').placeholder = t('nameInputPh');
+  document.getElementById('start-btn').textContent = t('startBtn');
+  document.getElementById('or-choose-name').textContent = t('orChoose');
+  document.getElementById('trainer-summary').textContent = t('trainerSummary');
+  const trainerListEl = document.getElementById('trainer-list');
+  trainerListEl.innerHTML = UI.trainerList[lang].map(item=>'<li>'+item+'</li>').join('');
+  document.getElementById('home-intro-1').innerHTML = t('homeIntro1');
+  document.getElementById('home-intro-2').textContent = t('homeIntro2');
+  document.getElementById('progress-all-btn').textContent = t('progressAllBtn');
+  document.getElementById('view-overall-cert-label').textContent = t('viewOverallCert');
+  document.getElementById('back-btn-1').textContent = t('backBtn');
+  document.getElementById('back-btn-2').textContent = t('backBtn');
+  document.getElementById('back-btn-3').textContent = t('backToLessonList');
+  document.getElementById('back-btn-4').textContent = t('backBtn');
+  document.getElementById('progress-title').textContent = t('progressTitle');
+  document.getElementById('progress-sub').textContent = t('progressSub');
+  document.getElementById('clear-data-btn').textContent = t('clearDataBtn');
+  document.getElementById('print-cert-btn').textContent = t('printCertBtn');
+  document.getElementById('footer-note').textContent = t('footerNote');
+}
+
+function rerenderCurrentScreen(){
+  const active = document.querySelector('.screen.active');
+  if(!active) return;
+  updateUserBadge();
+  switch(active.id){
+    case 'screen-name': renderNameScreen(); break;
+    case 'screen-home': renderTrackCards(); updateOverallCertRow(); break;
+    case 'screen-progress': openProgressView(); break;
+    case 'screen-track': renderTrackScreen(); break;
+    case 'screen-lesson': renderLessonScreen(); break;
+    case 'screen-cert': renderCertificate(window._certScope || 'all'); break;
+  }
+}
+
+/* ---------------------------------------------------------
+   STATE + PERSISTENCE
+   Progress is saved per-name to localStorage on THIS device/
+   browser only (there is no server — nothing leaves the device).
+   If storage is unavailable, everything still works for the
+   current session, it just won't be remembered after closing.
+--------------------------------------------------------- */
+const STORAGE_KEY = 'aprann-ak-nou-data-v1';
+
+const state = {
+  completed:{ konpite:new Set(), angle:new Set(), python:new Set() },
+  currentTrack:null,
+  currentLessonIdx:null,
+  currentUser:null
+};
+
+let allUsersData = {}; // { name: { konpite:[idx,...], angle:[...], python:[...] } }
+
+function loadAllUsersData(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    allUsersData = raw ? JSON.parse(raw) : {};
+  }catch(e){
+    allUsersData = {};
+  }
+}
+
+function persistAllUsersData(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(allUsersData));
+  }catch(e){
+    // storage unavailable (private browsing, etc.) — progress still works this session
+  }
+}
+
+function saveCurrentUserProgress(){
+  if(!state.currentUser) return;
+  allUsersData[state.currentUser] = {
+    konpite: Array.from(state.completed.konpite),
+    angle: Array.from(state.completed.angle),
+    python: Array.from(state.completed.python)
+  };
+  persistAllUsersData();
+}
+
+/* ---------------------------------------------------------
+   SYNC TO RRA (Google Sheet via Apps Script)
+   Events are queued on the phone and sent when online.
+   Nothing is lost offline: the queue waits until it can send.
+--------------------------------------------------------- */
+const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbw3BJ1LlMHffmgt34SRndJiw3xx-kbeL1cCUGt8vPrGjOM1yzENQgZNPYS_9PUrIq8POw/exec';
+const APP_VERSION = '1.1';
+const QUEUE_KEY = 'aprann-ak-nou-queue-v1';
+const DEVICE_KEY = 'aprann-ak-nou-device-v1';
+function backendOn(){ return /^https:\/\/script\.google\.com\//.test(BACKEND_URL); }
+function makeId(){ return Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,10); }
+let deviceId = 'unknown';
+try{
+  deviceId = localStorage.getItem(DEVICE_KEY) || '';
+  if(!deviceId){ deviceId = 'd-'+makeId(); localStorage.setItem(DEVICE_KEY, deviceId); }
+}catch(e){ deviceId = 'd-'+makeId(); }
+let syncQueue = [];
+try{ syncQueue = JSON.parse(localStorage.getItem(QUEUE_KEY)||'[]'); }catch(e){ syncQueue = []; }
+function saveQueue(){ try{ localStorage.setItem(QUEUE_KEY, JSON.stringify(syncQueue.slice(-500))); }catch(e){} }
+function queueEvent(type, extra){
+  if(!state.currentUser) return;
+  const ev = Object.assign({
+    id: makeId(), ts: new Date().toISOString(), device: deviceId,
+    student: state.currentUser, event: type, lang: lang, app: APP_VERSION,
+    konpite: state.completed.konpite.size, angle: state.completed.angle.size, python: state.completed.python.size,
+    totalLessons: TRACKS.konpite.lessons.length + TRACKS.angle.lessons.length + TRACKS.python.lessons.length
+  }, extra||{});
+  syncQueue.push(ev); saveQueue(); flushQueue();
+}
+let flushing = false;
+async function flushQueue(){
+  if(flushing || !backendOn() || !syncQueue.length) return;
+  if(typeof navigator!=='undefined' && navigator.onLine===false) return;
+  flushing = true;
+  const batch = syncQueue.slice(0,25);
+  let sentOk = false;
+  try{
+    const res = await fetch(BACKEND_URL, {method:'POST', body: JSON.stringify({events: batch})});
+    const data = await res.json();
+    if(data && data.ok){
+      const sent = new Set(batch.map(e=>e.id));
+      syncQueue = syncQueue.filter(e=>!sent.has(e.id)); saveQueue();
+      sentOk = true;
+    }
+  }catch(e){ /* offline or server busy: try again later */ }
+  flushing = false;
+  if(sentOk && syncQueue.length) setTimeout(flushQueue, 2000);
+}
+window.addEventListener('online', flushQueue);
+setInterval(flushQueue, 60000);
+function syncStatusText(){
+  if(!backendOn()) return t('syncOff');
+  return syncQueue.length ? t('syncPending').replace('{n}', syncQueue.length) : t('syncAllSent');
+}
+
+function isTrackComplete(trackKey){
+  return state.completed[trackKey].size >= TRACKS[trackKey].lessons.length;
+}
+function isAllComplete(){
+  return isTrackComplete('konpite') && isTrackComplete('angle') && isTrackComplete('python');
+}
+
+/* ---------------------------------------------------------
+   NAME / PROFILE SCREEN
+--------------------------------------------------------- */
+function renderNameScreen(){
+  const names = Object.keys(allUsersData);
+  const wrap = document.getElementById('name-list-wrap');
+  const list = document.getElementById('name-list');
+  list.innerHTML = '';
+  if(names.length){
+    wrap.style.display = 'block';
+    names.forEach(name=>{
+      const chip = document.createElement('button');
+      chip.className='name-chip';
+      chip.textContent = name;
+      chip.onclick = ()=>selectUser(name);
+      list.appendChild(chip);
+    });
+  } else {
+    wrap.style.display = 'none';
+  }
+  document.getElementById('name-input').value = '';
+}
+
+function startWithName(){
+  const val = document.getElementById('name-input').value.trim();
+  if(!val){
+    document.getElementById('name-input').focus();
+    return;
+  }
+  selectUser(val);
+}
+
+function selectUser(name){
+  state.currentUser = name;
+  const saved = allUsersData[name] || {};
+  state.completed = {
+    konpite: new Set(saved.konpite || []),
+    angle: new Set(saved.angle || []),
+    python: new Set(saved.python || [])
+  };
+  if(!allUsersData[name]) saveCurrentUserProgress();
+  updateUserBadge();
+  queueEvent('open');
+  goHome();
+}
+
+function changeUser(){
+  state.currentUser = null;
+  state.currentTrack = null;
+  state.currentLessonIdx = null;
+  updateUserBadge();
+  renderNameScreen();
+  showScreen('screen-name');
+}
+
+function updateUserBadge(){
+  const badge = document.getElementById('user-badge');
+  if(state.currentUser){
+    badge.style.display = 'flex';
+    document.getElementById('user-badge-name').textContent = '👤 ' + state.currentUser;
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+/* ---------------------------------------------------------
+   PROGRESS OVERVIEW (for trainers)
+--------------------------------------------------------- */
+function openProgressView(){
+  saveCurrentUserProgress();
+  const wrap = document.getElementById('progress-table-wrap');
+  const names = Object.keys(allUsersData);
+  if(!names.length){
+    wrap.innerHTML = '<p class="empty-note">'+t('noOneYet')+'</p>';
+  } else {
+    const kLabel = L(TRACKS.konpite,'label'), aLabel = L(TRACKS.angle,'label'), pLabel = L(TRACKS.python,'label');
+    let html = '<table class="progress-table"><tr><th>'+(lang==='en'?'Name':'Non')+'</th><th>💻 '+kLabel+'</th><th>🔤 '+aLabel+'</th><th>🐍 '+pLabel+'</th></tr>';
+    names.forEach(name=>{
+      const d = allUsersData[name];
+      const k = (d.konpite||[]).length, a = (d.angle||[]).length, p = (d.python||[]).length;
+      html += '<tr><td>'+name+'</td><td>'+k+'/'+TRACKS.konpite.lessons.length+'</td><td>'+a+'/'+TRACKS.angle.lessons.length+'</td><td>'+p+'/'+TRACKS.python.lessons.length+'</td></tr>';
+    });
+    html += '</table>';
+    html += '<p class="empty-note" id="sync-status">'+syncStatusText()+'</p>';
+    wrap.innerHTML = html;
+  }
+  showScreen('screen-progress');
+}
+
+function clearAllData(){
+  const sure = confirm(t('clearConfirm'));
+  if(!sure) return;
+  try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+  location.reload();
+}
+
+/* ---------------------------------------------------------
+   NAVIGATION
+--------------------------------------------------------- */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0,behavior:'instant'});
+}
+
+function goHome(){
+  renderTrackCards();
+  updateOverallCertRow();
+  showScreen('screen-home');
+}
+
+function openTrack(trackKey){
+  state.currentTrack = trackKey;
+  renderTrackScreen();
+  showScreen('screen-track');
+}
+
+function goToTrack(){
+  renderTrackScreen();
+  showScreen('screen-track');
+}
+
+function openLesson(idx){
+  state.currentLessonIdx = idx;
+  renderLessonScreen();
+  showScreen('screen-lesson');
+}
+
+function openCertificate(scope){
+  window._certScope = scope;
+  renderCertificate(scope);
+  showScreen('screen-cert');
+}
+
+/* ---------------------------------------------------------
+   RENDER: HOME
+--------------------------------------------------------- */
+function renderTrackCards(){
+  const container = document.getElementById('track-cards');
+  container.innerHTML='';
+  Object.values(TRACKS).forEach(track=>{
+    const total = track.lessons.length;
+    const done = state.completed[track.key].size;
+    const pct = Math.round((done/total)*100);
+    const complete = done>=total;
+    const card = document.createElement('button');
+    card.className='track-card';
+    card.style.setProperty('--track-color',track.color);
+    card.onclick=()=>openTrack(track.key);
+    card.innerHTML=`
+      <span class="emoji">${track.emoji}</span>
+      <h3>${L(track,'label')}</h3>
+      <p>${fmtLessonCount(total)}</p>
+      <div class="progress-bar"><div style="width:${pct}%;background:${track.color}"></div></div>
+      <p class="progress-label">${fmtProgress(done,total)}</p>
+      ${complete?'<span class="cert-pill">🏆 '+(lang==='en'?'Certified':'Sètifye')+'</span>':''}
+    `;
+    container.appendChild(card);
+  });
+}
+
+function updateOverallCertRow(){
+  const row = document.getElementById('overall-cert-row');
+  row.style.display = (state.currentUser && isAllComplete()) ? 'flex' : 'none';
+}
+
+/* ---------------------------------------------------------
+   RENDER: TRACK (lesson list)
+--------------------------------------------------------- */
+function renderTrackScreen(){
+  const track = TRACKS[state.currentTrack];
+  document.getElementById('track-emoji').textContent = track.emoji;
+  document.getElementById('track-title').textContent = L(track,'label');
+
+  const total = track.lessons.length;
+  const done = state.completed[track.key].size;
+  const pct = Math.round((done/total)*100);
+  document.getElementById('track-progress-label').textContent = fmtProgress(done,total);
+  const fill = document.getElementById('track-progress-fill');
+  fill.style.width = pct+'%';
+  fill.style.background = track.color;
+
+  const certRow = document.getElementById('track-cert-row');
+  const certBtn = document.getElementById('track-cert-btn');
+  if(done>=total){
+    certRow.style.display = 'flex';
+    certBtn.textContent = '🏆 ' + t('trackCertBtn');
+    certBtn.onclick = ()=>openCertificate(track.key);
+  } else {
+    certRow.style.display = 'none';
+  }
+
+  const list = document.getElementById('lesson-list');
+  list.innerHTML='';
+  track.lessons.forEach((lesson,idx)=>{
+    const isDone = state.completed[track.key].has(idx);
+    const item = document.createElement('button');
+    item.className = 'lesson-item'+(isDone?' done':'');
+    item.onclick=()=>openLesson(idx);
+    item.innerHTML = `
+      <span class="num">${idx+1}</span>
+      <span class="title">${L(lesson,'title')}</span>
+      ${isDone?'<span class="check">✓</span>':''}
+    `;
+    list.appendChild(item);
+  });
+}
+
+/* ---------------------------------------------------------
+   RENDER: LESSON
+--------------------------------------------------------- */
+function renderLessonScreen(){
+  const track = TRACKS[state.currentTrack];
+  const idx = state.currentLessonIdx;
+  const lesson = track.lessons[idx];
+  const container = document.getElementById('lesson-content');
+
+  let html = `<h2>${idx+1}. ${L(lesson,'title')}</h2>`;
+
+  lesson.sections.forEach(sec=>{
+    html += `<div class="section"><h4>${L(sec,'h')}</h4>${L(sec,'body')}</div>`;
+  });
+
+  if(lesson.activity){
+    html += `<div class="activity" id="activity-area"></div>`;
+  }
+
+  if(lesson.quiz){
+    html += `<div class="activity"><h3>${t('quizHeading')}</h3><div id="quiz-area"></div>
+      <div id="quiz-result"></div>
+      <div class="row">
+        <button class="btn" id="finish-btn" onclick="finishLesson()" disabled>${t('finishBtnText')}</button>
+      </div>
+    </div>`;
+  } else {
+    html += `<div class="row" style="margin-top:20px;">
+        <button class="btn" onclick="finishLesson()">${t('finishLessonPlain')}</button>
+      </div>`;
+  }
+
+  container.innerHTML = html;
+
+  if(lesson.activity){
+    renderActivity(lesson.activity);
+  }
+  if(lesson.quiz){
+    renderQuiz(lesson.quiz);
+  }
+}
+
+/* ---------------------------------------------------------
+   MINI-ACTIVITIES: click-practice & typing-practice
+--------------------------------------------------------- */
+function renderActivity(activity){
+  const area = document.getElementById('activity-area');
+  if(activity.type==='click'){
+    let clicks = 0;
+    area.innerHTML = `
+      <h3>${t('practiceHeading')}</h3>
+      <p>${L(activity,'label')} — <span id="click-count">0</span>/${activity.goal}</p>
+      <div class="click-area" id="click-area"></div>
+      <div id="click-done" class="score-banner" style="display:none;">${t('clickDoneMsg')}</div>
+    `;
+    const zone = document.getElementById('click-area');
+    function placeTarget(){
+      const btn = document.createElement('button');
+      btn.className='click-target';
+      btn.textContent='●';
+      const maxX = Math.max(zone.clientWidth-56,0);
+      const maxY = Math.max(zone.clientHeight-56,0);
+      btn.style.left = Math.random()*maxX+'px';
+      btn.style.top = Math.random()*maxY+'px';
+      btn.onclick = ()=>{
+        clicks++;
+        document.getElementById('click-count').textContent = Math.min(clicks,activity.goal);
+        if(clicks>=activity.goal){
+          zone.innerHTML='';
+          document.getElementById('click-done').style.display='block';
+        } else {
+          zone.removeChild(btn);
+          placeTarget();
+        }
+      };
+      zone.appendChild(btn);
+    }
+    placeTarget();
+  } else if(activity.type==='typing'){
+    const target = L(activity,'target');
+    area.innerHTML = `
+      <h3>${t('typingHeading')}</h3>
+      <p>${L(activity,'label')}:</p>
+      <p style="font-weight:600;">"${target}"</p>
+      <div class="type-practice">
+        <input type="text" id="type-input" placeholder="${t('typingInputPh')}">
+      </div>
+      <div class="row">
+        <button class="btn secondary" onclick="checkTyping('${target.replace(/'/g,"\\'")}')">${t('typingVerifyBtn')}</button>
+        <span id="type-feedback"></span>
+      </div>
+    `;
+  }
+}
+
+function checkTyping(target){
+  const val = document.getElementById('type-input').value.trim().toLowerCase();
+  const feedback = document.getElementById('type-feedback');
+  if(val === target.trim().toLowerCase()){
+    feedback.innerHTML = '<span style="color:var(--green);font-weight:600;">'+t('typingCorrect')+'</span>';
+  } else {
+    feedback.innerHTML = '<span style="color:var(--red);">'+t('typingWrong')+'</span>';
+  }
+}
+
+/* ---------------------------------------------------------
+   QUIZ RENDERING
+--------------------------------------------------------- */
+function renderQuiz(quiz){
+  const area = document.getElementById('quiz-area');
+  area.innerHTML='';
+  const answered = new Array(quiz.length).fill(false);
+  window._quizCorrect = 0; window._quizTotal = quiz.length;
+
+  quiz.forEach((q,qi)=>{
+    const block = document.createElement('div');
+    block.className='q-block';
+    const qText = L(q,'q');
+    const qTextHtml = qText.split('\n').map(l=>l).join('<br>');
+    block.innerHTML = `<p class="q-text">${qi+1}. ${qTextHtml}</p><div class="q-options"></div><p class="q-feedback"></p>`;
+    const optsWrap = block.querySelector('.q-options');
+    const opts = (lang==='en' && q.opts_en) ? q.opts_en : q.opts;
+    opts.forEach((opt,oi)=>{
+      const optBtn = document.createElement('button');
+      optBtn.className='q-opt';
+      optBtn.textContent = opt;
+      optBtn.onclick = ()=>{
+        if(answered[qi]) return;
+        answered[qi]=true;
+        const allOpts = optsWrap.querySelectorAll('.q-opt');
+        allOpts.forEach(o=>o.disabled=true);
+        if(oi===q.correct){
+          window._quizCorrect++;
+          optBtn.classList.add('correct');
+        } else {
+          optBtn.classList.add('wrong');
+          allOpts[q.correct].classList.add('correct');
+        }
+        block.querySelector('.q-feedback').textContent = L(q,'exp') || '';
+        checkAllAnswered(answered);
+      };
+      optsWrap.appendChild(optBtn);
+    });
+    area.appendChild(block);
+  });
+
+  window._currentAnswered = answered;
+}
+
+function checkAllAnswered(answered){
+  const allDone = answered.every(a=>a);
+  const btn = document.getElementById('finish-btn');
+  if(btn) btn.disabled = !allDone;
+}
+
+/* ---------------------------------------------------------
+   CELEBRATION: confetti + balloons
+--------------------------------------------------------- */
+function celebrate(size){
+  const layer = document.getElementById('celebrate-layer');
+  const colors = ['#00209F','#D21034','#f4b400','#1a7a3c','#ffffff'];
+  const confettiCount = size==='track' ? 60 : 24;
+  const balloonCount = size==='track' ? 10 : 3;
+  const balloonEmojis = ['🎈','🎉','✨'];
+
+  for(let i=0;i<confettiCount;i++){
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = (Math.random()*100)+'vw';
+    piece.style.background = colors[Math.floor(Math.random()*colors.length)];
+    const duration = 2.2 + Math.random()*1.6;
+    const delay = Math.random()*0.4;
+    piece.style.animationDuration = duration+'s';
+    piece.style.animationDelay = delay+'s';
+    layer.appendChild(piece);
+    setTimeout(()=>{ if(piece.parentNode) piece.parentNode.removeChild(piece); }, (duration+delay)*1000+200);
+  }
+  for(let i=0;i<balloonCount;i++){
+    const piece = document.createElement('div');
+    piece.className = 'balloon-piece';
+    piece.style.left = (Math.random()*90)+'vw';
+    piece.textContent = balloonEmojis[Math.floor(Math.random()*balloonEmojis.length)];
+    const duration = 2.6 + Math.random()*1.6;
+    const delay = Math.random()*0.5;
+    piece.style.animationDuration = duration+'s';
+    piece.style.animationDelay = delay+'s';
+    layer.appendChild(piece);
+    setTimeout(()=>{ if(piece.parentNode) piece.parentNode.removeChild(piece); }, (duration+delay)*1000+200);
+  }
+}
+
+/* ---------------------------------------------------------
+   FINISH LESSON
+--------------------------------------------------------- */
+function finishLesson(){
+  const track = TRACKS[state.currentTrack];
+  const idx = state.currentLessonIdx;
+  const alreadyDone = state.completed[track.key].has(idx);
+  state.completed[track.key].add(idx);
+  saveCurrentUserProgress();
+
+  const resultDiv = document.getElementById('quiz-result');
+  const total = track.lessons.length;
+  const done = state.completed[track.key].size;
+  const trackNowComplete = done>=total;
+  const allNowComplete = isAllComplete();
+
+  if(!alreadyDone){
+    celebrate(trackNowComplete ? 'track' : 'lesson');
+  }
+  queueEvent(alreadyDone ? 'lesson_repeat' : 'lesson_done', {
+    track: track.key, lesson: idx+1, lessonTitle: track.lessons[idx].title,
+    score: (typeof window._quizCorrect==='number') ? window._quizCorrect : '',
+    quizTotal: (typeof window._quizTotal==='number') ? window._quizTotal : '',
+    trackDone: (!alreadyDone && trackNowComplete) ? 'yes' : '', allDone: (!alreadyDone && allNowComplete) ? 'yes' : ''
+  });
+
+  if(resultDiv){
+    if(!alreadyDone && trackNowComplete){
+      let extra = '<div class="celebrate-banner"><p><strong>'+t('celebrateTrackTitle')+'</strong></p><p>'+t('celebrateTrackMsg')+'</p>';
+      if(allNowComplete){
+        extra += '<p>'+t('celebrateAllMsg')+'</p><div class="row"><button class="btn gold" onclick="openCertificate(\'all\')">'+t('viewCertNowBtn')+'</button></div>';
+      } else {
+        extra += '<div class="row"><button class="btn gold" onclick="openCertificate(\''+track.key+'\')">'+t('viewCertNowBtn')+'</button></div>';
+      }
+      extra += '</div>';
+      resultDiv.innerHTML = '<div class="score-banner">✅ '+t('lessonDoneMsg')+'</div>'+extra;
+    } else {
+      resultDiv.innerHTML = '<div class="score-banner">✅ '+t('lessonDoneMsg')+'</div>';
+    }
+  }
+
+  const btn = document.getElementById('finish-btn');
+  if(btn){
+    btn.textContent = t('finishBtnDone');
+    btn.disabled = true;
+  }
+
+  if(idx < total-1){
+    const nextBtn = document.createElement('button');
+    nextBtn.className='btn';
+    nextBtn.style.marginTop='10px';
+    nextBtn.textContent=t('nextLessonBtn');
+    nextBtn.onclick = ()=>openLesson(idx+1);
+    document.getElementById('lesson-content').appendChild(nextBtn);
+  }
+}
+
+/* ---------------------------------------------------------
+   CERTIFICATE
+--------------------------------------------------------- */
+function renderCertificate(scope){
+  const wrap = document.getElementById('cert-wrap');
+  const name = state.currentUser || '';
+  const date = formatToday();
+  let courseLine, titleText;
+  if(scope==='all'){
+    titleText = t('certTitleAll');
+    courseLine = t('certLineCompletedAll');
+  } else {
+    const track = TRACKS[scope];
+    titleText = t('certTitleTrack');
+    courseLine = t('certLineCompletedTrack') + ' <span class="cert-course">' + track.emoji + ' ' + L(track,'label') + '</span>';
+  }
+  wrap.innerHTML = `
+    <div class="cert-seal">🏅</div>
+    <p class="cert-kicker">${t('certKicker')}</p>
+    <h2 class="cert-title">${titleText}</h2>
+    <p class="cert-line">${t('certLineThisCertifies')}</p>
+    <div class="cert-name">${name || '—'}</div>
+    <p class="cert-line">${courseLine}</p>
+    <p class="cert-org">🇭🇹 ${t('certOrg')}</p>
+    <p class="cert-date">${t('certDatePrefix')}: ${date}</p>
+  `;
+}
+
+/* ---------------------------------------------------------
+   INIT
+--------------------------------------------------------- */
+document.documentElement.lang = lang;
+loadAllUsersData();
+applyStaticText();
+renderNameScreen();
+renderTrackCards();
+updateOverallCertRow();
+flushQueue();
+if('serviceWorker' in navigator && location.protocol==='https:'){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>
