@@ -1,5 +1,5 @@
 // Aprann Ak Nou! offline cache. Bump VERSION when you update index.html.
-const VERSION = 'aprann-v1.1';
+const VERSION = 'aprann-v2.2';
 const FILES = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));

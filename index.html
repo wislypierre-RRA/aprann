@@ -470,6 +470,54 @@
     .cert-wrap{padding:24px 16px;}
     .cert-name{font-size:1.4rem;}
   }
+
+  /* ===== v2: profiles, PIN, leaderboard, streaks, voice ===== */
+  .profile-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;margin-top:12px;}
+  .profile-btn{background:#fff;border:2px solid var(--ring);border-radius:16px;padding:14px 8px;cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;gap:6px;font-size:1rem;font-weight:700;color:var(--ink);}
+  .profile-btn .av{font-size:2.2rem;line-height:1;}
+  .profile-btn.new{border-style:dashed;color:var(--blue);}
+  .profile-btn:hover{border-color:var(--blue);}
+  .avatar-pick{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 4px;}
+  .avatar-pick button{font-size:1.7rem;background:#fff;border:2px solid var(--ring);border-radius:12px;width:52px;height:52px;cursor:pointer;}
+  .avatar-pick button.sel{border-color:var(--blue);background:#eef2ff;}
+  .field-label{font-weight:700;margin:14px 0 4px;display:block;}
+  .text-in{width:100%;font-size:1.05rem;padding:12px 14px;border:1px solid var(--ring);border-radius:10px;}
+  .pin-dots{display:flex;gap:12px;justify-content:center;margin:14px 0;}
+  .pin-dots span{width:18px;height:18px;border-radius:50%;border:2px solid var(--blue);}
+  .pin-dots span.on{background:var(--blue);}
+  .pin-pad{display:grid;grid-template-columns:repeat(3,72px);gap:10px;justify-content:center;}
+  .pin-pad button{height:58px;font-size:1.4rem;font-weight:700;border-radius:14px;border:1px solid var(--ring);background:#fff;cursor:pointer;}
+  .pin-pad button:active{background:#eef2ff;}
+  .pin-msg{text-align:center;min-height:1.4em;font-weight:600;}
+  .pin-msg.err{color:var(--red);}
+  .center{text-align:center;}
+  .stats-card{background:var(--card);border:1px solid var(--ring);border-radius:18px;padding:14px 18px;margin:0 0 18px;
+    display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center;}
+  .stat .big{font-size:1.5rem;font-weight:800;line-height:1.1;}
+  .stat .lbl{font-size:0.8rem;color:var(--muted);}
+  .day-dots{display:flex;gap:5px;margin-top:4px;}
+  .day-dots span{width:22px;height:22px;border-radius:50%;background:#eee;font-size:0.65rem;display:flex;align-items:center;justify-content:center;color:var(--muted);font-weight:700;}
+  .day-dots span.on{background:var(--green);color:#fff;}
+  .day-dots span.today{outline:2px solid var(--gold);}
+  .lb-table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--ring);border-radius:14px;overflow:hidden;margin-top:10px;}
+  .lb-table td,.lb-table th{padding:10px 12px;border-bottom:1px solid var(--ring);text-align:left;}
+  .lb-table tr.me td{background:#fff8e1;font-weight:700;}
+  .lb-rank{width:44px;font-weight:800;}
+  .lb-pts{text-align:right !important;font-weight:700;}
+  .goal-bar{height:14px;background:#eee;border-radius:999px;overflow:hidden;margin-top:6px;}
+  .goal-bar div{height:100%;background:linear-gradient(90deg,var(--blue),var(--green));}
+  .lb-card{background:var(--card);border:1px solid var(--ring);border-radius:16px;padding:14px 16px;margin-top:14px;}
+  .say{border:none;background:#eef2ff;border-radius:999px;cursor:pointer;font-size:0.95rem;padding:2px 8px;margin-left:6px;vertical-align:middle;}
+  .say:active{background:#c7d2fe;}
+  .no-speech .say{display:none;}
+  .voice-btn{display:block;width:100%;margin:0 0 16px;padding:14px 16px;border-radius:14px;border:2px solid var(--blue);
+    background:#eef2ff;color:var(--blue);font-weight:800;font-size:1rem;cursor:pointer;text-align:left;}
+  .voice-btn.playing{background:var(--blue);color:#fff;}
+  .dialog-line{display:flex;gap:10px;align-items:flex-start;margin:8px 0;}
+  .dialog-line .who{font-weight:800;min-width:64px;}
+  .dialog-line .ht{color:var(--muted);font-size:0.9rem;}
+  .rules{font-size:0.88rem;color:var(--muted);}
 </style>
 </head>
 <body>
@@ -484,6 +532,7 @@
     </div>
     <div class="header-actions">
       <button class="lang-toggle" id="lang-toggle-btn" onclick="toggleLang()"></button>
+      <button class="lang-toggle" id="sound-toggle-btn" onclick="toggleSound()"></button>
       <div id="user-badge" class="user-badge" style="display:none;">
         <span id="user-badge-name"></span>
         <button class="btn secondary small" id="change-name-btn" onclick="changeUser()"></button>
@@ -491,23 +540,55 @@
     </div>
   </header>
 
-  <!-- NAME / PROFILE SCREEN -->
+  <!-- PROFILE SCREEN: who's here? -->
   <section id="screen-name" class="screen active">
     <div class="intro-card">
-      <p id="name-prompt"></p>
-      <div class="row">
-        <input type="text" id="name-input" style="flex:1;min-width:200px;font-size:1.05rem;padding:12px 14px;border:1px solid var(--ring);border-radius:10px;">
-        <button class="btn" id="start-btn" onclick="startWithName()"></button>
-      </div>
-      <p id="name-list-wrap" style="display:none;margin-top:14px;">
-        <span class="progress-label" id="or-choose-name"></span><br>
-        <span id="name-list" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;"></span>
-      </p>
+      <h2 style="margin:0 0 4px;" id="who-title"></h2>
+      <p id="who-sub" style="margin:0;"></p>
+      <button class="voice-btn" type="button" data-voice="audio/m1.mp3" id="welcome-voice" onclick="toggleVoice(this, 'welcomeBtn')" style="margin-top:12px;"></button>
+      <div class="profile-grid" id="profile-grid"></div>
     </div>
     <details class="trainer">
       <summary id="trainer-summary"></summary>
       <ul id="trainer-list"></ul>
     </details>
+  </section>
+
+  <!-- NEW PROFILE SCREEN -->
+  <section id="screen-newprofile" class="screen">
+    <button class="btn back" onclick="showProfiles()" id="back-btn-np"></button>
+    <div class="intro-card">
+      <h2 style="margin:0 0 8px;" id="np-title"></h2>
+      <label class="field-label" for="np-name" id="np-name-label"></label>
+      <input type="text" id="np-name" class="text-in" maxlength="20" autocomplete="off">
+      <p class="rules" id="np-name-note"></p>
+      <span class="field-label" id="np-avatar-label"></span>
+      <div class="avatar-pick" id="np-avatars"></div>
+      <p class="pin-msg err" id="np-err"></p>
+      <div class="row"><button class="btn" id="np-next" onclick="newProfileNext()"></button></div>
+    </div>
+  </section>
+
+  <!-- PIN SCREEN -->
+  <section id="screen-pin" class="screen">
+    <button class="btn back" onclick="showProfiles()" id="back-btn-pin"></button>
+    <div class="intro-card center">
+      <div style="font-size:3rem;" id="pin-avatar"></div>
+      <h2 style="margin:4px 0;" id="pin-name"></h2>
+      <p id="pin-prompt" style="margin:0;"></p>
+      <div class="pin-dots" id="pin-dots"><span></span><span></span><span></span><span></span></div>
+      <p class="pin-msg" id="pin-msg"></p>
+      <div class="pin-pad" id="pin-pad"></div>
+      <p style="margin-top:16px;"><button class="btn secondary small" id="pin-forgot" onclick="forgotPin()"></button></p>
+    </div>
+  </section>
+
+  <!-- LEADERBOARD SCREEN -->
+  <section id="screen-board" class="screen">
+    <button class="btn back" onclick="goHome()" id="back-btn-board"></button>
+    <h2 id="board-title"></h2>
+    <p class="progress-label" id="board-sub"></p>
+    <div id="board-wrap"></div>
   </section>
 
   <!-- HOME SCREEN -->
@@ -517,6 +598,8 @@
       <p id="home-intro-2"></p>
     </div>
 
+    <div class="stats-card" id="stats-card"></div>
+
     <div class="tracks" id="track-cards"></div>
 
     <div id="overall-cert-row" class="row" style="margin-top:18px;display:none;">
@@ -524,6 +607,7 @@
     </div>
 
     <div class="row" style="margin-top:18px;">
+      <button class="btn" id="board-btn" onclick="openBoard()"></button>
       <button class="btn secondary" id="progress-all-btn" onclick="openProgressView()"></button>
     </div>
   </section>
@@ -991,6 +1075,46 @@ const TRACKS = {
           {q:"Ki jou sa a ye: 'Sunday'?", q_en:"What day is this: 'Sunday'?", opts:['Samdi','Dimanch','Lendi','Vandredi'], correct:1, exp:"'Sunday' vle di Dimanch.", exp_en:"'Sunday' means Dimanch."},
           {q:"Kijan pou di 'Frè' an Angle?", q_en:"How do you say 'Frè' in English?", opts:['Sister','Grandfather','Brother','Father'], correct:2, exp:"'Brother' vle di Frè.", exp_en:"'Brother' means Frè."}
         ]
+      },
+      {
+        title:'Konvèsasyon: Sou Wout 9', title_en:'Conversation: On Route 9',
+        sections:[
+          {h:'Ti Jan ak Ti Jak ap pale', h_en:'Ti Jan and Ti Jak are talking', body:`
+            <p>Ti Jan ak Ti Jak kontre sou Wout 9 bonè nan maten. Li konvèsasyon an. Peze 🔊 pou tande kijan pou di chak fraz an Angle, epi repete l byen fò!</p>
+            <div class="dialog-line"><span class="who">Ti Jan</span><span><strong>Good morning, Ti Jak! How are you?</strong><button class="say" type="button" data-say="Good morning, Ti Jak! How are you?">🔊</button><br><span class="ht">Bonjou, Ti Jak! Kijan ou ye?</span></span></div><div class="dialog-line"><span class="who">Ti Jak</span><span><strong>I am fine, thank you. And you?</strong><button class="say" type="button" data-say="I am fine, thank you. And you?">🔊</button><br><span class="ht">Mwen byen, mèsi. E ou menm?</span></span></div><div class="dialog-line"><span class="who">Ti Jan</span><span><strong>I am good. Where are you going?</strong><button class="say" type="button" data-say="I am good. Where are you going?">🔊</button><br><span class="ht">Mwen byen. Ki kote w prale?</span></span></div><div class="dialog-line"><span class="who">Ti Jak</span><span><strong>I am going to the market in Croix-des-Bouquets.</strong><button class="say" type="button" data-say="I am going to the market in Croix-des-Bouquets.">🔊</button><br><span class="ht">Mwen prale nan mache Kwadebouke.</span></span></div><div class="dialog-line"><span class="who">Ti Jan</span><span><strong>I am going to school in Dorigol.</strong><button class="say" type="button" data-say="I am going to school in Dorigol.">🔊</button><br><span class="ht">Mwen prale lekòl Dorigol.</span></span></div><div class="dialog-line"><span class="who">Ti Jak</span><span><strong>Let’s walk on Route 9 together!</strong><button class="say" type="button" data-say="Let’s walk on Route 9 together!">🔊</button><br><span class="ht">Ann mache sou Wout 9 ansanm!</span></span></div><div class="dialog-line"><span class="who">Ti Jan</span><span><strong>See you on Saturday at training!</strong><button class="say" type="button" data-say="See you on Saturday at training!">🔊</button><br><span class="ht">N a wè Samdi nan antrènman!</span></span></div>
+            <div class="tip">💡 Pratike ak yon zanmi: youn se Ti Jan, lòt la se Ti Jak. Apre sa, chanje!</div>
+          `, body_en:`
+            <p>Ti Jan and Ti Jak meet on Route 9 early in the morning. Read the conversation. Tap 🔊 to hear how to say each sentence in English, then repeat it out loud!</p>
+            <div class="dialog-line"><span class="who">Ti Jan</span><span><strong>Good morning, Ti Jak! How are you?</strong><button class="say" type="button" data-say="Good morning, Ti Jak! How are you?">🔊</button><br><span class="ht">Kreyòl: Bonjou, Ti Jak! Kijan ou ye?</span></span></div><div class="dialog-line"><span class="who">Ti Jak</span><span><strong>I am fine, thank you. And you?</strong><button class="say" type="button" data-say="I am fine, thank you. And you?">🔊</button><br><span class="ht">Kreyòl: Mwen byen, mèsi. E ou menm?</span></span></div><div class="dialog-line"><span class="who">Ti Jan</span><span><strong>I am good. Where are you going?</strong><button class="say" type="button" data-say="I am good. Where are you going?">🔊</button><br><span class="ht">Kreyòl: Mwen byen. Ki kote w prale?</span></span></div><div class="dialog-line"><span class="who">Ti Jak</span><span><strong>I am going to the market in Croix-des-Bouquets.</strong><button class="say" type="button" data-say="I am going to the market in Croix-des-Bouquets.">🔊</button><br><span class="ht">Kreyòl: Mwen prale nan mache Kwadebouke.</span></span></div><div class="dialog-line"><span class="who">Ti Jan</span><span><strong>I am going to school in Dorigol.</strong><button class="say" type="button" data-say="I am going to school in Dorigol.">🔊</button><br><span class="ht">Kreyòl: Mwen prale lekòl Dorigol.</span></span></div><div class="dialog-line"><span class="who">Ti Jak</span><span><strong>Let’s walk on Route 9 together!</strong><button class="say" type="button" data-say="Let’s walk on Route 9 together!">🔊</button><br><span class="ht">Kreyòl: Ann mache sou Wout 9 ansanm!</span></span></div><div class="dialog-line"><span class="who">Ti Jan</span><span><strong>See you on Saturday at training!</strong><button class="say" type="button" data-say="See you on Saturday at training!">🔊</button><br><span class="ht">Kreyòl: N a wè Samdi nan antrènman!</span></span></div>
+            <div class="tip">💡 Practice with a friend: one is Ti Jan, the other is Ti Jak. Then switch!</div>
+          `},
+          {h:'Mo nouvo', h_en:'New words', body:`
+            <table class="vocab-table">
+              <tr><th>Kreyòl</th><th>Angle</th></tr>
+              <tr><td>Kote w prale?</td><td><strong>Where are you going?</strong></td></tr>
+              <tr><td>Mache</td><td><strong>Market</strong></td></tr>
+              <tr><td>Lekòl</td><td><strong>School</strong></td></tr>
+              <tr><td>Ansanm</td><td><strong>Together</strong></td></tr>
+              <tr><td>Antrènman</td><td><strong>Training</strong></td></tr>
+              <tr><td>N a wè</td><td><strong>See you</strong></td></tr>
+            </table>
+          `, body_en:`
+            <table class="vocab-table">
+              <tr><th>Kreyòl</th><th>English</th></tr>
+              <tr><td>Kote w prale?</td><td><strong>Where are you going?</strong></td></tr>
+              <tr><td>Mache</td><td><strong>Market</strong></td></tr>
+              <tr><td>Lekòl</td><td><strong>School</strong></td></tr>
+              <tr><td>Ansanm</td><td><strong>Together</strong></td></tr>
+              <tr><td>Antrènman</td><td><strong>Training</strong></td></tr>
+              <tr><td>N a wè</td><td><strong>See you</strong></td></tr>
+            </table>
+          `}
+        ],
+        quiz:[
+          {q:"Kijan pou di 'Ki kote w prale?' an Angle?", q_en:"How do you say 'Ki kote w prale?' in English?", opts:['How are you?','Where are you going?','What is your name?','See you on Saturday!'], correct:1, exp:"'Where are you going?' vle di 'Ki kote w prale?'", exp_en:"'Where are you going?' means 'Ki kote w prale?'"},
+          {q:"Ti Jak di: 'I am going to the market.' Ki kote li prale?", q_en:"Ti Jak says: 'I am going to the market.' Where is he going?", opts:['Lekòl','Lakay','Nan mache','Nan antrènman'], opts_en:['To school','Home','To the market','To training'], correct:2, exp:"'Market' vle di mache.", exp_en:"'Market' means mache."},
+          {q:"Si yon zanmi di w 'How are you?', ki pi bon repons lan?", q_en:"If a friend says 'How are you?', what is the best answer?", opts:['I am fine, thank you.','Goodbye!','I am going to school.','Monday'], correct:0, exp:"'I am fine, thank you' = Mwen byen, mèsi.", exp_en:"'I am fine, thank you' = Mwen byen, mèsi."}
+        ]
       }
     ]
   },
@@ -1171,6 +1295,55 @@ print(kids[0])</code>
           {q:'Ki senbòl nou itilize pou fè yon lis nan Python?', q_en:'Which symbol do we use to make a list in Python?', opts:['Parantèz ( )','Kwochè [ ]','Guillemet " "','Vigil ,'], opts_en:['Parentheses ( )','Square brackets [ ]','Quote marks " "','Comma ,'], correct:1, exp:'Kwochè [ ] antoure yon lis.', exp_en:'Square brackets [ ] surround a list.'},
           {q:'Ki premye nimewo yon lis kòmanse ladan l nan Python?', q_en:'What number does a list start counting from in Python?', opts:['0','1','2','10'], correct:0, exp:"Python konte kòmanse nan 0, se sa yo rele 'zero-indexed'.", exp_en:"Python starts counting at 0 — this is called 'zero-indexed'."}
         ]
+      },
+      {
+        title:'Lis + Bouk: Mango nan Zòn Nou', title_en:'Lists + Loops: Mangoes Around Us',
+        sections:[
+          {h:'Konte mango nan chak kote', h_en:'Counting mangoes in each place', body:`
+            <p>Ti Jan ak Ti Jak konte mango ki tonbe anba pye mango nan kat kote. Nou mete non kote yo nan yon lis, epi kantite mango yo nan yon lòt lis:</p>
+            <code class="block">kote = ["Dorigol", "Tikazal", "Bon Repos", "Croix-des-Bouquets"]
+mango = [12, 7, 20, 15]
+
+total = 0
+for i in range(4):
+    print(kote[i], ":", mango[i], "mango")
+    total = total + mango[i]
+
+print("Total:", total)</code>
+            <p>Kòd sa a ap montre:</p>
+            <code class="block">Dorigol : 12 mango
+Tikazal : 7 mango
+Bon Repos : 20 mango
+Croix-des-Bouquets : 15 mango
+Total: 54</code>
+            <p><strong>Kijan li mache:</strong> <code>range(4)</code> bay nimewo 0, 1, 2, 3. Chak fwa bouk la vire, <code>i</code> chanje, epi nou ajoute mango kote sa a nan <code>total</code>.</p>
+            <div class="tip">💡 Sa se jan syantis done (data) travay: yo mete enfòmasyon nan lis, epi yo kite òdinatè a konte pou yo!</div>
+          `, body_en:`
+            <p>Ti Jan and Ti Jak count the mangoes that fell under mango trees in four places. We put the place names in one list, and the number of mangoes in another list:</p>
+            <code class="block">places = ["Dorigol", "Tikazal", "Bon Repos", "Croix-des-Bouquets"]
+mangoes = [12, 7, 20, 15]
+
+total = 0
+for i in range(4):
+    print(places[i], ":", mangoes[i], "mangoes")
+    total = total + mangoes[i]
+
+print("Total:", total)</code>
+            <p>This code will show:</p>
+            <code class="block">Dorigol : 12 mangoes
+Tikazal : 7 mangoes
+Bon Repos : 20 mangoes
+Croix-des-Bouquets : 15 mangoes
+Total: 54</code>
+            <p><strong>How it works:</strong> <code>range(4)</code> gives the numbers 0, 1, 2, 3. Each time the loop goes around, <code>i</code> changes, and we add that place's mangoes to <code>total</code>.</p>
+            <div class="tip">💡 This is how data scientists work: they put information in lists, and let the computer do the counting!</div>
+          `}
+        ],
+        quiz:[
+          {q:'Nan kòd la, kisa mango[2] ye?\n\nmango = [12, 7, 20, 15]', q_en:'In the code, what is mangoes[2]?\n\nmangoes = [12, 7, 20, 15]', opts:['12','7','20','15'], correct:2, exp:'Nou konte kòmanse nan 0: mango[0]=12, mango[1]=7, mango[2]=20.', exp_en:'We count from 0: mangoes[0]=12, mangoes[1]=7, mangoes[2]=20.'},
+          {q:'Si Tikazal te gen 10 mango olye de 7, ki total la t ap ye?', q_en:'If Tikazal had 10 mangoes instead of 7, what would the total be?', opts:['54','57','61','64'], correct:1, exp:'12 + 10 + 20 + 15 = 57.', exp_en:'12 + 10 + 20 + 15 = 57.'},
+          {q:'Ki kote ki gen plis mango?', q_en:'Which place has the most mangoes?', opts:['Dorigol','Tikazal','Bon Repos','Croix-des-Bouquets'], correct:2, exp:'Bon Repos gen 20 mango — se pi gwo nimewo nan lis la.', exp_en:'Bon Repos has 20 mangoes — the biggest number in the list.'}
+        ]
       }
     ]
   }
@@ -1188,7 +1361,59 @@ try{
 
 const UI = {
   headerSub:{ht:'Yon pwogram aprantisaj pou timoun Running Revolution Ayiti — fonksyone san entènèt', en:'A learning program for Running Revolution Ayiti kids — works offline'},
-  changeName:{ht:'Chanje Non', en:'Change Name'},
+  changeName:{ht:'Mwen fini 👋', en:"I'm done 👋"},
+  whoTitle:{ht:'Ki moun ki la? 👋', en:"Who's here? 👋"},
+  whoSub:{ht:'Peze sou non ou. Si se premye fwa ou, peze "Nouvo".', en:'Tap your name. If it is your first time, tap "New".'},
+  newBtn:{ht:'Nouvo', en:'New'},
+  npTitle:{ht:'Bonjou! Ann kreye pwofil ou', en:"Hi! Let's make your profile"},
+  npNameLabel:{ht:'Premye non ou sèlman', en:'Your first name only'},
+  npNameNote:{ht:'Pa mete siyati ou. Egzanp: Jean, Ti Jak, Nadège.', en:'No last name. Example: Jean, Ti Jak, Nadège.'},
+  npAvatarLabel:{ht:'Chwazi yon imaj pou ou', en:'Pick a picture for yourself'},
+  npNext:{ht:'Kontinye →', en:'Next →'},
+  npErrName:{ht:'Ekri premye non ou.', en:'Type your first name.'},
+  npErrAvatar:{ht:'Chwazi yon imaj.', en:'Pick a picture.'},
+  npErrTaken:{ht:'Gen yon lòt moun ki gen menm non ak menm imaj la sou telefòn sa a. Chwazi yon lòt imaj.', en:'Someone on this phone already has this name and picture. Pick another picture.'},
+  pinCreate:{ht:'Chwazi yon kòd sekrè 4 chif. Pa di pèsonn li!', en:'Choose a secret 4-number code. Don\'t tell anyone!'},
+  pinConfirm:{ht:'Tape kòd la ankò pou konfime.', en:'Type the code again to confirm.'},
+  pinEnter:{ht:'Tape kòd sekrè ou.', en:'Type your secret code.'},
+  pinMismatch:{ht:'De kòd yo pa menm. Eseye ankò.', en:"The two codes don't match. Try again."},
+  pinWrong:{ht:'Kòd la pa bon. Eseye ankò.', en:'Wrong code. Try again.'},
+  pinForgot:{ht:'Mwen bliye kòd mwen', en:'I forgot my code'},
+  pinTrainerAsk:{ht:'Rele Albert oswa Roseline. Fòmatè a dwe tape kòd fòmatè a:', en:'Call Albert or Roseline. The trainer must type the trainer code:'},
+  pinTrainerBad:{ht:'Kòd fòmatè a pa bon.', en:'Wrong trainer code.'},
+  pinResetOk:{ht:'Kòd la efase. Chwazi yon nouvo kòd 4 chif.', en:'Code erased. Choose a new 4-number code.'},
+  pinOldProfile:{ht:'Pwofil ou soti nan ansyen vèsyon an. Chwazi yon imaj epi yon kòd sekrè pou pwoteje pwen ou.', en:'Your profile is from the old version. Pick a picture and a secret code to protect your points.'},
+  statWeekPts:{ht:'pwen semèn sa a', en:'points this week'},
+  statDays:{ht:'jou semèn sa a', en:'days this week'},
+  statStreak:{ht:'semèn youn dèyè lòt', en:'weeks in a row'},
+  statSaver:{ht:'🛟 1 sovtaj disponib mwa sa a', en:'🛟 1 streak saver left this month'},
+  statSaverUsed:{ht:'🛟 sovtaj mwa sa a itilize', en:"🛟 this month's saver is used"},
+  statGoal:{ht:'Objektif: {n} jou chak semèn', en:'Goal: {n} days each week'},
+  boardBtn:{ht:'🏆 Klasman Semèn nan', en:"🏆 This Week's Ranking"},
+  boardTitle:{ht:'🏆 Klasman Semèn nan', en:"🏆 This Week's Ranking"},
+  boardSub:{ht:'Klasman an rekòmanse chak lendi. Tout moun ka genyen!', en:'The ranking starts over every Monday. Anyone can win!'},
+  boardTop:{ht:'Pi plis pwen', en:'Most points'},
+  boardImproved:{ht:'🚀 Pi gwo pwogrè', en:'🚀 Most improved'},
+  boardImprovedNote:{ht:'Moun ki fè plis pwen semèn sa a pase semèn pase a.', en:'The person who earned the most more points than last week.'},
+  boardLastWinner:{ht:'👑 Chanpyon semèn pase a', en:"👑 Last week's champion"},
+  boardClub:{ht:'🤝 Objektif klib la mwa sa a', en:"🤝 The club's goal this month"},
+  boardClubText:{ht:'{n} leson fini ansanm sou {g}', en:'{n} lessons finished together out of {g}'},
+  boardPhone:{ht:'📱 Sou telefòn sa a', en:'📱 On this phone'},
+  boardOffline:{ht:'Pa gen entènèt kounye a — n ap montre sa ki sou telefòn sa a. Klasman tout klib la ap parèt lè gen entènèt.', en:"No internet right now — showing what's on this phone. The whole club's ranking appears when there is internet."},
+  boardUpdated:{ht:'Mizajou: {t}', en:'Updated: {t}'},
+  boardEmpty:{ht:'Pèsonn poko fè pwen semèn sa a. Ou ka premye a! 💪', en:'Nobody has points yet this week. You can be first! 💪'},
+  boardRules:{ht:'<strong>Kijan pou fè pwen:</strong> chak nouvo leson = 10 pwen, chak bon repons nan premye eseye a = 2 pwen, chak jou ou fini yon leson = 2 pwen bonis. Refè yon leson pa bay pwen — men li bon pou pratike!', en:'<strong>How to earn points:</strong> each new lesson = 10 points, each correct answer on your first try = 2 points, each day you finish a lesson = 2 bonus points. Redoing a lesson gives no points — but it is good practice!'},
+  boardYou:{ht:'(ou)', en:'(you)'},
+  ptsEarned:{ht:'+{n} pwen! ⭐', en:'+{n} points! ⭐'},
+  sayTitle:{ht:'Koute', en:'Listen'},
+  voiceBtn:{ht:'🎧 Koute Wisly esplike leson an', en:'🎧 Listen to Wisly explain the lesson (Kreyòl)'},
+  voiceLoading:{ht:'⏳ Ap chaje…', en:'⏳ Loading…'},
+  welcomeBtn:{ht:'🎧 Koute mesaj byenvini Wisly a', en:"🎧 Listen to Wisly's welcome (Kreyòl)"},
+  soundOn:{ht:'🔈 Son', en:'🔈 Sound'},
+  soundOff:{ht:'🔇 San son', en:'🔇 Muted'},
+  voiceStop:{ht:'⏹ Kanpe', en:'⏹ Stop'},
+  voiceOffline:{ht:'Bezwen entènèt pou premye fwa a', en:'Needs internet the first time'},
+  voiceCantPlay:{ht:'Telefòn sa a pa ka jwe son an', en:"This phone can't play the sound"},
   langBtn:{ht:'🌐 English', en:'🌐 Kreyòl'},
   namePrompt:{ht:'Anvan nou kòmanse, ekri non ou pou nou ka konnen ki leson ou fin fè.', en:"Before we start, write your name so we know which lessons you've finished."},
   nameInputPh:{ht:'Ekri non ou isit la...', en:'Type your name here...'},
@@ -1197,7 +1422,9 @@ const UI = {
   trainerSummary:{ht:'Pou Fòmatè yo (Albert, Roseline, elatriye)', en:'For Trainers (Albert, Roseline, etc.)'},
   trainerList:{
     ht:[
-      'Chak timoun dwe ekri pwòp non yo lè yo kòmanse, konsa nou ka swiv pwogrè chak moun apa.',
+      'Chak timoun gen pwòp pwofil yo: premye non, yon imaj, ak yon kòd sekrè 4 chif. Plizyè timoun ka pataje menm telefòn — chak moun peze "Mwen fini" lè yo fini.',
+      'Si yon timoun bliye kòd li, fòmatè a peze "Mwen bliye kòd mwen" epi tape kòd fòmatè a pou efase l.',
+      'Klasman an rekòmanse chak lendi. Pwen yo sèlman pou nouvo leson — refè yon leson pa bay pwen.',
       'Pwogram sa a fonksyone san entènèt — ou ka sove fichye a sou nenpòt òdinatè epi louvri l nenpòt kote.',
       'Sijere fè yon sèl leson pou chak sesyon, epi kite timoun yo eseye quiz la plizyè fwa si yo bezwen.',
       'Pwogrè chak moun sove otomatikman sou aparèy la, epi lè telefòn nan gen entènèt, li voye pwogrè a bay RRA pou Wisly ka wè ki leson yo fin fè.',
@@ -1206,7 +1433,9 @@ const UI = {
       'Lè yon moun fin konplete tout twa kou yo, yo ka enprime yon Sètifika Debaz ki gen non yo sou li.'
     ],
     en:[
-      "Each child should write their own name when they start, so we can track each person's progress separately.",
+"Each child has their own profile: first name, a picture, and a secret 4-number code. Several kids can share one phone — each taps \"I'm done\" when they finish.",
+      'If a child forgets their code, the trainer taps "I forgot my code" and types the trainer code to erase it.',
+      'The ranking starts over every Monday. Points only come from new lessons — redoing a lesson gives no points.',
       'This program works offline — you can save the file on any computer and open it anywhere.',
       'We suggest doing one lesson per session, and letting kids try the quiz multiple times if they need to.',
       "Everyone's progress saves automatically on the device, and when the phone has internet it is also sent to RRA so Wisly can see which lessons are finished.",
@@ -1303,10 +1532,22 @@ function applyStaticText(){
   document.getElementById('header-sub').textContent = t('headerSub');
   document.getElementById('lang-toggle-btn').textContent = t('langBtn');
   document.getElementById('change-name-btn').textContent = t('changeName');
-  document.getElementById('name-prompt').textContent = t('namePrompt');
-  document.getElementById('name-input').placeholder = t('nameInputPh');
-  document.getElementById('start-btn').textContent = t('startBtn');
-  document.getElementById('or-choose-name').textContent = t('orChoose');
+  document.getElementById('who-title').textContent = t('whoTitle');
+  document.getElementById('welcome-voice').textContent = t('welcomeBtn');
+  renderSoundBtn();
+  document.getElementById('who-sub').textContent = t('whoSub');
+  document.getElementById('np-title').textContent = t('npTitle');
+  document.getElementById('np-name-label').textContent = t('npNameLabel');
+  document.getElementById('np-name-note').textContent = t('npNameNote');
+  document.getElementById('np-avatar-label').textContent = t('npAvatarLabel');
+  document.getElementById('np-next').textContent = t('npNext');
+  document.getElementById('pin-forgot').textContent = t('pinForgot');
+  document.getElementById('back-btn-np').textContent = t('backBtn');
+  document.getElementById('back-btn-pin').textContent = t('backBtn');
+  document.getElementById('back-btn-board').textContent = t('backBtn');
+  document.getElementById('board-btn').textContent = t('boardBtn');
+  document.getElementById('board-title').textContent = t('boardTitle');
+  document.getElementById('board-sub').textContent = t('boardSub');
   document.getElementById('trainer-summary').textContent = t('trainerSummary');
   const trainerListEl = document.getElementById('trainer-list');
   trainerListEl.innerHTML = UI.trainerList[lang].map(item=>'<li>'+item+'</li>').join('');
@@ -1331,7 +1572,10 @@ function rerenderCurrentScreen(){
   updateUserBadge();
   switch(active.id){
     case 'screen-name': renderNameScreen(); break;
-    case 'screen-home': renderTrackCards(); updateOverallCertRow(); break;
+    case 'screen-home': renderTrackCards(); updateOverallCertRow(); renderStats(); break;
+    case 'screen-newprofile': renderAvatarPick(); break;
+    case 'screen-pin': renderPinScreen(); break;
+    case 'screen-board': openBoard(); break;
     case 'screen-progress': openProgressView(); break;
     case 'screen-track': renderTrackScreen(); break;
     case 'screen-lesson': renderLessonScreen(); break;
@@ -1376,11 +1620,11 @@ function persistAllUsersData(){
 
 function saveCurrentUserProgress(){
   if(!state.currentUser) return;
-  allUsersData[state.currentUser] = {
+  allUsersData[state.currentUser] = Object.assign({}, allUsersData[state.currentUser] || {}, {
     konpite: Array.from(state.completed.konpite),
     angle: Array.from(state.completed.angle),
     python: Array.from(state.completed.python)
-  };
+  });
   persistAllUsersData();
 }
 
@@ -1390,7 +1634,7 @@ function saveCurrentUserProgress(){
    Nothing is lost offline: the queue waits until it can send.
 --------------------------------------------------------- */
 const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbw3BJ1LlMHffmgt34SRndJiw3xx-kbeL1cCUGt8vPrGjOM1yzENQgZNPYS_9PUrIq8POw/exec';
-const APP_VERSION = '1.1';
+const APP_VERSION = '2.2';
 const QUEUE_KEY = 'aprann-ak-nou-queue-v1';
 const DEVICE_KEY = 'aprann-ak-nou-device-v1';
 function backendOn(){ return /^https:\/\/script\.google\.com\//.test(BACKEND_URL); }
@@ -1447,49 +1691,163 @@ function isAllComplete(){
 }
 
 /* ---------------------------------------------------------
-   NAME / PROFILE SCREEN
+   PROFILES (v2): first name + picture + 4-digit secret code.
+   Several kids can share one phone. Profile key = "Name 🐓".
 --------------------------------------------------------- */
+const TRAINER_CODE = 'RRA2026';   // trainer code to reset a forgotten kid code — change it here
+const AVATARS = ['🐓','⚽','🌺','🥭','🦁','🐢','🚀','⭐','🎵','🏃','📚','🐟','🌳','🦋','🐐','🌞'];
+const DAYS_GOAL = 3;              // days per week that keep a weekly streak going
+const CLUB_GOAL = 200;            // lessons the whole club tries to finish each month
+
+function pinHash(key, pin){
+  let h = 2166136261 >>> 0; const str = 'aprann|' + key + '|' + pin;
+  for(let i=0;i<str.length;i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
+  return h.toString(36);
+}
+function profileList(){ return Object.keys(allUsersData).sort((a,b)=>a.localeCompare(b)); }
+function splitKey(key){
+  const d = allUsersData[key] || {};
+  return { name: d.name || key, avatar: d.avatar || '' };
+}
+function escapeHtml(x){ return String(x).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
 function renderNameScreen(){
-  const names = Object.keys(allUsersData);
-  const wrap = document.getElementById('name-list-wrap');
-  const list = document.getElementById('name-list');
-  list.innerHTML = '';
-  if(names.length){
-    wrap.style.display = 'block';
-    names.forEach(name=>{
-      const chip = document.createElement('button');
-      chip.className='name-chip';
-      chip.textContent = name;
-      chip.onclick = ()=>selectUser(name);
-      list.appendChild(chip);
+  const grid = document.getElementById('profile-grid');
+  grid.innerHTML = '';
+  profileList().forEach(key=>{
+    const {name, avatar} = splitKey(key);
+    const b = document.createElement('button');
+    b.className = 'profile-btn';
+    b.innerHTML = '<span class="av">'+(avatar||'👤')+'</span><span>'+escapeHtml(name)+'</span>';
+    b.onclick = ()=>askPin(key);
+    grid.appendChild(b);
+  });
+  const nb = document.createElement('button');
+  nb.className = 'profile-btn new';
+  nb.innerHTML = '<span class="av">➕</span><span>'+t('newBtn')+'</span>';
+  nb.onclick = startNewProfile;
+  grid.appendChild(nb);
+}
+function showProfiles(){ renderNameScreen(); showScreen('screen-name'); }
+
+/* --- new profile --- */
+let np = { avatar:'', legacyKey:null };
+function startNewProfile(legacyKey){
+  np = { avatar:'', legacyKey: (typeof legacyKey==='string') ? legacyKey : null };
+  const input = document.getElementById('np-name');
+  input.value = np.legacyKey ? (allUsersData[np.legacyKey].name || np.legacyKey) : '';
+  input.disabled = !!np.legacyKey;
+  document.getElementById('np-err').textContent = np.legacyKey ? t('pinOldProfile') : '';
+  document.getElementById('np-err').className = np.legacyKey ? 'pin-msg' : 'pin-msg err';
+  renderAvatarPick();
+  showScreen('screen-newprofile');
+  if(!np.legacyKey) setTimeout(()=>input.focus(), 50);
+}
+function renderAvatarPick(){
+  const wrap = document.getElementById('np-avatars');
+  wrap.innerHTML = '';
+  AVATARS.forEach(a=>{
+    const b = document.createElement('button');
+    b.textContent = a; if(np.avatar===a) b.className='sel';
+    b.onclick = ()=>{ np.avatar = a; renderAvatarPick(); };
+    wrap.appendChild(b);
+  });
+}
+function cleanName(v){
+  v = (v||'').replace(/\s+/g,' ').trim();
+  return v ? v.charAt(0).toUpperCase() + v.slice(1) : '';
+}
+function newProfileNext(){
+  const err = document.getElementById('np-err'); err.className='pin-msg err';
+  const name = np.legacyKey ? (allUsersData[np.legacyKey].name || np.legacyKey) : cleanName(document.getElementById('np-name').value);
+  if(!name){ err.textContent = t('npErrName'); return; }
+  if(!np.avatar){ err.textContent = t('npErrAvatar'); return; }
+  const key = name + ' ' + np.avatar;
+  if(allUsersData[key] && key !== np.legacyKey){ err.textContent = t('npErrTaken'); return; }
+  pin.mode = 'create'; pin.key = key; pin.name = name; pin.avatar = np.avatar; pin.first = ''; pin.entry = '';
+  pin.legacyKey = np.legacyKey;
+  renderPinScreen(); showScreen('screen-pin');
+}
+
+/* --- PIN pad --- */
+const pin = { mode:'enter', key:null, name:'', avatar:'', entry:'', first:'', legacyKey:null, msg:'', err:false };
+function askPin(key){
+  const d = allUsersData[key];
+  if(!d || !d.pinHash){ startNewProfile(key); return; }   // old (v1) profile: add picture + code
+  const sp = splitKey(key);
+  Object.assign(pin, {mode:'enter', key, name:sp.name, avatar:sp.avatar, entry:'', first:'', legacyKey:null, msg:'', err:false});
+  renderPinScreen(); showScreen('screen-pin');
+}
+function renderPinScreen(){
+  document.getElementById('pin-avatar').textContent = pin.avatar || '👤';
+  document.getElementById('pin-name').textContent = pin.name;
+  document.getElementById('pin-prompt').textContent =
+    pin.mode==='create' ? t('pinCreate') : pin.mode==='confirm' ? t('pinConfirm') : t('pinEnter');
+  document.getElementById('pin-forgot').style.display = pin.mode==='enter' ? '' : 'none';
+  const dots = document.querySelectorAll('#pin-dots span');
+  dots.forEach((d,i)=>d.className = i < pin.entry.length ? 'on' : '');
+  const m = document.getElementById('pin-msg'); m.textContent = pin.msg; m.className = 'pin-msg' + (pin.err?' err':'');
+  const pad = document.getElementById('pin-pad');
+  if(!pad.childElementCount){
+    ['1','2','3','4','5','6','7','8','9','⌫','0','✓'].forEach(k=>{
+      const b = document.createElement('button'); b.textContent = k;
+      b.onclick = ()=>pinKey(k); pad.appendChild(b);
     });
-  } else {
-    wrap.style.display = 'none';
   }
-  document.getElementById('name-input').value = '';
+}
+function pinKey(k){
+  if(k==='⌫'){ pin.entry = pin.entry.slice(0,-1); renderPinScreen(); return; }
+  if(k==='✓'){ if(pin.entry.length===4) pinSubmit(); return; }
+  if(pin.entry.length < 4){ pin.entry += k; pin.msg=''; pin.err=false; }
+  renderPinScreen();
+  if(pin.entry.length===4) setTimeout(pinSubmit, 150);
+}
+function pinSubmit(){
+  if(pin.entry.length!==4) return;
+  if(pin.mode==='create'){
+    pin.first = pin.entry; pin.entry=''; pin.mode='confirm'; pin.msg=''; renderPinScreen(); return;
+  }
+  if(pin.mode==='confirm'){
+    if(pin.entry !== pin.first){
+      Object.assign(pin,{mode:'create', entry:'', first:'', msg:t('pinMismatch'), err:true}); renderPinScreen(); return;
+    }
+    // save profile (new, legacy upgrade, or reset)
+    let data = allUsersData[pin.key];
+    if(pin.legacyKey && pin.legacyKey !== pin.key){
+      data = allUsersData[pin.legacyKey]; delete allUsersData[pin.legacyKey];
+    }
+    data = data || {konpite:[], angle:[], python:[]};
+    data.name = pin.name; data.avatar = pin.avatar; data.pinHash = pinHash(pin.key, pin.entry);
+    allUsersData[pin.key] = data; persistAllUsersData();
+    selectUser(pin.key); return;
+  }
+  // enter
+  const d = allUsersData[pin.key];
+  if(d && d.pinHash === pinHash(pin.key, pin.entry)){ selectUser(pin.key); return; }
+  Object.assign(pin,{entry:'', msg:t('pinWrong'), err:true}); renderPinScreen();
+}
+function forgotPin(){
+  const code = prompt(t('pinTrainerAsk'));
+  if(code===null) return;
+  if(code.trim() !== TRAINER_CODE){ Object.assign(pin,{msg:t('pinTrainerBad'), err:true, entry:''}); renderPinScreen(); return; }
+  Object.assign(pin,{mode:'create', entry:'', first:'', legacyKey:null, msg:t('pinResetOk'), err:false});
+  renderPinScreen();
 }
 
-function startWithName(){
-  const val = document.getElementById('name-input').value.trim();
-  if(!val){
-    document.getElementById('name-input').focus();
-    return;
-  }
-  selectUser(val);
-}
-
-function selectUser(name){
-  state.currentUser = name;
-  const saved = allUsersData[name] || {};
+function selectUser(key){
+  state.currentUser = key;
+  const saved = allUsersData[key] || {};
   state.completed = {
     konpite: new Set(saved.konpite || []),
     angle: new Set(saved.angle || []),
     python: new Set(saved.python || [])
   };
-  if(!allUsersData[name]) saveCurrentUserProgress();
+  if(!allUsersData[key]) saveCurrentUserProgress();
   updateUserBadge();
   queueEvent('open');
+  prefetchMsgs();
   goHome();
+  refreshBoard();
 }
 
 function changeUser(){
@@ -1497,18 +1855,181 @@ function changeUser(){
   state.currentTrack = null;
   state.currentLessonIdx = null;
   updateUserBadge();
-  renderNameScreen();
-  showScreen('screen-name');
+  showProfiles();
 }
 
 function updateUserBadge(){
   const badge = document.getElementById('user-badge');
   if(state.currentUser){
     badge.style.display = 'flex';
-    document.getElementById('user-badge-name').textContent = '👤 ' + state.currentUser;
+    const sp = splitKey(state.currentUser);
+    document.getElementById('user-badge-name').textContent = (sp.avatar || '👤') + ' ' + sp.name;
   } else {
     badge.style.display = 'none';
   }
+}
+
+/* ---------------------------------------------------------
+   POINTS, DAYS ACTIVE, WEEKLY STREAK (stored per profile)
+--------------------------------------------------------- */
+function ymd(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function weekKeyOf(d){ const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); const wd = (x.getDay()+6)%7; x.setDate(x.getDate()-wd); return ymd(x); }
+function thisWeek(){ return weekKeyOf(new Date()); }
+function prevWeekKey(wk, n){ const [y,m,dd] = wk.split('-').map(Number); const x = new Date(y, m-1, dd); x.setDate(x.getDate()-7*(n||1)); return ymd(x); }
+function userData(){ return allUsersData[state.currentUser] || {}; }
+function weekInfo(d, wk){
+  d.weeks = d.weeks || {};
+  return d.weeks[wk] = d.weeks[wk] || {pts:0, days:[]};
+}
+function awardPoints(lessonPts){
+  const d = userData(); const wk = thisWeek(); const w = weekInfo(d, wk);
+  const today = ymd(new Date());
+  let bonus = 0;
+  if(!w.days.includes(today)){ w.days.push(today); bonus = 2; }
+  const earned = lessonPts + bonus;
+  w.pts += earned;
+  return earned;
+}
+function weeklyStreak(d){
+  // consecutive weeks with >= DAYS_GOAL active days; one "saver" per calendar month covers a missed week
+  const weeks = d.weeks || {};
+  const cur = thisWeek();
+  let streak = 0, wk = cur;
+  const usedSaverMonths = new Set();
+  // the current week counts only once it reaches the goal (it can't break the streak before it ends)
+  if((weeks[cur]?.days?.length||0) >= DAYS_GOAL) streak++;
+  wk = prevWeekKey(cur);
+  for(let i=0;i<104;i++){
+    const n = weeks[wk]?.days?.length || 0;
+    if(n >= DAYS_GOAL){ streak++; }
+    else {
+      const month = wk.slice(0,7);
+      const hadActivityBefore = Object.keys(weeks).some(k=>k < wk && (weeks[k].days||[]).length);
+      if(!usedSaverMonths.has(month) && hadActivityBefore && streak>0){ usedSaverMonths.add(month); }
+      else break;
+    }
+    wk = prevWeekKey(wk);
+  }
+  const saverUsedThisMonth = usedSaverMonths.has(cur.slice(0,7));
+  return {streak, saverUsedThisMonth};
+}
+function renderStats(){
+  const card = document.getElementById('stats-card');
+  if(!state.currentUser){ card.style.display='none'; return; }
+  card.style.display='flex';
+  const d = userData(); const w = (d.weeks||{})[thisWeek()] || {pts:0, days:[]};
+  const {streak, saverUsedThisMonth} = weeklyStreak(d);
+  const labels = lang==='en' ? ['M','T','W','T','F','S','S'] : ['L','M','M','J','V','S','D'];
+  const [y,m,dd] = thisWeek().split('-').map(Number);
+  const today = ymd(new Date());
+  let dots = '';
+  for(let i=0;i<7;i++){ const x = new Date(y,m-1,dd+i); const k = ymd(x);
+    dots += '<span class="'+(w.days.includes(k)?'on':'')+(k===today?' today':'')+'">'+labels[i]+'</span>'; }
+  card.innerHTML =
+    '<div class="stat"><div class="big">⭐ '+w.pts+'</div><div class="lbl">'+t('statWeekPts')+'</div></div>'+
+    '<div class="stat"><div class="big">'+w.days.length+'/7</div><div class="lbl">'+t('statDays')+' · '+t('statGoal').replace('{n}',DAYS_GOAL)+'</div><div class="day-dots">'+dots+'</div></div>'+
+    '<div class="stat"><div class="big">🔥 '+streak+'</div><div class="lbl">'+t('statStreak')+'</div><div class="lbl">'+(saverUsedThisMonth?t('statSaverUsed'):t('statSaver'))+'</div></div>';
+}
+
+/* ---------------------------------------------------------
+   LEADERBOARD (weekly, resets Monday) — club-wide from the Google Sheet,
+   cached on the phone so it still shows something offline.
+--------------------------------------------------------- */
+const BOARD_KEY = 'aprann-ak-nou-board-v2';
+let boardCache = null;
+try{ boardCache = JSON.parse(localStorage.getItem(BOARD_KEY)||'null'); }catch(e){ boardCache = null; }
+let boardLoading = false;
+async function refreshBoard(){
+  if(boardLoading || !backendOn()) return;
+  if(typeof navigator!=='undefined' && navigator.onLine===false) return;
+  boardLoading = true;
+  try{
+    await flushQueue();
+    const res = await fetch(BACKEND_URL + '?a=board&wk=' + encodeURIComponent(thisWeek()) + '&m=' + encodeURIComponent(ymd(new Date()).slice(0,7)));
+    const data = await res.json();
+    if(data && data.ok){ boardCache = Object.assign({fetched: Date.now()}, data); try{ localStorage.setItem(BOARD_KEY, JSON.stringify(boardCache)); }catch(e){} }
+  }catch(e){ /* offline: keep cache */ }
+  boardLoading = false;
+  const active = document.querySelector('.screen.active');
+  if(active && active.id==='screen-board') renderBoard();
+}
+function openBoard(){ renderBoard(); showScreen('screen-board'); refreshBoard(); }
+function localWeekRows(wk){
+  return profileList().map(k=>({student:k, pts:((allUsersData[k].weeks||{})[wk]||{}).pts||0})).filter(r=>r.pts>0).sort((a,b)=>b.pts-a.pts);
+}
+function boardRowsHtml(rows, me){
+  if(!rows.length) return '<p class="empty-note">'+t('boardEmpty')+'</p>';
+  let h = '<table class="lb-table">';
+  rows.forEach((r,i)=>{
+    const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1);
+    h += '<tr class="'+(r.student===me?'me':'')+'"><td class="lb-rank">'+medal+'</td><td>'+escapeHtml(r.student)+(r.student===me?' '+t('boardYou'):'')+'</td><td class="lb-pts">⭐ '+r.pts+'</td></tr>';
+  });
+  return h + '</table>';
+}
+function renderBoard(){
+  const wrap = document.getElementById('board-wrap');
+  const wk = thisWeek(); const me = state.currentUser;
+  const fresh = boardCache && boardCache.week === wk;
+  let h = '';
+  if(fresh){
+    // merge: a kid's points on this phone may be newer than the sheet
+    const map = {}; (boardCache.top||[]).forEach(r=>map[r.student]=r.pts);
+    localWeekRows(wk).forEach(r=>{ if(!(r.student in map) || r.pts > map[r.student]) map[r.student]=r.pts; });
+    const rows = Object.keys(map).map(k=>({student:k, pts:map[k]})).sort((a,b)=>b.pts-a.pts).slice(0,15);
+    h += '<div class="lb-card"><strong>'+t('boardTop')+'</strong>'+boardRowsHtml(rows, me)+'</div>';
+    if(boardCache.improved && boardCache.improved.student){
+      h += '<div class="lb-card"><strong>'+t('boardImproved')+'</strong><p style="margin:6px 0 0;font-size:1.1rem;">'+escapeHtml(boardCache.improved.student)+' <span class="rules">(+'+boardCache.improved.gain+')</span></p><p class="rules" style="margin:4px 0 0;">'+t('boardImprovedNote')+'</p></div>';
+    }
+    if(boardCache.lastWinner && boardCache.lastWinner.student){
+      h += '<div class="lb-card"><strong>'+t('boardLastWinner')+'</strong><p style="margin:6px 0 0;font-size:1.1rem;">'+escapeHtml(boardCache.lastWinner.student)+' — ⭐ '+boardCache.lastWinner.pts+'</p></div>';
+    }
+    const club = boardCache.clubLessons||0; const pct = Math.min(100, Math.round(club/CLUB_GOAL*100));
+    h += '<div class="lb-card"><strong>'+t('boardClub')+'</strong><p style="margin:6px 0 0;">'+t('boardClubText').replace('{n}',club).replace('{g}',CLUB_GOAL)+'</p><div class="goal-bar"><div style="width:'+pct+'%"></div></div></div>';
+    const when = new Date(boardCache.fetched||Date.now());
+    h += '<p class="empty-note">'+t('boardUpdated').replace('{t}', when.toLocaleString(lang==='en'?'en-US':'fr-FR',{weekday:'short',hour:'2-digit',minute:'2-digit'}))+'</p>';
+  } else {
+    h += '<div class="lb-card"><p class="rules" style="margin:0;">'+t('boardOffline')+'</p></div>';
+    h += '<div class="lb-card"><strong>'+t('boardPhone')+'</strong>'+boardRowsHtml(localWeekRows(wk), me)+'</div>';
+  }
+  h += '<div class="lb-card"><p class="rules" style="margin:0;">'+t('boardRules')+'</p></div>';
+  wrap.innerHTML = h;
+}
+
+/* ---------------------------------------------------------
+   VOICE: read English words aloud with the phone's own voice (free, often offline)
+--------------------------------------------------------- */
+function canSpeak(){ return typeof window!=='undefined' && 'speechSynthesis' in window; }
+let enVoice = null;
+function pickVoice(){
+  if(!canSpeak()) return;
+  const vs = speechSynthesis.getVoices();
+  enVoice = vs.find(v=>/^en[-_]US/i.test(v.lang)) || vs.find(v=>/^en/i.test(v.lang)) || null;
+}
+if(canSpeak()){ pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; } else { document.documentElement.classList.add('no-speech'); }
+function say(text){
+  if(!canSpeak()) return;
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'en-US'; u.rate = 0.8; if(enVoice) u.voice = enVoice;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+function sayBtn(text){
+  return canSpeak() ? '<button class="say" type="button" title="'+t('sayTitle')+'" data-say="'+escapeHtml(text)+'">🔊</button>' : '';
+}
+document.addEventListener('click', e=>{
+  const b = e.target.closest && e.target.closest('.say');
+  if(b){ e.preventDefault(); say(b.getAttribute('data-say')); }
+});
+function addSpeakerButtons(container){
+  if(!canSpeak()) return;
+  // English words in the English course vocabulary tables
+  container.querySelectorAll('.vocab-table td strong').forEach(st=>{
+    if(st.querySelector('.say')) return;
+    const txt = st.textContent.replace(/\(.*?\)/g,'').replace(/\.\.\./g,'').trim();
+    if(txt) st.insertAdjacentHTML('beforeend', sayBtn(txt));
+  });
 }
 
 /* ---------------------------------------------------------
@@ -1536,6 +2057,8 @@ function openProgressView(){
 }
 
 function clearAllData(){
+  const code = prompt(t('pinTrainerAsk'));
+  if(code===null || code.trim()!==TRAINER_CODE){ if(code!==null) alert(t('pinTrainerBad')); return; }
   const sure = confirm(t('clearConfirm'));
   if(!sure) return;
   try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
@@ -1552,12 +2075,15 @@ function showScreen(id){
 }
 
 function goHome(){
+  stopVoice();
   renderTrackCards();
   updateOverallCertRow();
+  renderStats();
   showScreen('screen-home');
 }
 
 function openTrack(trackKey){
+  stopVoice();
   state.currentTrack = trackKey;
   renderTrackScreen();
   showScreen('screen-track');
@@ -1568,7 +2094,70 @@ function goToTrack(){
   showScreen('screen-track');
 }
 
+/* ---------------------------------------------------------
+   WISLY'S KREYÒL VOICE INTROS (audio/<code>.mp3, ~120 KB each).
+   Downloaded only when a kid taps play, then kept for offline use.
+   Messages m1–m4 play on the welcome screen, after a lesson, after a wrong answer, and when a course is done.
+--------------------------------------------------------- */
+const VOICE_FILES = {
+  konpite: ['k1','k2','k3','k4','k5','k6','k7'],
+  angle:   ['a1','a2','a3','a4','a5','a6','a7','a8'],
+  python:  ['p1','p2','p3','p4','p5','p6','p7','p8']
+};
+function lessonVoice(trackKey, idx){ const v = (VOICE_FILES[trackKey]||[])[idx]; return v ? 'audio/'+v+'.mp3' : null; }
+let voiceAudio = null, voiceBtnEl = null;
+const SOUND_KEY = 'aprann-ak-nou-sound-v1';
+let soundOn = true;
+try{ soundOn = localStorage.getItem(SOUND_KEY) !== 'off'; }catch(e){}
+function renderSoundBtn(){ const b = document.getElementById('sound-toggle-btn'); if(b) b.textContent = soundOn ? t('soundOn') : t('soundOff'); }
+function toggleSound(){
+  soundOn = !soundOn; try{ localStorage.setItem(SOUND_KEY, soundOn ? 'on' : 'off'); }catch(e){}
+  if(!soundOn){ stopVoice(); stopMsg(); }
+  renderSoundBtn();
+}
+function stopVoice(){
+  if(voiceAudio){ voiceAudio.pause(); voiceAudio = null; }
+  if(voiceBtnEl){ voiceBtnEl.textContent = t(voiceBtnEl.dataset.label || 'voiceBtn'); voiceBtnEl.classList.remove('playing'); voiceBtnEl = null; }
+}
+// short encouragement messages (m2 good job, m3 try again, m4 course done): play only if sound is on;
+// silently skipped if the clip isn't downloaded yet and there's no internet
+let msgAudio = null;
+function stopMsg(){ if(msgAudio){ msgAudio.pause(); msgAudio = null; } }
+async function playMsg(code){
+  if(!soundOn) return;
+  try{
+    const res = await fetch('audio/'+code+'.mp3'); if(!res.ok) return;
+    const url = URL.createObjectURL(await res.blob());
+    stopMsg(); stopVoice();
+    msgAudio = new Audio(url); msgAudio.onended = ()=>URL.revokeObjectURL(url);
+    await msgAudio.play();
+  }catch(e){}
+}
+// download the 3 short messages in the background so they also work offline later (~210 KB)
+function prefetchMsgs(){ if(navigator.onLine===false) return; ['m2','m3','m4'].forEach(c=>fetch('audio/'+c+'.mp3').catch(()=>{})); }
+async function toggleVoice(btn, labelKey){
+  if(labelKey) btn.dataset.label = labelKey;
+  if(voiceBtnEl === btn){ stopVoice(); return; }
+  stopVoice(); stopMsg();
+  voiceBtnEl = btn; btn.textContent = t('voiceLoading');
+  try{
+    let res;
+    try{ res = await fetch(btn.getAttribute('data-voice')); }   // the service worker keeps a copy for offline
+    catch(e){ throw new Error('offline'); }
+    if(!res.ok) throw new Error('offline');
+    const url = URL.createObjectURL(await res.blob());
+    if(voiceBtnEl !== btn) return;
+    voiceAudio = new Audio(url);
+    voiceAudio.onended = ()=>{ URL.revokeObjectURL(url); stopVoice(); };
+    await voiceAudio.play();
+    btn.textContent = t('voiceStop'); btn.classList.add('playing');
+  }catch(e){
+    if(voiceBtnEl === btn){ btn.textContent = e.message==='offline' ? t('voiceOffline') : t('voiceCantPlay'); voiceBtnEl = null; setTimeout(()=>{ btn.textContent = t(btn.dataset.label || 'voiceBtn'); }, 3000); }
+  }
+}
+
 function openLesson(idx){
+  stopVoice();
   state.currentLessonIdx = idx;
   renderLessonScreen();
   showScreen('screen-lesson');
@@ -1664,6 +2253,8 @@ function renderLessonScreen(){
   const container = document.getElementById('lesson-content');
 
   let html = `<h2>${idx+1}. ${L(lesson,'title')}</h2>`;
+  const voice = lessonVoice(track.key, idx);
+  if(voice) html += `<button class="voice-btn" type="button" data-voice="${voice}" onclick="toggleVoice(this)">${t('voiceBtn')}</button>`;
 
   lesson.sections.forEach(sec=>{
     html += `<div class="section"><h4>${L(sec,'h')}</h4>${L(sec,'body')}</div>`;
@@ -1694,6 +2285,7 @@ function renderLessonScreen(){
   if(lesson.quiz){
     renderQuiz(lesson.quiz);
   }
+  if(track.key==='angle') addSpeakerButtons(container);
 }
 
 /* ---------------------------------------------------------
@@ -1766,7 +2358,7 @@ function renderQuiz(quiz){
   const area = document.getElementById('quiz-area');
   area.innerHTML='';
   const answered = new Array(quiz.length).fill(false);
-  window._quizCorrect = 0; window._quizTotal = quiz.length;
+  window._quizCorrect = 0; window._quizTotal = quiz.length; window._triedAgainMsg = false;
 
   quiz.forEach((q,qi)=>{
     const block = document.createElement('div');
@@ -1791,6 +2383,7 @@ function renderQuiz(quiz){
         } else {
           optBtn.classList.add('wrong');
           allOpts[q.correct].classList.add('correct');
+          if(!window._triedAgainMsg){ window._triedAgainMsg = true; playMsg('m3'); }
         }
         block.querySelector('.q-feedback').textContent = L(q,'exp') || '';
         checkAllAnswered(answered);
@@ -1861,14 +2454,22 @@ function finishLesson(){
   const trackNowComplete = done>=total;
   const allNowComplete = isAllComplete();
 
+  let earned = 0;
   if(!alreadyDone){
     celebrate(trackNowComplete ? 'track' : 'lesson');
+    playMsg(trackNowComplete ? 'm4' : 'm2');
+    const correct = (typeof window._quizCorrect==='number') ? window._quizCorrect : 0;
+    earned = awardPoints(10 + 2*correct);
+  } else {
+    earned = awardPoints(0); // daily bonus still counts if this is the day's first finished lesson
   }
+  saveCurrentUserProgress();
   queueEvent(alreadyDone ? 'lesson_repeat' : 'lesson_done', {
     track: track.key, lesson: idx+1, lessonTitle: track.lessons[idx].title,
     score: (typeof window._quizCorrect==='number') ? window._quizCorrect : '',
     quizTotal: (typeof window._quizTotal==='number') ? window._quizTotal : '',
-    trackDone: (!alreadyDone && trackNowComplete) ? 'yes' : '', allDone: (!alreadyDone && allNowComplete) ? 'yes' : ''
+    trackDone: (!alreadyDone && trackNowComplete) ? 'yes' : '', allDone: (!alreadyDone && allNowComplete) ? 'yes' : '',
+    pts: earned, week: thisWeek(), weekPts: ((userData().weeks||{})[thisWeek()]||{}).pts||0
   });
 
   if(resultDiv){
@@ -1884,6 +2485,7 @@ function finishLesson(){
     } else {
       resultDiv.innerHTML = '<div class="score-banner">✅ '+t('lessonDoneMsg')+'</div>';
     }
+    if(earned>0) resultDiv.innerHTML += '<div class="score-banner" style="margin-top:8px;">'+t('ptsEarned').replace('{n}',earned)+'</div>';
   }
 
   const btn = document.getElementById('finish-btn');
@@ -1940,6 +2542,8 @@ renderNameScreen();
 renderTrackCards();
 updateOverallCertRow();
 flushQueue();
+refreshBoard();
+window.addEventListener('online', refreshBoard);
 if('serviceWorker' in navigator && location.protocol==='https:'){
   navigator.serviceWorker.register('sw.js').catch(()=>{});
 }
