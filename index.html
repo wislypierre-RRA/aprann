@@ -844,6 +844,194 @@ const TRACKS = {
           {q:'Poukisa nou itilize onglè (tabs) nan yon navigatè?', q_en:'Why do we use tabs in a browser?', opts:['Pou fèmen òdinatè a','Pou louvri plizyè sit anmenm tan','Pou chanje koulè ekran an','Pou efase istwa nou'], opts_en:['To close the computer','To have several sites open at once','To change the screen color','To delete our history'], correct:1, exp:'Onglè yo kite nou louvri plizyè paj anmenm tan.', exp_en:'Tabs let us have multiple pages open at once.'}
         ]
       }
+      ,
+      {
+        title:'Nivo 2 · Tablo: liy, kolòn ak adisyon', title_en:'Level 2 · Spreadsheets: rows, columns and adding',
+        sections:[
+          {h:'Ki sa yon tablo ye?', h_en:'What is a spreadsheet?', body:`
+            <p>Yon <strong>tablo</strong> (spreadsheet), tankou <strong>Excel</strong> oswa <strong>Google Sheets</strong>, se yon fèy ki fèt ak ti bwat. Nou itilize l pou ekri chif, òganize enfòmasyon epi kalkile rapidman.</p>
+            <table class="vocab-table">
+              <tr><td><strong>Liy</strong> (Row)</td><td>Ale de agoch a adwat. Yo gen <strong>nimewo</strong>: 1, 2, 3…</td></tr>
+              <tr><td><strong>Kolòn</strong> (Column)</td><td>Ale de anwo an ba. Yo gen <strong>lèt</strong>: A, B, C…</td></tr>
+              <tr><td><strong>Selil</strong> (Cell)</td><td>Yon sèl ti bwat. Non l se lèt kolòn nan + nimewo liy nan. Egzanp: <strong>B2</strong></td></tr>
+            </table>
+            <p>Egzanp: pri nan yon boutik (pretann):</p>
+            <table class="vocab-table">
+              <tr><th></th><th>A</th><th>B</th></tr>
+              <tr><td><strong>1</strong></td><td>Pwodui</td><td>Pri (goud)</td></tr>
+              <tr><td><strong>2</strong></td><td>Diri (1 mamit)</td><td>500</td></tr>
+              <tr><td><strong>3</strong></td><td>Pwa (1 mamit)</td><td>450</td></tr>
+              <tr><td><strong>4</strong></td><td>Lwil (1 galon)</td><td>1200</td></tr>
+            </table>
+            <div class="tip">💡 Selil <strong>B3</strong> se 450 (pri pwa a).</div>
+          `, body_en:`
+            <p>A <strong>spreadsheet</strong>, like <strong>Excel</strong> or <strong>Google Sheets</strong>, is a sheet made of little boxes. We use it to write numbers, organize information and calculate quickly.</p>
+            <table class="vocab-table">
+              <tr><td><strong>Row</strong></td><td>Goes left to right. Rows have <strong>numbers</strong>: 1, 2, 3…</td></tr>
+              <tr><td><strong>Column</strong></td><td>Goes top to bottom. Columns have <strong>letters</strong>: A, B, C…</td></tr>
+              <tr><td><strong>Cell</strong></td><td>One little box. Its name is the column letter + the row number. Example: <strong>B2</strong></td></tr>
+            </table>
+            <p>Example: prices at a boutique (pretend):</p>
+            <table class="vocab-table">
+              <tr><th></th><th>A</th><th>B</th></tr>
+              <tr><td><strong>1</strong></td><td>Product</td><td>Price (gourdes)</td></tr>
+              <tr><td><strong>2</strong></td><td>Rice (1 marmite)</td><td>500</td></tr>
+              <tr><td><strong>3</strong></td><td>Beans (1 marmite)</td><td>450</td></tr>
+              <tr><td><strong>4</strong></td><td>Oil (1 gallon)</td><td>1200</td></tr>
+            </table>
+            <div class="tip">💡 Cell <strong>B3</strong> is 450 (the price of beans).</div>
+          `},
+          {h:'Adisyone ak SUM, fè mwayèn ak AVERAGE', h_en:'Adding with SUM, averages with AVERAGE', body:`
+            <p>Yon <strong>fòmil</strong> toujou kòmanse ak siy <strong>=</strong>. Li fè kalkil la pou nou.</p>
+            <table class="vocab-table">
+              <tr><td><strong>=SUM(B2:B4)</strong></td><td>Adisyone tout chif ki soti nan B2 rive nan B4: 500 + 450 + 1200 = <strong>2150</strong></td></tr>
+              <tr><td><strong>=AVERAGE(B2:B4)</strong></td><td>Mwayèn: total la divize pa konbyen chif genyen: 2150 ÷ 3 ≈ <strong>717</strong></td></tr>
+            </table>
+            <div class="tip">💡 <strong>B2:B4</strong> vle di "soti nan B2 rive nan B4". Si n chanje yon pri, fòmil la rekalkile poukont li!</div>
+          `, body_en:`
+            <p>A <strong>formula</strong> always starts with the <strong>=</strong> sign. It does the math for us.</p>
+            <table class="vocab-table">
+              <tr><td><strong>=SUM(B2:B4)</strong></td><td>Adds all the numbers from B2 to B4: 500 + 450 + 1200 = <strong>2150</strong></td></tr>
+              <tr><td><strong>=AVERAGE(B2:B4)</strong></td><td>The average: the total divided by how many numbers there are: 2150 ÷ 3 ≈ <strong>717</strong></td></tr>
+            </table>
+            <div class="tip">💡 <strong>B2:B4</strong> means "from B2 to B4". If we change a price, the formula updates by itself!</div>
+          `}
+        ],
+        activity:{type:'typing', target:'=SUM(B2:B4)', target_en:'=SUM(B2:B4)', label:'Tape fòmil ki adisyone B2 rive B4', label_en:'Type the formula that adds B2 to B4'},
+        quiz:[
+          {q:'Nan yon tablo, kolòn yo gen…', q_en:'In a spreadsheet, columns have…', opts:['Nimewo','Lèt','Koulè','Foto'], opts_en:['Numbers','Letters','Colors','Photos'], correct:1, exp:'Kolòn yo gen lèt (A, B, C), liy yo gen nimewo (1, 2, 3).', exp_en:'Columns have letters (A, B, C); rows have numbers (1, 2, 3).'},
+          {q:'Ki non selil ki nan kolòn C, liy 5 la?', q_en:'What is the name of the cell in column C, row 5?', opts:['5C','C5','CC5','C-5'], opts_en:['5C','C5','CC5','C-5'], correct:1, exp:'Lèt kolòn nan anvan, apre sa nimewo liy nan: C5.', exp_en:'Column letter first, then the row number: C5.'},
+          {q:'Ki fòmil ki adisyone chif ki soti nan B2 rive nan B4?', q_en:'Which formula adds the numbers from B2 to B4?', opts:['=SUM(B2:B4)','SUM B2 B4','=B2-B4','=AVERAGE(B2:B4)'], opts_en:['=SUM(B2:B4)','SUM B2 B4','=B2-B4','=AVERAGE(B2:B4)'], correct:0, exp:'=SUM(...) adisyone tout chif ki nan ranje a.', exp_en:'=SUM(...) adds all the numbers in the range.'},
+          {q:'Si B2 = 500, B3 = 450 ak B4 = 1200, konbyen =SUM(B2:B4) ap bay?', q_en:'If B2 = 500, B3 = 450 and B4 = 1200, what does =SUM(B2:B4) give?', opts:['1650','2150','1200','717'], opts_en:['1650','2150','1200','717'], correct:1, exp:'500 + 450 + 1200 = 2150.', exp_en:'500 + 450 + 1200 = 2150.'}
+        ]
+      },
+      {
+        title:'Nivo 2 · Ki sa done ye? Ann konte kominote nou', title_en:'Level 2 · What is data? Counting our community',
+        sections:[
+          {h:'Done se enfòmasyon nou ka konte', h_en:'Data is information we can count', body:`
+            <p><strong>Done</strong> (data) se enfòmasyon nou ranmase pou nou konprann yon bagay pi byen. Egzanp: konbyen timoun ki ale lekòl, konbyen yon mamit diri koute, konbyen fontèn dlo ki ap mache.</p>
+            <p>Yon bon rechèch kòmanse ak yon <strong>bon kesyon</strong>:</p>
+            <table class="vocab-table">
+              <tr><td>✅ Bon kesyon</td><td>"Konbyen fontèn dlo ki ap mache sou wout nou an?" (nou ka konte l)</td></tr>
+              <tr><td>❌ Pa bon kesyon</td><td>"Èske katye a bèl?" (chak moun ap reponn yon lòt jan)</td></tr>
+            </table>
+          `, body_en:`
+            <p><strong>Data</strong> is information we collect to understand something better. Examples: how many children go to school, how much a marmite of rice costs, how many water fountains are working.</p>
+            <p>Good research starts with a <strong>good question</strong>:</p>
+            <table class="vocab-table">
+              <tr><td>✅ Good question</td><td>"How many water fountains are working on our road?" (we can count it)</td></tr>
+              <tr><td>❌ Not a good question</td><td>"Is the neighborhood nice?" (everyone will answer differently)</td></tr>
+            </table>
+          `},
+          {h:'Konte ak ti baton epi ekri inite a', h_en:'Counting with tally marks and writing the unit', body:`
+            <p>Lè n ap konte, nou ka fè <strong>ti baton</strong>: ||||  pou 4, epi yon liy atravè pou 5. Apre sa, nou mete total la nan tablo a.</p>
+            <table class="vocab-table">
+              <tr><td><strong>Inite</strong> (Unit)</td><td>Toujou ekri <em>kisa</em> chif la vle di: 500 <strong>goud pou 1 mamit</strong>, pa sèlman "500".</td></tr>
+              <tr><td><strong>Menm kote, menm fason</strong></td><td>Pou konpare chak mwa, ale nan <strong>menm boutik yo</strong> epi mande pou <strong>menm kantite</strong>.</td></tr>
+              <tr><td><strong>Dat</strong></td><td>Toujou ekri dat ou ranmase done yo.</td></tr>
+            </table>
+            <div class="tip">💡 Yon chif san inite ak san dat pa itil anpil. "Diri: 500 goud / mamit, 7 novanm" se yon bon done!</div>
+          `, body_en:`
+            <p>When counting, we can use <strong>tally marks</strong>: |||| for 4, then a line across for 5. Then we put the total in the table.</p>
+            <table class="vocab-table">
+              <tr><td><strong>Unit</strong></td><td>Always write <em>what</em> the number means: 500 <strong>gourdes for 1 marmite</strong>, not just "500".</td></tr>
+              <tr><td><strong>Same place, same way</strong></td><td>To compare each month, go to <strong>the same boutiques</strong> and ask for <strong>the same amount</strong>.</td></tr>
+              <tr><td><strong>Date</strong></td><td>Always write the date you collected the data.</td></tr>
+            </table>
+            <div class="tip">💡 A number without a unit or a date isn't very useful. "Rice: 500 gourdes / marmite, Nov 7" is good data!</div>
+          `}
+        ],
+        quiz:[
+          {q:'Ki kesyon ki pi bon pou yon rechèch?', q_en:'Which question is best for research?', opts:['Èske katye a bèl?','Konbyen fontèn dlo ki ap mache sou wout nou an?','Ki moun ki pi janti?','Èske moun yo kontan?'], opts_en:['Is the neighborhood nice?','How many water fountains are working on our road?','Who is the nicest?','Are people happy?'], correct:1, exp:'Nou ka konte fontèn dlo yo, donk se yon bon kesyon.', exp_en:'We can count the water fountains, so it is a good question.'},
+          {q:'Ki done ki pi konplè?', q_en:'Which data is most complete?', opts:['500','Diri 500','Diri: 500 goud / mamit, 7 novanm','Diri chè'], opts_en:['500','Rice 500','Rice: 500 gourdes / marmite, Nov 7','Rice is expensive'], correct:2, exp:'Li gen pwodui a, pri a, inite a ak dat la.', exp_en:'It has the product, the price, the unit and the date.'},
+          {q:'Pou konpare pri chak mwa, sa nou dwe fè?', q_en:'To compare prices every month, what should we do?', opts:['Chanje boutik chak fwa','Ale nan menm boutik yo epi mande menm kantite','Devine pri a','Mande sèlman yon fwa'], opts_en:['Change boutiques every time','Go to the same boutiques and ask for the same amount','Guess the price','Ask only once'], correct:1, exp:'Menm kote, menm fason: konsa konparezon an jis.', exp_en:'Same place, same way: that way the comparison is fair.'}
+        ]
+      },
+      {
+        title:'Nivo 2 · Respè ak sekirite ak done', title_en:'Level 2 · Respect and safety with data',
+        sections:[
+          {h:'Règ pou ranmase done', h_en:'Rules for collecting data', body:`
+            <table class="vocab-table">
+              <tr><td>☀️</td><td>Travay <strong>lajounen sèlman</strong>, an <strong>ekip 2 oswa 3</strong>, ak yon <strong>granmoun</strong> (Albert oswa Roseline) toupre.</td></tr>
+              <tr><td>🚪</td><td>Pa janm <strong>antre</strong> lakay moun. Poze kesyon an devan pòt la.</td></tr>
+              <tr><td>🙈</td><td><strong>Pa ekri non pèsonn</strong>, pa pran foto moun, pa ekri adrès kay. Nou konte sèlman.</td></tr>
+              <tr><td>🙏</td><td>Toujou di: <em>"Se yon devwa lekòl."</em> Si yon moun pa vle reponn: <em>"Pa gen pwoblèm, mèsi!"</em></td></tr>
+              <tr><td>🚫</td><td>Pa poze kesyon sou politik, sou lajan fanmi an, oswa sou sante moun. Pa janm pwomèt moun anyen.</td></tr>
+              <tr><td>🔒</td><td>Done yo rete <strong>andedan klib la</strong>. Pa poste yo sou entènèt.</td></tr>
+            </table>
+          `, body_en:`
+            <table class="vocab-table">
+              <tr><td>☀️</td><td>Work <strong>in daylight only</strong>, in <strong>teams of 2 or 3</strong>, with an <strong>adult</strong> (Albert or Roseline) nearby.</td></tr>
+              <tr><td>🚪</td><td>Never <strong>go inside</strong> anyone's home. Ask your question at the door.</td></tr>
+              <tr><td>🙈</td><td><strong>Don't write anyone's name</strong>, don't take photos of people, don't write house addresses. We only count.</td></tr>
+              <tr><td>🙏</td><td>Always say: <em>"It's school homework."</em> If someone doesn't want to answer: <em>"No problem, thank you!"</em></td></tr>
+              <tr><td>🚫</td><td>Don't ask about politics, family money, or anyone's health. Never promise people anything.</td></tr>
+              <tr><td>🔒</td><td>The data stays <strong>inside the club</strong>. Don't post it online.</td></tr>
+            </table>
+          `}
+        ],
+        activity:{type:'typing', target:'Pa gen pwoblem, mesi', target_en:'No problem, thank you', label:'Tape sa pou di si yon moun pa vle reponn', label_en:"Type what to say if someone doesn't want to answer"},
+        quiz:[
+          {q:'Ak ki moun nou dwe ale ranmase done?', q_en:'Who should we go collect data with?', opts:['Poukont nou','An ekip, ak yon granmoun toupre','Ak moun nou pa konnen','Nenpòt moun'], opts_en:['Alone','In a team, with an adult nearby','With people we do not know','Anyone'], correct:1, exp:'Toujou an ekip, lajounen, ak yon granmoun toupre.', exp_en:'Always in a team, in daylight, with an adult nearby.'},
+          {q:'Ki sa nou PA dwe ekri?', q_en:'What should we NOT write down?', opts:['Konbyen timoun ki ale lekòl','Non moun yo','Pri diri a','Konbyen fontèn dlo'], opts_en:['How many children go to school','People’s names','The price of rice','How many water fountains'], correct:1, exp:'Nou konte sèlman. Pa gen non.', exp_en:'We only count. No names.'},
+          {q:'Si yon moun pa vle reponn, sa nou fè?', q_en:"If someone doesn't want to answer, what do we do?", opts:['Ensiste','Di "Pa gen pwoblèm, mèsi!" epi kontinye','Antre lakay li','Pwomèt li lajan'], opts_en:['Insist','Say "No problem, thank you!" and move on','Go into their home','Promise them money'], correct:1, exp:'Nou respekte chwa moun. Nou di mèsi epi nou kontinye.', exp_en:'We respect people’s choice. We say thank you and move on.'},
+          {q:'Ki kote done klib la rete?', q_en:'Where does the club’s data stay?', opts:['Sou Facebook','Andedan klib la','Sou WhatsApp tout moun','Nan lari a'], opts_en:['On Facebook','Inside the club','In everyone’s WhatsApp','On the street'], correct:1, exp:'Done yo rete andedan klib la pou pwoteje kominote a.', exp_en:'The data stays inside the club to protect the community.'}
+        ]
+      },
+      {
+        title:'Nivo 2 · Ti pwojè pratik: Konte Dorigol', title_en:'Level 2 · Practice project: Count Dorigol',
+        sections:[
+          {h:'Done pretann pou pratike', h_en:'Pretend data for practice', body:`
+            <p>Yon ekip konte bagay sa yo sou yon wout (done <strong>pretann</strong>, pou pratike sèlman):</p>
+            <table class="vocab-table">
+              <tr><th>Sa nou konte</th><th>Kantite</th></tr>
+              <tr><td>Kay</td><td>40</td></tr>
+              <tr><td>Boutik</td><td>3</td></tr>
+              <tr><td>Lekòl</td><td>2</td></tr>
+              <tr><td>Legliz</td><td>4</td></tr>
+              <tr><td>Fontèn dlo (total)</td><td>5</td></tr>
+              <tr><td>Fontèn dlo ki ap mache</td><td>2</td></tr>
+            </table>
+            <p>Yo poze kesyon nan 10 kay: gen <strong>24 timoun</strong>, epi <strong>18</strong> ladan yo ale lekòl.</p>
+          `, body_en:`
+            <p>A team counted these things on one road (<strong>pretend</strong> data, for practice only):</p>
+            <table class="vocab-table">
+              <tr><th>What we counted</th><th>Number</th></tr>
+              <tr><td>Houses</td><td>40</td></tr>
+              <tr><td>Boutiques</td><td>3</td></tr>
+              <tr><td>Schools</td><td>2</td></tr>
+              <tr><td>Churches</td><td>4</td></tr>
+              <tr><td>Water fountains (total)</td><td>5</td></tr>
+              <tr><td>Water fountains that work</td><td>2</td></tr>
+            </table>
+            <p>They asked at 10 houses: there are <strong>24 children</strong>, and <strong>18</strong> of them go to school.</p>
+          `},
+          {h:'Jwenn repons lan epi esplike l', h_en:'Find the answer and explain it', body:`
+            <table class="vocab-table">
+              <tr><td>Konbyen timoun ki pa ale lekòl?</td><td>24 − 18 = <strong>6</strong></td></tr>
+              <tr><td>Ki pousantaj ki ale lekòl?</td><td>18 ÷ 24 = 0.75 = <strong>75%</strong></td></tr>
+              <tr><td>Konbyen fontèn ki pa mache?</td><td>5 − 2 = <strong>3</strong></td></tr>
+            </table>
+            <p><strong>Esplike l an 2 fraz:</strong> "Sou wout nou an, 75% timoun nou konte ale lekòl, men 6 pa ale. Sou 5 fontèn dlo, se 2 sèlman ki ap mache."</p>
+            <div class="tip">🏆 Lè w fini Nivo 2 ak omwen 70% nan quiz yo, ou ka patisipe nan <strong>vrè pwojè "Konte Dorigol"</strong> la, ak yon prim!</div>
+          `, body_en:`
+            <table class="vocab-table">
+              <tr><td>How many children don't go to school?</td><td>24 − 18 = <strong>6</strong></td></tr>
+              <tr><td>What percentage go to school?</td><td>18 ÷ 24 = 0.75 = <strong>75%</strong></td></tr>
+              <tr><td>How many fountains don't work?</td><td>5 − 2 = <strong>3</strong></td></tr>
+            </table>
+            <p><strong>Explain it in 2 sentences:</strong> "On our road, 75% of the children we counted go to school, but 6 don't. Of 5 water fountains, only 2 work."</p>
+            <div class="tip">🏆 When you finish Level 2 with at least 70% on the quizzes, you can join the <strong>real "Count Dorigol" project</strong>, with a prize!</div>
+          `}
+        ],
+        activity:{type:'typing', target:'75%', target_en:'75%', label:'Ki pousantaj timoun ki ale lekòl? (tape repons lan)', label_en:'What percentage of children go to school? (type the answer)'},
+        quiz:[
+          {q:'Gen 24 timoun epi 18 ale lekòl. Konbyen ki pa ale?', q_en:'There are 24 children and 18 go to school. How many do not go?', opts:['4','6','8','18'], opts_en:['4','6','8','18'], correct:1, exp:'24 − 18 = 6.', exp_en:'24 − 18 = 6.'},
+          {q:'18 sou 24 timoun ale lekòl. Ki pousantaj sa ye?', q_en:'18 out of 24 children go to school. What percentage is that?', opts:['18%','50%','75%','90%'], opts_en:['18%','50%','75%','90%'], correct:2, exp:'18 ÷ 24 = 0.75 = 75%.', exp_en:'18 ÷ 24 = 0.75 = 75%.'},
+          {q:'Gen 5 fontèn dlo, 2 ap mache. Konbyen ki pa mache?', q_en:'There are 5 water fountains and 2 work. How many do not work?', opts:['2','3','5','7'], opts_en:['2','3','5','7'], correct:1, exp:'5 − 2 = 3.', exp_en:'5 − 2 = 3.'},
+          {q:'Nan yon tablo, ki fòmil ki ka adisyone tout kay ki nan B2 rive B7?', q_en:'In a spreadsheet, which formula adds everything from B2 to B7?', opts:['=SUM(B2:B7)','=AVERAGE(B2:B7)','=B2+B7','SUM'], opts_en:['=SUM(B2:B7)','=AVERAGE(B2:B7)','=B2+B7','SUM'], correct:0, exp:'=SUM(B2:B7) adisyone tout selil ki soti nan B2 rive B7.', exp_en:'=SUM(B2:B7) adds every cell from B2 to B7.'}
+        ]
+      }
     ]
   },
 
@@ -1634,7 +1822,7 @@ function saveCurrentUserProgress(){
    Nothing is lost offline: the queue waits until it can send.
 --------------------------------------------------------- */
 const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbw3BJ1LlMHffmgt34SRndJiw3xx-kbeL1cCUGt8vPrGjOM1yzENQgZNPYS_9PUrIq8POw/exec';
-const APP_VERSION = '2.2';
+const APP_VERSION = '2.5';
 const QUEUE_KEY = 'aprann-ak-nou-queue-v1';
 const DEVICE_KEY = 'aprann-ak-nou-device-v1';
 function backendOn(){ return /^https:\/\/script\.google\.com\//.test(BACKEND_URL); }
@@ -1954,8 +2142,14 @@ async function refreshBoard(){
   if(active && active.id==='screen-board') renderBoard();
 }
 function openBoard(){ renderBoard(); showScreen('screen-board'); refreshBoard(); }
+// Team members who only did lessons to show the kids how — never shown in the ranking (same list as Code.gs).
+const NOT_KIDS = ['josue','josh','ason','albert','roseline','roselyn','roselyne','ronda','ashli','wisly','kabrit'];
+function isTeam(name){
+  const first = String(name||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z\s]/g,' ').trim().split(/\s+/)[0]||'';
+  return NOT_KIDS.indexOf(first) >= 0;
+}
 function localWeekRows(wk){
-  return profileList().map(k=>({student:k, pts:((allUsersData[k].weeks||{})[wk]||{}).pts||0})).filter(r=>r.pts>0).sort((a,b)=>b.pts-a.pts);
+  return profileList().filter(k=>!isTeam(k)).map(k=>({student:k, pts:((allUsersData[k].weeks||{})[wk]||{}).pts||0})).filter(r=>r.pts>0).sort((a,b)=>b.pts-a.pts);
 }
 function boardRowsHtml(rows, me){
   if(!rows.length) return '<p class="empty-note">'+t('boardEmpty')+'</p>';
@@ -1966,15 +2160,19 @@ function boardRowsHtml(rows, me){
   });
   return h + '</table>';
 }
+// Same student with several profiles – shown as one name (keep in sync with Code.gs).
+const SAME_KID = { 'Benira odena':'Benira Odena', 'Odena':'Benira Odena' };
+function canonical(n){ n=String(n||'').trim(); return SAME_KID[n] || n; }
 function renderBoard(){
   const wrap = document.getElementById('board-wrap');
-  const wk = thisWeek(); const me = state.currentUser;
+  const wk = thisWeek(); const me = canonical(state.currentUser);
   const fresh = boardCache && boardCache.week === wk;
   let h = '';
   if(fresh){
     // merge: a kid's points on this phone may be newer than the sheet
-    const map = {}; (boardCache.top||[]).forEach(r=>map[r.student]=r.pts);
-    localWeekRows(wk).forEach(r=>{ if(!(r.student in map) || r.pts > map[r.student]) map[r.student]=r.pts; });
+    const map = {}; (boardCache.top||[]).forEach(r=>{ if(!isTeam(r.student)) map[r.student]=r.pts; });
+    const loc = {}; localWeekRows(wk).forEach(r=>{ const k=canonical(r.student); loc[k]=(loc[k]||0)+r.pts; });
+    Object.keys(loc).forEach(k=>{ if(!(k in map) || loc[k] > map[k]) map[k]=loc[k]; });
     const rows = Object.keys(map).map(k=>({student:k, pts:map[k]})).sort((a,b)=>b.pts-a.pts).slice(0,15);
     h += '<div class="lb-card"><strong>'+t('boardTop')+'</strong>'+boardRowsHtml(rows, me)+'</div>';
     if(boardCache.improved && boardCache.improved.student){
