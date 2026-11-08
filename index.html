@@ -1822,7 +1822,7 @@ function saveCurrentUserProgress(){
    Nothing is lost offline: the queue waits until it can send.
 --------------------------------------------------------- */
 const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbw3BJ1LlMHffmgt34SRndJiw3xx-kbeL1cCUGt8vPrGjOM1yzENQgZNPYS_9PUrIq8POw/exec';
-const APP_VERSION = '2.5';
+const APP_VERSION = '2.5.1';
 const QUEUE_KEY = 'aprann-ak-nou-queue-v1';
 const DEVICE_KEY = 'aprann-ak-nou-device-v1';
 function backendOn(){ return /^https:\/\/script\.google\.com\//.test(BACKEND_URL); }
@@ -2161,8 +2161,9 @@ function boardRowsHtml(rows, me){
   return h + '</table>';
 }
 // Same student with several profiles – shown as one name (keep in sync with Code.gs).
-const SAME_KID = { 'Benira odena':'Benira Odena', 'Odena':'Benira Odena' };
-function canonical(n){ n=String(n||'').trim(); return SAME_KID[n] || n; }
+const SAME_KID = { 'Benira odena':'Benira Odena 🚀', 'Odena':'Benira Odena 🚀' };
+function baseName(n){ return String(n||'').replace(/\s*[^\sA-Za-z\u00C0-\u024F0-9'\u2019-]+\s*$/,'').trim(); }
+function canonical(n){ n=String(n||'').trim(); return SAME_KID[baseName(n)] || n; }
 function renderBoard(){
   const wrap = document.getElementById('board-wrap');
   const wk = thisWeek(); const me = canonical(state.currentUser);
@@ -2170,7 +2171,7 @@ function renderBoard(){
   let h = '';
   if(fresh){
     // merge: a kid's points on this phone may be newer than the sheet
-    const map = {}; (boardCache.top||[]).forEach(r=>{ if(!isTeam(r.student)) map[r.student]=r.pts; });
+    const map = {}; (boardCache.top||[]).forEach(r=>{ if(!isTeam(r.student)){ const k=canonical(r.student); map[k]=(map[k]||0)+r.pts; } });
     const loc = {}; localWeekRows(wk).forEach(r=>{ const k=canonical(r.student); loc[k]=(loc[k]||0)+r.pts; });
     Object.keys(loc).forEach(k=>{ if(!(k in map) || loc[k] > map[k]) map[k]=loc[k]; });
     const rows = Object.keys(map).map(k=>({student:k, pts:map[k]})).sort((a,b)=>b.pts-a.pts).slice(0,15);
