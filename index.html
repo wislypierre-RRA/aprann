@@ -518,6 +518,25 @@
   .dialog-line .who{font-weight:800;min-width:64px;}
   .dialog-line .ht{color:var(--muted);font-size:0.9rem;}
   .rules{font-size:0.88rem;color:var(--muted);}
+  /* ===== v3: order activity, daily challenge, levels, badges, toast, mini chart ===== */
+  .order-answer{min-height:54px;border:2px dashed var(--ring);border-radius:12px;padding:8px;display:flex;flex-wrap:wrap;gap:8px;margin:8px 0;background:#fff;}
+  .order-bank{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0;}
+  .order-answer.lines,.order-bank.lines{flex-direction:column;align-items:stretch;}
+  .chip{font-size:1.05rem;font-weight:700;padding:9px 14px;border-radius:12px;border:2px solid var(--blue);background:#eef2ff;color:var(--ink);cursor:pointer;}
+  .lines .chip{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:600;white-space:pre;text-align:left;font-size:0.95rem;overflow-x:auto;}
+  .level-bar{height:12px;background:#eee;border-radius:8px;overflow:hidden;margin:8px 0 4px;}
+  .level-bar div{height:100%;background:linear-gradient(90deg,var(--gold),#e08e00);}
+  .badge-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+  .badge{font-size:1.5rem;width:48px;height:48px;border-radius:50%;border:2px solid var(--gold);background:#fff8e1;cursor:pointer;padding:0;}
+  .badge.off{filter:grayscale(1);opacity:0.35;border-color:var(--ring);background:#f3f3f3;}
+  #toast-layer{position:fixed;left:0;right:0;bottom:22px;display:flex;flex-direction:column;align-items:center;gap:8px;z-index:60;pointer-events:none;}
+  .toast{background:var(--ink);color:#fff;font-weight:700;padding:12px 18px;border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,0.25);max-width:90vw;text-align:center;animation:toastIn 0.3s ease;}
+  @keyframes toastIn{from{transform:translateY(20px);opacity:0;}to{transform:none;opacity:1;}}
+  .mini-chart{margin:10px 0;}
+  .mc-row{display:flex;align-items:center;gap:8px;margin:6px 0;}
+  .mc-lbl{width:84px;font-weight:600;font-size:0.92rem;}
+  .mc-bar{height:22px;background:var(--blue);border-radius:6px;display:inline-block;}
+  .mc-val{font-weight:700;}
 </style>
 </head>
 <body>
@@ -547,11 +566,37 @@
       <p id="who-sub" style="margin:0;"></p>
       <button class="voice-btn" type="button" data-voice="audio/m1.mp3" id="welcome-voice" onclick="toggleVoice(this, 'welcomeBtn')" style="margin-top:12px;"></button>
       <div class="profile-grid" id="profile-grid"></div>
+      <div class="row" style="margin-top:16px;"><button class="btn secondary" type="button" id="find-me-btn" onclick="openRoster()"></button></div>
+      <p class="rules" id="find-me-note" style="margin:8px 0 0;"></p>
     </div>
     <details class="trainer">
       <summary id="trainer-summary"></summary>
       <ul id="trainer-list"></ul>
     </details>
+  </section>
+
+  <!-- RETURNING KID: find my name in the club list (v3) -->
+  <section id="screen-roster" class="screen">
+    <button class="btn back" onclick="showProfiles()" id="back-btn-roster"></button>
+    <div class="intro-card">
+      <h2 style="margin:0 0 4px;" id="roster-title"></h2>
+      <p id="roster-sub" style="margin:0 0 10px;"></p>
+      <input type="text" id="roster-search" class="text-in" maxlength="20" autocomplete="off" oninput="renderRoster()">
+      <p class="pin-msg" id="roster-msg"></p>
+      <div class="profile-grid" id="roster-grid"></div>
+    </div>
+  </section>
+
+  <!-- IS THIS YOU? a name that looks like yours already exists (v3) -->
+  <section id="screen-similar" class="screen">
+    <button class="btn back" onclick="showProfiles()" id="back-btn-sim"></button>
+    <div class="intro-card">
+      <h2 style="margin:0 0 4px;" id="sim-title"></h2>
+      <p id="sim-sub" style="margin:0;"></p>
+      <div class="profile-grid" id="sim-grid"></div>
+      <p class="pin-msg" id="sim-msg"></p>
+      <div class="row"><button class="btn secondary" type="button" id="sim-no" onclick="similarNew()"></button></div>
+    </div>
   </section>
 
   <!-- NEW PROFILE SCREEN -->
@@ -599,6 +644,8 @@
     </div>
 
     <div class="stats-card" id="stats-card"></div>
+    <div class="lb-card" id="daily-card" style="display:none;"></div>
+    <div class="lb-card" id="level-card" style="display:none;margin-bottom:16px;"></div>
 
     <div class="tracks" id="track-cards"></div>
 
@@ -609,6 +656,17 @@
     <div class="row" style="margin-top:18px;">
       <button class="btn" id="board-btn" onclick="openBoard()"></button>
       <button class="btn secondary" id="progress-all-btn" onclick="openProgressView()"></button>
+    </div>
+  </section>
+
+  <!-- DAILY CHALLENGE (v3) -->
+  <section id="screen-daily" class="screen">
+    <button class="btn back" onclick="goHome()" id="back-btn-daily"></button>
+    <h2 id="daily-title"></h2>
+    <p class="progress-label" id="daily-sub"></p>
+    <div class="activity"><div id="daily-area"></div>
+      <div id="daily-result"></div>
+      <div class="row"><button class="btn" id="daily-finish" onclick="finishDaily()" disabled></button></div>
     </div>
   </section>
 
@@ -1540,6 +1598,293 @@ Total: 54</code>
 /* ---------------------------------------------------------
    LANGUAGE
 --------------------------------------------------------- */
+/* ---------------------------------------------------------
+   NEW LESSONS (v3.0, Nov 2026)
+   They are added at the END of each course, so the lessons kids already
+   finished keep their place. No Kreyòl voice recording yet for these.
+--------------------------------------------------------- */
+function vt(h1, h2, rows){
+  return '<table class="vocab-table"><tr><th>'+h1+'</th><th>'+h2+'</th></tr>'+
+    rows.map(r=>'<tr><td>'+r[0]+'</td><td><strong>'+r[1]+'</strong></td></tr>').join('')+'</table>';
+}
+function dlg(lines, en){
+  return lines.map(l=>'<div class="dialog-line"><span class="who" style="min-width:76px;margin-right:8px;">'+l[0]+'</span><span><strong>'+l[1]+'</strong>'+
+    '<button class="say" type="button" data-say="'+l[1].replace(/"/g,'&quot;')+'">🔊</button><br><span class="ht">'+(en?'Kreyòl: ':'')+l[2]+'</span></span></div>').join('');
+}
+(function(){
+  const food = [['Diri','Rice'],['Pwa','Beans'],['Pen','Bread'],['Ze','Egg'],['Poul','Chicken'],['Bannann','Plantain'],['Mango','Mango'],['Dlo','Water'],['Lèt','Milk'],['Kafe','Coffee']];
+  const foodSay = [['Mwen grangou','I am hungry'],['Mwen swaf','I am thirsty'],['Mwen renmen mango','I like mango'],['Mwen ta renmen dlo, souple','I would like water, please'],['Mèsi pou manje a','Thank you for the food']];
+  const market = who=>[
+    ['Nadia','Good morning! How much are the mangoes?','Bonjou! Konbyen mango yo ye?'],
+    [who,'Five mangoes for fifty gourdes.','Senk mango pou senkant goud.'],
+    ['Nadia','That is expensive! Forty gourdes?','Sa chè! Karant goud?'],
+    [who,'Okay. Forty gourdes for you.','Dakò. Karant goud pou ou.'],
+    ['Nadia','Thank you! I will take five.','Mèsi! M ap pran senk.'],
+    [who,'Here you go. Have a good day!','Men yo. Pase yon bon jounen!']
+  ];
+  const marketWords = [['Konbyen?','How much?'],['Chè','Expensive'],['Bon mache','Cheap'],['Lajan','Money'],['Achte','To buy'],['Vann','To sell'],['Pase yon bon jounen','Have a good day']];
+  const tens = [['Ven (20)','Twenty'],['Trant (30)','Thirty'],['Karant (40)','Forty'],['Senkant (50)','Fifty'],['San (100)','One hundred']];
+  const body = [['Tèt','Head'],['Je','Eyes'],['Men','Hand'],['Janm','Leg'],['Pye','Foot'],['Kè','Heart']];
+  const sport = [['Kouri','Run'],['Mache','Walk'],['Sote','Jump'],['Jwe','Play'],['Vit','Fast'],['Dousman','Slow'],['Fò','Strong']];
+  const sportSay = [['Mwen ka kouri vit','I can run fast'],['Ann kouri ansanm','Let\'s run together'],['Bwè dlo apre ou fin kouri','Drink water after you run'],['Mwen fò','I am strong']];
+
+  TRACKS.angle.lessons.push(
+    {
+      title:'Manje ak Bwason (Food & Drinks)', title_en:'Food & Drinks (Manje ak Bwason)',
+      sections:[
+        {h:'Sa nou manje ak sa nou bwè', h_en:'What we eat and drink',
+          body: vt('Kreyòl','Angle',food)+'<div class="tip">💡 "Diri ak pwa" an Angle se <strong>rice and beans</strong>.</div>',
+          body_en: vt('Kreyòl','English',food)+'<div class="tip">💡 "Diri ak pwa" in English is <strong>rice and beans</strong>.</div>'},
+        {h:'Fraz pou lè n ap manje', h_en:'Sentences for mealtime',
+          body: vt('Kreyòl','Angle',foodSay)+'<div class="tip">💡 Mo <strong>please</strong> (souple) ak <strong>thank you</strong> (mèsi) montre respè. Sèvi ak yo chak fwa!</div>',
+          body_en: vt('Kreyòl','English',foodSay)+'<div class="tip">💡 The words <strong>please</strong> and <strong>thank you</strong> show respect. Use them every time!</div>'}
+      ],
+      activity:{type:'order', words:['I','would','like','water','please'], label:'Mete mo yo nan lòd pou di: "Mwen ta renmen dlo, souple"', label_en:'Put the words in order to say: "I would like water, please"'},
+      quiz:[
+        {q:"Kijan yo di 'Dlo' an Angle?", q_en:"How do you say 'Dlo' in English?", opts:['Milk','Water','Bread','Rice'], correct:1, exp:"'Water' vle di Dlo.", exp_en:"'Water' means Dlo."},
+        {q:"Kijan yo di 'Mwen grangou' an Angle?", q_en:"How do you say 'Mwen grangou' in English?", opts:['I am thirsty','I am tired','I am hungry','I am happy'], correct:2, exp:"'I am hungry' vle di Mwen grangou. 'I am thirsty' vle di Mwen swaf.", exp_en:"'I am hungry' means Mwen grangou. 'I am thirsty' means Mwen swaf."},
+        {q:'Ou vle mande dlo ak politès. Ki fraz ki pi bon?', q_en:'You want to ask for water politely. Which sentence is best?', opts:['Water!','I would like water, please','I like rice','Thank you for the food'], correct:1, exp:"'I would like ... please' se fason ki gen politès pou mande yon bagay.", exp_en:"'I would like ... please' is the polite way to ask for something."},
+        {q:"Ki manje 'rice and beans' ye?", q_en:"What is 'rice and beans' in Kreyòl?", opts:['Pen ak ze','Diri ak pwa','Poul ak bannann','Lèt ak kafe'], correct:1, exp:'Rice = diri, beans = pwa.', exp_en:'Rice = diri, beans = pwa.'}
+      ]
+    },
+    {
+      title:'Konvèsasyon: Nan Mache a', title_en:'Conversation: At the Market',
+      sections:[
+        {h:'Nadia ap achte mango', h_en:'Nadia is buying mangoes',
+          body:'<p>Nadia ale nan mache a pou achte mango. Li konvèsasyon an. Peze 🔊 pou tande chak fraz an Angle, epi repete l byen fò!</p>'+dlg(market('Machann'),false)+'<div class="tip">💡 Pratike ak yon zanmi: youn se Nadia, lòt la se machann nan. Apre sa, chanje!</div>',
+          body_en:'<p>Nadia goes to the market to buy mangoes. Read the conversation. Tap 🔊 to hear each sentence in English, then repeat it out loud!</p>'+dlg(market('Seller'),true)+'<div class="tip">💡 Practice with a friend: one is Nadia, the other is the seller. Then switch!</div>'},
+        {h:'Mo nouvo', h_en:'New words', body: vt('Kreyòl','Angle',marketWords), body_en: vt('Kreyòl','English',marketWords)},
+        {h:'Gwo nimewo pou pri yo', h_en:'Big numbers for prices', body: vt('Kreyòl','Angle',tens), body_en: vt('Kreyòl','English',tens)}
+      ],
+      activity:{type:'order', words:['How','much','is','the','bread'], label:'Mete mo yo nan lòd pou mande: "Konbyen pen an ye?"', label_en:'Put the words in order to ask: "How much is the bread?"'},
+      quiz:[
+        {q:"Kijan ou mande 'Konbyen?' an Angle?", q_en:"How do you ask 'Konbyen?' in English?", opts:['How are you?','How much?','Where?','Who?'], correct:1, exp:"'How much?' vle di Konbyen?", exp_en:"'How much?' means Konbyen?"},
+        {q:"Machann nan di 'fifty gourdes'. Konbyen goud sa ye?", q_en:"The seller says 'fifty gourdes'. How many gourdes is that?", opts:['15','40','50','5'], correct:2, exp:'Fifty = 50. (Fifteen = 15, forty = 40.)', exp_en:'Fifty = 50. (Fifteen = 15, forty = 40.)'},
+        {q:"Kijan yo di 'Chè' an Angle?", q_en:"How do you say 'Chè' in English?", opts:['Cheap','Expensive','Money','Small'], correct:1, exp:"'Expensive' vle di chè. 'Cheap' vle di bon mache.", exp_en:"'Expensive' means chè. 'Cheap' means bon mache."},
+        {q:'Nan konvèsasyon an, konbyen Nadia peye pou senk mango?', q_en:'In the conversation, how much does Nadia pay for five mangoes?', opts:['Fifty gourdes','Forty gourdes','Five gourdes','Fourteen gourdes'], correct:1, exp:'Machann nan dakò pou karant goud: "Forty gourdes for you."', exp_en:'The seller agrees to forty gourdes: "Forty gourdes for you."'}
+      ]
+    },
+    {
+      title:'Kò ak Espò (Body & Sports)', title_en:'Body & Sports (Kò ak Espò)',
+      sections:[
+        {h:'Pati nan kò a', h_en:'Parts of the body', body: vt('Kreyòl','Angle',body), body_en: vt('Kreyòl','English',body)},
+        {h:'Mo pou antrènman', h_en:'Words for training',
+          body: vt('Kreyòl','Angle',sport)+'<div class="tip">💡 Nan non "Running Revolution Ayiti", <strong>running</strong> vle di "kouri"!</div>',
+          body_en: vt('Kreyòl','English',sport)+'<div class="tip">💡 In the name "Running Revolution Ayiti", <strong>running</strong> means "kouri"!</div>'},
+        {h:'Fraz pou kourè yo', h_en:'Sentences for runners', body: vt('Kreyòl','Angle',sportSay), body_en: vt('Kreyòl','English',sportSay)}
+      ],
+      activity:{type:'order', words:['I','can','run','fast'], label:'Mete mo yo nan lòd pou di: "Mwen ka kouri vit"', label_en:'Put the words in order to say: "I can run fast"'},
+      quiz:[
+        {q:"Kijan yo di 'Kouri' an Angle?", q_en:"How do you say 'Kouri' in English?", opts:['Walk','Jump','Run','Play'], correct:2, exp:"'Run' vle di Kouri.", exp_en:"'Run' means Kouri."},
+        {q:'Ki pati nan kò a nou plis itilize pou kouri?', q_en:'Which parts of the body do we use most to run?', opts:['Eyes','Legs and feet','Hands','Head'], correct:1, exp:'Legs = janm, feet = pye.', exp_en:'Legs = janm, feet = pye.'},
+        {q:"Ki mo ki kontrè ak 'fast'?", q_en:"Which word is the opposite of 'fast'?", opts:['Strong','Slow','Run','Heart'], correct:1, exp:'Fast = vit, slow = dousman.', exp_en:'Fast = vit, slow = dousman.'},
+        {q:"Kijan ou di 'Ann kouri ansanm' an Angle?", q_en:"How do you say 'Ann kouri ansanm' in English?", opts:["Let's run together",'I can run fast','Drink water','I am strong'], correct:0, exp:"'Let's' vle di Ann, 'together' vle di ansanm.", exp_en:"'Let's' means Ann, 'together' means ansanm."}
+      ]
+    }
+  );
+})();
+
+(function(){
+  const sheet = (h, rows)=>'<table class="vocab-table"><tr>'+h.map(x=>'<th>'+x+'</th>').join('')+'</tr>'+rows.map(r=>'<tr>'+r.map(c=>'<td>'+c+'</td>').join('')+'</tr>').join('')+'</table>';
+  const bars = rows=>'<div class="mini-chart">'+rows.map(r=>'<div class="mc-row"><span class="mc-lbl">'+r[0]+'</span><span class="mc-bar" style="width:'+(r[1]*3)+'%"></span><span class="mc-val">'+r[1]+'</span></div>').join('')+'</div>';
+
+  TRACKS.python.lessons.push(
+    {
+      title:'Fonksyon (Functions)', title_en:'Functions',
+      sections:[
+        {h:'Yon resèt ou ka sèvi ankò', h_en:'A recipe you can use again', body:`
+          <p>Yon <strong>fonksyon</strong> se yon ti moso kòd ki gen yon non. Ou ekri l yon sèl fwa, epi ou ka sèvi ak li anpil fwa — tankou yon resèt: ou aprann li yon fwa, ou kwit manje a chak jou.</p>
+          <p>Nan Python, nou kreye yon fonksyon ak mo <code>def</code>:</p>
+          <code class="block">def salye(non):
+    print("Bonjou,", non)
+
+salye("Nadia")
+salye("Ti Jak")</code>
+          <p>Kòd sa a ap montre:</p>
+          <code class="block">Bonjou, Nadia
+Bonjou, Ti Jak</code>
+          <p><code>non</code> se enfòmasyon nou bay fonksyon an. Chak fwa nou rele <code>salye(...)</code>, li sèvi ak non nou ba li a.</p>
+        `, body_en:`
+          <p>A <strong>function</strong> is a small piece of code with a name. You write it once, and you can use it many times — like a recipe: you learn it once, you cook the food every day.</p>
+          <p>In Python, we create a function with the word <code>def</code>:</p>
+          <code class="block">def greet(name):
+    print("Hello,", name)
+
+greet("Nadia")
+greet("Ti Jak")</code>
+          <p>This code will show:</p>
+          <code class="block">Hello, Nadia
+Hello, Ti Jak</code>
+          <p><code>name</code> is the information we give the function. Each time we call <code>greet(...)</code>, it uses the name we gave it.</p>
+        `},
+        {h:'Fonksyon ki bay yon repons', h_en:'Functions that give back an answer', body:`
+          <p>Yon fonksyon ka fè yon kalkil epi <strong>voye repons lan tounen</strong> ak mo <code>return</code>:</p>
+          <code class="block">def double(n):
+    return n * 2
+
+print(double(4))
+print(double(10))</code>
+          <p>Kòd sa a ap montre:</p>
+          <code class="block">8
+20</code>
+          <div class="tip">💡 Pa bliye de pwen yo (<code>:</code>) apre non fonksyon an, ak 4 espas yo devan liy ki anndan fonksyon an.</div>
+        `, body_en:`
+          <p>A function can do a calculation and <strong>send the answer back</strong> with the word <code>return</code>:</p>
+          <code class="block">def double(n):
+    return n * 2
+
+print(double(4))
+print(double(10))</code>
+          <p>This code will show:</p>
+          <code class="block">8
+20</code>
+          <div class="tip">💡 Don't forget the colon (<code>:</code>) after the function's name, and the 4 spaces before the lines inside the function.</div>
+        `}
+      ],
+      activity:{type:'order', lines:true, words:['def salye(non):','    print("Bonjou,", non)','salye("Roz")'], words_en:['def greet(name):','    print("Hello,", name)','greet("Roz")'], label:'Mete liy kòd yo nan bon lòd pou di Roz bonjou', label_en:'Put the lines of code in the right order to greet Roz'},
+      quiz:[
+        {q:'Ki mo nou itilize pou kreye yon fonksyon nan Python?', q_en:'Which word do we use to create a function in Python?', opts:['for','def','print','if'], correct:1, exp:"Nou kòmanse yon fonksyon ak mo 'def'.", exp_en:"We start a function with the word 'def'."},
+        {q:'Kisa kòd sa a ap montre?\n\ndef double(n):\n&nbsp;&nbsp;&nbsp;&nbsp;return n * 2\n\nprint(double(6))', q_en:'What will this code show?\n\ndef double(n):\n&nbsp;&nbsp;&nbsp;&nbsp;return n * 2\n\nprint(double(6))', opts:['6','8','12','62'], correct:2, exp:'double(6) voye 6 * 2 tounen, sa vle di 12.', exp_en:'double(6) sends back 6 * 2, which is 12.'},
+        {q:'Poukisa fonksyon yo itil?', q_en:'Why are functions useful?', opts:['Yo fè òdinatè a pi lou','Ou ekri kòd la yon fwa, ou sèvi ak li anpil fwa','Yo efase kòd la','Yo la pou jwèt sèlman'], opts_en:['They make the computer heavier','You write the code once and use it many times','They erase the code','They are only for games'], correct:1, exp:'Yon fonksyon se tankou yon resèt: ou ekri l yon fwa, ou sèvi ak li lè ou vle.', exp_en:'A function is like a recipe: you write it once and use it whenever you want.'}
+      ]
+    },
+    {
+      title:'Bouk + Desizyon: Ki moun ki kouri 5 km?', title_en:'Loops + Decisions: Who Ran 5 km?',
+      sections:[
+        {h:'Konte moun ki rive nan objektif la', h_en:'Counting who reached the goal', body:`
+          <p>Samdi, kat zanmi kouri. Nou ekri konbyen kilomèt chak moun fè nan yon lis. Nou vle konnen: konbyen moun ki kouri <strong>5 km oswa plis</strong>?</p>
+          <code class="block">km = [5, 8, 3, 6]
+konte = 0
+
+for k in km:
+    if k &gt;= 5:
+        konte = konte + 1
+
+print(konte, "moun kouri 5 km oswa plis")</code>
+          <p>Kòd sa a ap montre:</p>
+          <code class="block">3 moun kouri 5 km oswa plis</code>
+          <p><strong>Kijan li mache:</strong> bouk la gade chak nimewo youn apre lòt. <code>if k &gt;= 5</code> mande: "èske nimewo sa a se 5 oswa pi gwo?" Si wi, nou ajoute 1 nan <code>konte</code>.</p>
+          ${sheet(['k','k &gt;= 5 ?','konte'],[['5','wi','1'],['8','wi','2'],['3','non','2'],['6','wi','3']])}
+        `, body_en:`
+          <p>On Saturday, four friends ran. We write how many kilometers each one did in a list. We want to know: how many people ran <strong>5 km or more</strong>?</p>
+          <code class="block">km = [5, 8, 3, 6]
+count = 0
+
+for k in km:
+    if k &gt;= 5:
+        count = count + 1
+
+print(count, "people ran 5 km or more")</code>
+          <p>This code will show:</p>
+          <code class="block">3 people ran 5 km or more</code>
+          <p><strong>How it works:</strong> the loop looks at each number, one after another. <code>if k &gt;= 5</code> asks: "is this number 5 or bigger?" If yes, we add 1 to <code>count</code>.</p>
+          ${sheet(['k','k &gt;= 5 ?','count'],[['5','yes','1'],['8','yes','2'],['3','no','2'],['6','yes','3']])}
+        `},
+        {h:'Ajoute tout kilomèt yo', h_en:'Adding up all the kilometers', body:`
+          <p>Menm bouk la ka adisyone tout kilomèt gwoup la:</p>
+          <code class="block">km = [5, 8, 3, 6]
+total = 0
+
+for k in km:
+    total = total + k
+
+print("Total:", total, "km")</code>
+          <p>Kòd sa a ap montre:</p>
+          <code class="block">Total: 22 km</code>
+          <div class="tip">💡 Bouk + desizyon se zouti prensipal moun k ap travay ak done: gade chak bagay, epi konte sa ki enpòtan yo.</div>
+        `, body_en:`
+          <p>The same loop can add up all the kilometers the group ran:</p>
+          <code class="block">km = [5, 8, 3, 6]
+total = 0
+
+for k in km:
+    total = total + k
+
+print("Total:", total, "km")</code>
+          <p>This code will show:</p>
+          <code class="block">Total: 22 km</code>
+          <div class="tip">💡 Loops + decisions are the main tools of people who work with data: look at each thing, and count the ones that matter.</div>
+        `}
+      ],
+      activity:{type:'order', lines:true, words:['for k in km:','    if k >= 5:','        konte = konte + 1'], words_en:['for k in km:','    if k >= 5:','        count = count + 1'], label:'Mete liy kòd yo nan bon lòd', label_en:'Put the lines of code in the right order'},
+      quiz:[
+        {q:'Kisa kòd sa a ap montre?\n\nkm = [2, 5, 9]\nkonte = 0\nfor k in km:\n&nbsp;&nbsp;&nbsp;&nbsp;if k &gt;= 5:\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;konte = konte + 1\nprint(konte)', q_en:'What will this code show?\n\nkm = [2, 5, 9]\ncount = 0\nfor k in km:\n&nbsp;&nbsp;&nbsp;&nbsp;if k &gt;= 5:\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;count = count + 1\nprint(count)', opts:['1','2','3','16'], correct:1, exp:'5 ak 9 se 5 oswa pi gwo; 2 pa ladan l. Sa fè 2.', exp_en:'5 and 9 are 5 or bigger; 2 is not. That makes 2.'},
+        {q:'Ki sa siy &gt;= vle di?', q_en:'What does the sign &gt;= mean?', opts:['Pi piti pase','Egal sèlman','Pi gwo oswa egal','Pa egal'], opts_en:['Smaller than','Only equal','Bigger than or equal to','Not equal'], correct:2, exp:'&gt;= vle di "pi gwo oswa egal".', exp_en:'&gt;= means "bigger than or equal to".'},
+        {q:'Si km = [5, 8, 3, 6], konbyen kilomèt gwoup la kouri an tou?', q_en:'If km = [5, 8, 3, 6], how many kilometers did the group run in all?', opts:['16','19','22','24'], correct:2, exp:'5 + 8 + 3 + 6 = 22.', exp_en:'5 + 8 + 3 + 6 = 22.'}
+      ]
+    }
+  );
+
+  const kmRows = [['2','Ti Jan','5'],['3','Nadia','8'],['4','Ti Jak','3'],['5','Roz','6']];
+  const sorted = [['2','Nadia','8'],['3','Roz','6'],['4','Ti Jan','5'],['5','Ti Jak','3']];
+  TRACKS.konpite.lessons.push(
+    {
+      title:'Nivo 2 · Pi gwo, pi piti, ak triye', title_en:'Level 2 · Biggest, smallest, and sorting',
+      sections:[
+        {h:'Jwenn pi gwo ak pi piti: MAX ak MIN', h_en:'Find the biggest and smallest: MAX and MIN', body:`
+          <p>Men yon tablo ki montre konbyen kilomèt kat zanmi kouri semèn sa a:</p>
+          ${sheet(['','A','B'],[['1','<strong>Non</strong>','<strong>Km</strong>']].concat(kmRows))}
+          <p>De fòmil ki reponn kesyon vit:</p>
+          ${sheet(['Fòmil','Sa li fè','Repons'],[['<code>=MAX(B2:B5)</code>','Jwenn pi gwo nimewo a','8'],['<code>=MIN(B2:B5)</code>','Jwenn pi piti nimewo a','3'],['<code>=SUM(B2:B5)</code>','Adisyone tout nimewo yo','22']])}
+          <div class="tip">💡 <strong>MAX</strong> soti nan mo "maksimòm" (pi gwo). <strong>MIN</strong> soti nan mo "minimòm" (pi piti).</div>
+        `, body_en:`
+          <p>Here is a table showing how many kilometers four friends ran this week:</p>
+          ${sheet(['','A','B'],[['1','<strong>Name</strong>','<strong>Km</strong>']].concat(kmRows))}
+          <p>Two formulas that answer questions fast:</p>
+          ${sheet(['Formula','What it does','Answer'],[['<code>=MAX(B2:B5)</code>','Finds the biggest number','8'],['<code>=MIN(B2:B5)</code>','Finds the smallest number','3'],['<code>=SUM(B2:B5)</code>','Adds all the numbers','22']])}
+          <div class="tip">💡 <strong>MAX</strong> comes from "maximum" (biggest). <strong>MIN</strong> comes from "minimum" (smallest).</div>
+        `},
+        {h:'Triye (mete nan lòd)', h_en:'Sorting (putting in order)', body:`
+          <p><strong>Triye</strong> vle di mete liy yo nan lòd. Ou ka triye non yo soti nan A rive Z, oswa triye nimewo yo soti nan pi gwo rive nan pi piti. Men menm tablo a, triye pa Km (pi gwo an premye):</p>
+          ${sheet(['','A','B'],[['1','<strong>Non</strong>','<strong>Km</strong>']].concat(sorted))}
+          <div class="tip">💡 Lè ou triye, tout liy lan deplase ansanm: chak non rete ak pwòp nimewo pa l.</div>
+        `, body_en:`
+          <p><strong>Sorting</strong> means putting the rows in order. You can sort names from A to Z, or sort numbers from biggest to smallest. Here is the same table, sorted by Km (biggest first):</p>
+          ${sheet(['','A','B'],[['1','<strong>Name</strong>','<strong>Km</strong>']].concat(sorted))}
+          <div class="tip">💡 When you sort, the whole row moves together: each name stays with its own number.</div>
+        `}
+      ],
+      activity:{type:'typing', target:'=MAX(B2:B5)', target_en:'=MAX(B2:B5)', label:'Tape fòmil ki jwenn pi gwo nimewo nan B2 rive B5', label_en:'Type the formula that finds the biggest number in B2 to B5'},
+      quiz:[
+        {q:'Ki fòmil ki jwenn pi piti nimewo a?', q_en:'Which formula finds the smallest number?', opts:['=SUM(B2:B5)','=MAX(B2:B5)','=MIN(B2:B5)','=AVERAGE(B2:B5)'], correct:2, exp:'MIN jwenn pi piti nimewo a.', exp_en:'MIN finds the smallest number.'},
+        {q:'Nimewo yo se 5, 8, 3, 6. Kisa =MAX ap bay?', q_en:'The numbers are 5, 8, 3, 6. What will =MAX give?', opts:['3','5','6','8'], correct:3, exp:'8 se pi gwo nimewo a.', exp_en:'8 is the biggest number.'},
+        {q:'Lè ou triye Km soti nan pi gwo rive nan pi piti, ki moun ki an premye?', q_en:'When you sort Km from biggest to smallest, who comes first?', opts:['Ti Jan','Nadia','Ti Jak','Roz'], correct:1, exp:'Nadia kouri 8 km, pi gwo nimewo a.', exp_en:'Nadia ran 8 km, the biggest number.'}
+      ]
+    },
+    {
+      title:'Nivo 2 · Li yon grafik', title_en:'Level 2 · Reading a chart',
+      sections:[
+        {h:'Yon desen ki montre nimewo', h_en:'A picture that shows numbers', body:`
+          <p>Yon <strong>grafik</strong> se yon desen ki montre nimewo. Li ede nou wè vit ki sa ki pi gwo ak ki sa ki pi piti, san nou pa li tout nimewo yo.</p>
+          <p><strong>Leson klib la fini chak mwa</strong></p>
+          ${bars([['Septanm',12],['Oktòb',20],['Novanm',16]])}
+          <p>Twa bagay pou gade nan nenpòt grafik:</p>
+          <p>1. <strong>Tit la</strong> — li di sa grafik la ap montre.<br>2. <strong>Non yo</strong> — isit la se mwa yo.<br>3. <strong>Longè ba yo</strong> — pi long = pi gwo nimewo.</p>
+        `, body_en:`
+          <p>A <strong>chart</strong> is a picture that shows numbers. It helps us quickly see what is biggest and what is smallest, without reading every number.</p>
+          <p><strong>Lessons the club finished each month</strong></p>
+          ${bars([['September',12],['October',20],['November',16]])}
+          <p>Three things to look at in any chart:</p>
+          <p>1. <strong>The title</strong> — it says what the chart shows.<br>2. <strong>The labels</strong> — here they are the months.<br>3. <strong>The length of the bars</strong> — longer = bigger number.</p>
+        `},
+        {h:'Twa kalite grafik', h_en:'Three kinds of charts', body:`
+          ${sheet(['Grafik','Li bon pou'],[['<strong>Ba</strong> (bar)','Konpare plizyè bagay'],['<strong>Liy</strong> (line)','Wè kijan yon bagay chanje ak tan'],['<strong>Wonn</strong> (pie)','Wè pati ki fè yon tout']])}
+          <div class="tip">💡 Nan pwojè "Konte Dorigol" la, ou ka fè yon grafik ba ak sa ou konte yo!</div>
+        `, body_en:`
+          ${sheet(['Chart','Good for'],[['<strong>Bar</strong>','Comparing several things'],['<strong>Line</strong>','Seeing how something changes over time'],['<strong>Pie</strong>','Seeing the parts that make a whole']])}
+          <div class="tip">💡 In the "Konte Dorigol" project, you can make a bar chart with what you counted!</div>
+        `}
+      ],
+      quiz:[
+        {q:'Nan grafik la, ki mwa klib la fini plis leson?', q_en:'In the chart, in which month did the club finish the most lessons?', opts:['Septanm','Oktòb','Novanm','Desanm'], opts_en:['September','October','November','December'], correct:1, exp:'Ba Oktòb la pi long: 20 leson.', exp_en:"October's bar is the longest: 20 lessons."},
+        {q:'Konbyen leson anplis Oktòb genyen pase Septanm?', q_en:'How many more lessons does October have than September?', opts:['4','8','12','32'], correct:1, exp:'20 - 12 = 8.', exp_en:'20 - 12 = 8.'},
+        {q:'Konbyen leson an tou pou twa mwa yo?', q_en:'How many lessons in all for the three months?', opts:['36','44','48','52'], correct:2, exp:'12 + 20 + 16 = 48.', exp_en:'12 + 20 + 16 = 48.'},
+        {q:'Ki kalite grafik ki pi bon pou konpare kantite mango nan 4 katye?', q_en:'Which kind of chart is best to compare the number of mangoes in 4 neighborhoods?', opts:['Grafik ba','Yon foto','Yon lèt','Yon modpas'], opts_en:['A bar chart','A photo','A letter','A password'], correct:0, exp:'Grafik ba bon pou konpare plizyè bagay.', exp_en:'A bar chart is good for comparing several things.'}
+      ]
+    }
+  );
+})();
+
 const LANG_KEY = 'aprann-ak-nou-lang-v1';
 let lang = 'ht';
 try{
@@ -1552,6 +1897,38 @@ const UI = {
   changeName:{ht:'Mwen fini 👋', en:"I'm done 👋"},
   whoTitle:{ht:'Ki moun ki la? 👋', en:"Who's here? 👋"},
   whoSub:{ht:'Peze sou non ou. Si se premye fwa ou, peze "Nouvo".', en:'Tap your name. If it is your first time, tap "New".'},
+  findMeBtn:{ht:'🔎 Mwen deja gen yon pwofil', en:'🔎 I already have a profile'},
+  findMeNote:{ht:'Ou te deja itilize app la men ou pa wè non ou? Peze bouton sa a pou jwenn pwofil ou ak tout pwen ou. (Fòk gen entènèt.)', en:"You used the app before but don't see your name? Tap this button to get your profile and all your points back. (Needs internet.)"},
+  rosterTitle:{ht:'Chèche non ou 🔎', en:'Find your name 🔎'},
+  rosterSub:{ht:'Tape premye lèt non ou, epi peze sou non ou. W ap bezwen kòd sekrè ou.', en:'Type the first letters of your name, then tap your name. You will need your secret code.'},
+  rosterSearch:{ht:'Tape non ou…', en:'Type your name…'},
+  rosterLoading:{ht:'N ap chèche lis non yo… ⏳', en:'Getting the list of names… ⏳'},
+  rosterNone:{ht:'Nou pa jwenn non sa a. Gade si li ekri yon lòt jan. Si se premye fwa ou, tounen epi peze "Nouvo".', en:'We can\'t find that name. Check if it is spelled another way. If it is your first time, go back and tap "New".'},
+  needNet:{ht:'Fòk gen entènèt pou sa. Eseye ankò lè gen entènèt.', en:'This needs internet. Try again when there is internet.'},
+  busy:{ht:'Tann yon ti moman… ⏳', en:'One moment… ⏳'},
+  simTitle:{ht:'Èske se ou? 🤔', en:'Is this you? 🤔'},
+  simSub:{ht:'Gen yon pwofil nan klib la ki sanble ak non ou. Si se ou, peze sou li: konsa tout pwen ou rete ansanm. Si se pa ou, peze bouton ki anba a.', en:'There is already a profile in the club that looks like your name. If it is you, tap it: that keeps all your points together. If it is not you, tap the button below.'},
+  simNo:{ht:'Non, se pa mwen — mwen se yon lòt moun', en:"No, that's not me — I'm someone else"},
+  orderHeading:{ht:'🧩 Mete yo nan lòd', en:'🧩 Put them in order'},
+  orderHint:{ht:'Peze sou yo youn apre lòt. Peze sou repons ou pou retire youn.', en:'Tap them one after another. Tap your answer to take one back.'},
+  dailyTitle:{ht:'⚡ Defi Jodi a', en:"⚡ Today's Challenge"},
+  dailySub:{ht:'{n} kesyon sou leson ou deja fè. 1 pwen pou chak bon repons!', en:'{n} questions from lessons you already did. 1 point for each right answer!'},
+  dailyBtn:{ht:'Kòmanse defi a', en:'Start the challenge'},
+  dailyLocked:{ht:'Fini omwen yon leson pou debloke Defi Jodi a.', en:"Finish at least one lesson to unlock Today's Challenge."},
+  dailyDone:{ht:'✅ Ou fè defi jodi a: {s}/{n}. Tounen demen pou yon lòt!', en:"✅ You did today's challenge: {s}/{n}. Come back tomorrow for a new one!"},
+  dailyScreenSub:{ht:'Reponn tout kesyon yo, epi peze bouton an anba.', en:'Answer every question, then tap the button below.'},
+  dailyFinish:{ht:'Fini defi a', en:'Finish the challenge'},
+  dailyResult:{ht:'Ou jwenn {s} sou {n}! 🎉', en:'You got {s} out of {n}! 🎉'},
+  levelLine:{ht:'Nivo {i} · {name}', en:'Level {i} · {name}'},
+  levelPts:{ht:'{p} pwen an tou', en:'{p} points in all'},
+  levelNext:{ht:'{p} pwen ankò pou rive {name}', en:'{p} more points to reach {name}'},
+  levelMax:{ht:'Ou rive nan dènye nivo a! 🎉', en:'You reached the top level! 🎉'},
+  badgesTitle:{ht:'Badj ou yo: {a}/{b}', en:'Your badges: {a}/{b}'},
+  badgeTap:{ht:'Peze sou yon badj pou wè kijan pou genyen l.', en:'Tap a badge to see how to earn it.'},
+  badgeHave:{ht:'✅ Ou genyen l: ', en:'✅ You have it: '},
+  badgeLocked:{ht:'🔒 Poko: ', en:'🔒 Not yet: '},
+  badgeNew:{ht:'🏅 Nouvo badj: {b}!', en:'🏅 New badge: {b}!'},
+  levelUp:{ht:'⬆️ Nouvo nivo: {name}!', en:'⬆️ New level: {name}!'},
   newBtn:{ht:'Nouvo', en:'New'},
   npTitle:{ht:'Bonjou! Ann kreye pwofil ou', en:"Hi! Let's make your profile"},
   npNameLabel:{ht:'Premye non ou sèlman', en:'Your first name only'},
@@ -1590,7 +1967,7 @@ const UI = {
   boardOffline:{ht:'Pa gen entènèt kounye a — n ap montre sa ki sou telefòn sa a. Klasman tout klib la ap parèt lè gen entènèt.', en:"No internet right now — showing what's on this phone. The whole club's ranking appears when there is internet."},
   boardUpdated:{ht:'Mizajou: {t}', en:'Updated: {t}'},
   boardEmpty:{ht:'Pèsonn poko fè pwen semèn sa a. Ou ka premye a! 💪', en:'Nobody has points yet this week. You can be first! 💪'},
-  boardRules:{ht:'<strong>Kijan pou fè pwen:</strong> chak nouvo leson = 10 pwen, chak bon repons nan premye eseye a = 2 pwen, chak jou ou fini yon leson = 2 pwen bonis. Refè yon leson pa bay pwen — men li bon pou pratike!', en:'<strong>How to earn points:</strong> each new lesson = 10 points, each correct answer on your first try = 2 points, each day you finish a lesson = 2 bonus points. Redoing a lesson gives no points — but it is good practice!'},
+  boardRules:{ht:'<strong>Kijan pou fè pwen:</strong> chak nouvo leson = 10 pwen, chak bon repons nan premye eseye a = 2 pwen, chak jou ou fini yon leson = 2 pwen bonis, Defi Jodi a = 1 pwen pou chak bon repons. Refè yon leson pa bay pwen — men li bon pou pratike!', en:'<strong>How to earn points:</strong> each new lesson = 10 points, each correct answer on your first try = 2 points, each day you finish a lesson = 2 bonus points, the daily challenge = 1 point per right answer. Redoing a lesson gives no points — but it is good practice!'},
   boardYou:{ht:'(ou)', en:'(you)'},
   ptsEarned:{ht:'+{n} pwen! ⭐', en:'+{n} points! ⭐'},
   sayTitle:{ht:'Koute', en:'Listen'},
@@ -1612,6 +1989,8 @@ const UI = {
     ht:[
       'Chak timoun gen pwòp pwofil yo: premye non, yon imaj, ak yon kòd sekrè 4 chif. Plizyè timoun ka pataje menm telefòn — chak moun peze "Mwen fini" lè yo fini.',
       'Si yon timoun bliye kòd li, fòmatè a peze "Mwen bliye kòd mwen" epi tape kòd fòmatè a pou efase l.',
+      'Si telefòn nan pa montre non yon timoun ankò (oswa li sou yon lòt telefòn), li peze "Mwen deja gen yon pwofil", li chèche non li, epi li tape kòd li. Tout leson ak pwen li yo ap tounen. Sa mande entènèt.',
+      'Chak timoun gen yon sèl pwofil pou tout telefòn yo. Chak leson bay pwen yon sèl fwa. Si app la mande "Èske se ou?", ede timoun nan chwazi bon non an.',
       'Klasman an rekòmanse chak lendi. Pwen yo sèlman pou nouvo leson — refè yon leson pa bay pwen.',
       'Pwogram sa a fonksyone san entènèt — ou ka sove fichye a sou nenpòt òdinatè epi louvri l nenpòt kote.',
       'Sijere fè yon sèl leson pou chak sesyon, epi kite timoun yo eseye quiz la plizyè fwa si yo bezwen.',
@@ -1623,6 +2002,8 @@ const UI = {
     en:[
 "Each child has their own profile: first name, a picture, and a secret 4-number code. Several kids can share one phone — each taps \"I'm done\" when they finish.",
       'If a child forgets their code, the trainer taps "I forgot my code" and types the trainer code to erase it.',
+      'If the phone no longer shows a child\'s name (or they are on another phone), they tap "I already have a profile", find their name and type their code. All their lessons and points come back. This needs internet.',
+      'Each child has one profile for all phones. Each lesson gives points only once. If the app asks "Is this you?", help the child choose the right name.',
       'The ranking starts over every Monday. Points only come from new lessons — redoing a lesson gives no points.',
       'This program works offline — you can save the file on any computer and open it anywhere.',
       'We suggest doing one lesson per session, and letting kids try the quiz multiple times if they need to.',
@@ -1724,6 +2105,20 @@ function applyStaticText(){
   document.getElementById('welcome-voice').textContent = t('welcomeBtn');
   renderSoundBtn();
   document.getElementById('who-sub').textContent = t('whoSub');
+  document.getElementById('find-me-btn').textContent = t('findMeBtn');
+  document.getElementById('find-me-note').textContent = t('findMeNote');
+  document.getElementById('back-btn-roster').textContent = t('backBtn');
+  document.getElementById('back-btn-sim').textContent = t('backBtn');
+  document.getElementById('roster-title').textContent = t('rosterTitle');
+  document.getElementById('roster-sub').textContent = t('rosterSub');
+  document.getElementById('roster-search').placeholder = t('rosterSearch');
+  document.getElementById('sim-title').textContent = t('simTitle');
+  document.getElementById('sim-sub').textContent = t('simSub');
+  document.getElementById('sim-no').textContent = t('simNo');
+  document.getElementById('back-btn-daily').textContent = t('backBtn');
+  document.getElementById('daily-title').textContent = t('dailyTitle');
+  document.getElementById('daily-sub').textContent = t('dailyScreenSub');
+  document.getElementById('daily-finish').textContent = t('dailyFinish');
   document.getElementById('np-title').textContent = t('npTitle');
   document.getElementById('np-name-label').textContent = t('npNameLabel');
   document.getElementById('np-name-note').textContent = t('npNameNote');
@@ -1763,6 +2158,9 @@ function rerenderCurrentScreen(){
     case 'screen-home': renderTrackCards(); updateOverallCertRow(); renderStats(); break;
     case 'screen-newprofile': renderAvatarPick(); break;
     case 'screen-pin': renderPinScreen(); break;
+    case 'screen-roster': renderRoster(); break;
+    case 'screen-similar': renderSimilar(); break;
+    case 'screen-daily': if(dailyState()) goHome(); else openDaily(); break;
     case 'screen-board': openBoard(); break;
     case 'screen-progress': openProgressView(); break;
     case 'screen-track': renderTrackScreen(); break;
@@ -1822,7 +2220,7 @@ function saveCurrentUserProgress(){
    Nothing is lost offline: the queue waits until it can send.
 --------------------------------------------------------- */
 const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbw3BJ1LlMHffmgt34SRndJiw3xx-kbeL1cCUGt8vPrGjOM1yzENQgZNPYS_9PUrIq8POw/exec';
-const APP_VERSION = '2.5.1';
+const APP_VERSION = '3.0';
 const QUEUE_KEY = 'aprann-ak-nou-queue-v1';
 const DEVICE_KEY = 'aprann-ak-nou-device-v1';
 function backendOn(){ return /^https:\/\/script\.google\.com\//.test(BACKEND_URL); }
@@ -1839,7 +2237,7 @@ function queueEvent(type, extra){
   if(!state.currentUser) return;
   const ev = Object.assign({
     id: makeId(), ts: new Date().toISOString(), device: deviceId,
-    student: state.currentUser, event: type, lang: lang, app: APP_VERSION,
+    student: state.currentUser, kid: (allUsersData[state.currentUser]||{}).id || '', event: type, lang: lang, app: APP_VERSION,
     konpite: state.completed.konpite.size, angle: state.completed.angle.size, python: state.completed.python.size,
     totalLessons: TRACKS.konpite.lessons.length + TRACKS.angle.lessons.length + TRACKS.python.lessons.length
   }, extra||{});
@@ -1866,6 +2264,27 @@ async function flushQueue(){
 }
 window.addEventListener('online', flushQueue);
 setInterval(flushQueue, 60000);
+
+/* --- v3: talk to the Google Sheet about WHO a kid is (permanent Kid ID) --- */
+function canReach(){ return backendOn() && !(typeof navigator!=='undefined' && navigator.onLine===false); }
+async function apiCall(url, opts, ms){
+  if(!canReach()) return null;
+  const ctl = (typeof AbortController!=='undefined') ? new AbortController() : null;
+  const tm = setTimeout(()=>{ if(ctl) ctl.abort(); }, ms||20000);
+  try{
+    const res = await fetch(url, Object.assign({}, opts||{}, ctl?{signal:ctl.signal}:{}));
+    return await res.json();
+  }catch(e){ return null; }
+  finally{ clearTimeout(tm); }
+}
+function api(body, ms){ return apiCall(BACKEND_URL, {method:'POST', body: JSON.stringify(body)}, ms); }
+function apiGet(query, ms){ return apiCall(BACKEND_URL + query, null, ms); }
+// points earned on this phone that the sheet has not received yet, per week
+function pendingFor(key){
+  const m = {};
+  syncQueue.forEach(e=>{ if(e.student===key && e.week && e.pts) m[e.week] = (m[e.week]||0) + (+e.pts||0); });
+  return m;
+}
 function syncStatusText(){
   if(!backendOn()) return t('syncOff');
   return syncQueue.length ? t('syncPending').replace('{n}', syncQueue.length) : t('syncAllSent');
@@ -1882,7 +2301,32 @@ function isAllComplete(){
    PROFILES (v2): first name + picture + 4-digit secret code.
    Several kids can share one phone. Profile key = "Name 🐓".
 --------------------------------------------------------- */
-const TRAINER_CODE = 'RRA2026';   // trainer code to reset a forgotten kid code — change it here
+// The trainer code itself is NOT written here any more (this page is public). Only its fingerprint is.
+// To change the code: change TRAINER_CODE in Code.gs, run trainerHash() there, paste the result here.
+const TRAINER_HASH = '042bb0288b6d14884a023b9c8c0224e36f8fb0750a29f86d9dcaf8bb3cce34fe';
+function sha256(str){
+  const K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+  const bytes = Array.from(new TextEncoder().encode(str));
+  const bitLen = bytes.length*8;
+  bytes.push(0x80); while(bytes.length%64!==56) bytes.push(0);
+  for(let i=7;i>=0;i--) bytes.push(i>=4 ? 0 : (bitLen>>>(i*8))&255);
+  let h=[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+  const rr=(x,n)=>(x>>>n)|(x<<(32-n));
+  for(let o=0;o<bytes.length;o+=64){
+    const w=new Array(64);
+    for(let i=0;i<16;i++) w[i]=((bytes[o+4*i]<<24)|(bytes[o+4*i+1]<<16)|(bytes[o+4*i+2]<<8)|bytes[o+4*i+3])>>>0;
+    for(let i=16;i<64;i++){ const s0=rr(w[i-15],7)^rr(w[i-15],18)^(w[i-15]>>>3), s1=rr(w[i-2],17)^rr(w[i-2],19)^(w[i-2]>>>10); w[i]=(w[i-16]+s0+w[i-7]+s1)>>>0; }
+    let [a,b,c,d,e,f,g,hh]=h;
+    for(let i=0;i<64;i++){
+      const t1=(hh+(rr(e,6)^rr(e,11)^rr(e,25))+((e&f)^(~e&g))+K[i]+w[i])>>>0;
+      const t2=((rr(a,2)^rr(a,13)^rr(a,22))+((a&b)^(a&c)^(b&c)))>>>0;
+      hh=g; g=f; f=e; e=(d+t1)>>>0; d=c; c=b; b=a; a=(t1+t2)>>>0;
+    }
+    h=[(h[0]+a)>>>0,(h[1]+b)>>>0,(h[2]+c)>>>0,(h[3]+d)>>>0,(h[4]+e)>>>0,(h[5]+f)>>>0,(h[6]+g)>>>0,(h[7]+hh)>>>0];
+  }
+  return h.map(x=>('0000000'+x.toString(16)).slice(-8)).join('');
+}
+function trainerOk(code){ return sha256('aprann-trainer|' + String(code||'').trim()) === TRAINER_HASH; }
 const AVATARS = ['🐓','⚽','🌺','🥭','🦁','🐢','🚀','⭐','🎵','🏃','📚','🐟','🌳','🦋','🐐','🌞'];
 const DAYS_GOAL = 3;              // days per week that keep a weekly streak going
 const CLUB_GOAL = 200;            // lessons the whole club tries to finish each month
@@ -1945,25 +2389,47 @@ function cleanName(v){
   v = (v||'').replace(/\s+/g,' ').trim();
   return v ? v.charAt(0).toUpperCase() + v.slice(1) : '';
 }
-function newProfileNext(){
+async function newProfileNext(){
+  if(np.busy) return;
   const err = document.getElementById('np-err'); err.className='pin-msg err';
   const name = np.legacyKey ? (allUsersData[np.legacyKey].name || np.legacyKey) : cleanName(document.getElementById('np-name').value);
   if(!name){ err.textContent = t('npErrName'); return; }
   if(!np.avatar){ err.textContent = t('npErrAvatar'); return; }
   const key = name + ' ' + np.avatar;
   if(allUsersData[key] && key !== np.legacyKey){ err.textContent = t('npErrTaken'); return; }
-  pin.mode = 'create'; pin.key = key; pin.name = name; pin.avatar = np.avatar; pin.first = ''; pin.entry = '';
-  pin.legacyKey = np.legacyKey;
+  np.key = key; np.name = name; np.force = false;
+  // v3: before making a new profile, ask the club list if this name already exists
+  if(!np.legacyKey && canReach()){
+    np.busy = true; err.className = 'pin-msg'; err.textContent = t('busy');
+    const r = await apiGet('?a=check&name=' + encodeURIComponent(name), 9000);
+    np.busy = false; err.textContent = '';
+    if(r && r.ok && r.similar && r.similar.length){ showSimilar({list:r.similar, key:null, code:null}); return; }
+  }
+  goPinCreate();
+}
+function goPinCreate(){
+  resetPin({mode:'create', key:np.key, name:np.name, avatar:np.avatar, legacyKey:np.legacyKey, force:!!np.force});
   renderPinScreen(); showScreen('screen-pin');
 }
 
 /* --- PIN pad --- */
-const pin = { mode:'enter', key:null, name:'', avatar:'', entry:'', first:'', legacyKey:null, msg:'', err:false };
+// kind 'local'  = a profile saved on this phone (works offline)
+// kind 'remote' = a kid picked from the club list; the code is checked by the Google Sheet
+const pin = {};
+function resetPin(o){
+  Object.assign(pin, {kind:'local', mode:'enter', key:null, name:'', avatar:'', entry:'', first:'', legacyKey:null,
+    msg:'', err:false, remote:null, mergeKey:null, tc:'', force:false, busy:false}, o||{});
+}
+resetPin();
 function askPin(key){
   const d = allUsersData[key];
   if(!d || !d.pinHash){ startNewProfile(key); return; }   // old (v1) profile: add picture + code
   const sp = splitKey(key);
-  Object.assign(pin, {mode:'enter', key, name:sp.name, avatar:sp.avatar, entry:'', first:'', legacyKey:null, msg:'', err:false});
+  resetPin({mode:'enter', key, name:sp.name, avatar:sp.avatar});
+  renderPinScreen(); showScreen('screen-pin');
+}
+function askRemote(kid, mergeKey){
+  resetPin({kind:'remote', mode: kid.hasPin ? 'enter' : 'create', remote:kid, mergeKey: mergeKey||null, name:kid.name, avatar:kid.avatar});
   renderPinScreen(); showScreen('screen-pin');
 }
 function renderPinScreen(){
@@ -1983,43 +2449,214 @@ function renderPinScreen(){
     });
   }
 }
+function setPinBusy(on){ pin.busy = on; pin.msg = on ? t('busy') : ''; pin.err = false; renderPinScreen(); }
 function pinKey(k){
+  if(pin.busy) return;
   if(k==='⌫'){ pin.entry = pin.entry.slice(0,-1); renderPinScreen(); return; }
   if(k==='✓'){ if(pin.entry.length===4) pinSubmit(); return; }
   if(pin.entry.length < 4){ pin.entry += k; pin.msg=''; pin.err=false; }
   renderPinScreen();
   if(pin.entry.length===4) setTimeout(pinSubmit, 150);
 }
-function pinSubmit(){
-  if(pin.entry.length!==4) return;
+async function pinSubmit(){
+  if(pin.entry.length!==4 || pin.busy) return;
+  const code = pin.entry;
   if(pin.mode==='create'){
-    pin.first = pin.entry; pin.entry=''; pin.mode='confirm'; pin.msg=''; renderPinScreen(); return;
+    pin.first = code; pin.entry=''; pin.mode='confirm'; pin.msg=''; renderPinScreen(); return;
   }
+  if(pin.mode==='confirm' && code !== pin.first){
+    Object.assign(pin,{mode:'create', entry:'', first:'', msg:t('pinMismatch'), err:true}); renderPinScreen(); return;
+  }
+  if(pin.kind==='remote'){ await remoteSubmit(code); return; }
   if(pin.mode==='confirm'){
-    if(pin.entry !== pin.first){
-      Object.assign(pin,{mode:'create', entry:'', first:'', msg:t('pinMismatch'), err:true}); renderPinScreen(); return;
-    }
-    // save profile (new, legacy upgrade, or reset)
+    // save profile on this phone (new, legacy upgrade, or reset)
     let data = allUsersData[pin.key];
     if(pin.legacyKey && pin.legacyKey !== pin.key){
       data = allUsersData[pin.legacyKey]; delete allUsersData[pin.legacyKey];
     }
     data = data || {konpite:[], angle:[], python:[]};
-    data.name = pin.name; data.avatar = pin.avatar; data.pinHash = pinHash(pin.key, pin.entry);
+    data.name = pin.name; data.avatar = pin.avatar; data.pinHash = pinHash(pin.key, code);
+    if(pin.tc && data.id) data.pendingReset = {pin:code, tc:pin.tc};   // tell the sheet about the new code when online
     allUsersData[pin.key] = data; persistAllUsersData();
-    selectUser(pin.key); return;
+    await afterLocalPin(pin.key, code); return;
   }
   // enter
   const d = allUsersData[pin.key];
-  if(d && d.pinHash === pinHash(pin.key, pin.entry)){ selectUser(pin.key); return; }
+  if(d && d.pinHash === pinHash(pin.key, code)){ await afterLocalPin(pin.key, code); return; }
   Object.assign(pin,{entry:'', msg:t('pinWrong'), err:true}); renderPinScreen();
 }
 function forgotPin(){
   const code = prompt(t('pinTrainerAsk'));
   if(code===null) return;
-  if(code.trim() !== TRAINER_CODE){ Object.assign(pin,{msg:t('pinTrainerBad'), err:true, entry:''}); renderPinScreen(); return; }
-  Object.assign(pin,{mode:'create', entry:'', first:'', legacyKey:null, msg:t('pinResetOk'), err:false});
+  if(!trainerOk(code)){ Object.assign(pin,{msg:t('pinTrainerBad'), err:true, entry:''}); renderPinScreen(); return; }
+  Object.assign(pin,{mode:'create', entry:'', first:'', legacyKey:null, tc:code.trim(), msg:t('pinResetOk'), err:false});
   renderPinScreen();
+}
+
+/* --- v3: one permanent Kid ID per kid, kept in the Google Sheet --- */
+const TRACK_KEYS = ['konpite','angle','python'];
+// The right code was typed for a profile on this phone.
+async function afterLocalPin(key, code){
+  const d = allUsersData[key];
+  if(d && d.id){ selectUser(key); syncFromServer(key, code); return; }   // already has its ID: go, and refresh quietly
+  await linkProfile(key, code, pin.force, pin.legacyKey);                // first time online: get the ID
+}
+// Ask the sheet for this profile's permanent ID (or learn that the name looks like an existing kid).
+async function linkProfile(key, code, force, legacyKey){
+  const d = allUsersData[key];
+  if(!d || !canReach()){ selectUser(key); return; }   // offline: works as before, links next time
+  setPinBusy(true);
+  await flushQueue();
+  const r = await api({a:'register', name:d.name||key, avatar:d.avatar||'', pin:code, device:deviceId, key:key, key2:legacyKey||'', force:!!force});
+  pin.busy = false;
+  if(r && r.ok){ applyServer(key, r); selectUser(key); return; }
+  if(r && r.similar && r.similar.length){ showSimilar({list:r.similar, key:key, code:code}); return; }
+  selectUser(key);
+}
+// Quiet refresh after login: lessons done on another phone arrive here.
+async function syncFromServer(key, code){
+  const d = allUsersData[key];
+  if(!d || !d.id || !canReach()) return;
+  await flushQueue();
+  if(d.pendingReset){
+    const rr = await api({a:'resetpin', id:d.id, pin:d.pendingReset.pin, trainer:d.pendingReset.tc});
+    if(rr && (rr.ok || rr.error==='trainer')){ delete d.pendingReset; persistAllUsersData(); }
+  }
+  const r = await api({a:'login', id:d.id, pin:code, device:deviceId, key:key});
+  if(r && r.ok){ applyServer(key, r); if(state.currentUser===key) reloadCurrentUser(); }
+}
+// Put what the sheet knows (ID, lessons, points) into the profile on this phone.
+function applyServer(key, r){
+  const d = allUsersData[key]; if(!d || !r || !r.kid) return;
+  d.id = r.kid.id; d.name = r.kid.name || d.name || key; d.avatar = r.kid.avatar || d.avatar || '';
+  const p = r.progress || {};
+  TRACK_KEYS.forEach(tk=>{
+    const max = TRACKS[tk].lessons.length; const set = new Set(d[tk]||[]);
+    (p[tk]||[]).forEach(i=>{ if(i>=0 && i<max) set.add(i); });
+    d[tk] = Array.from(set).sort((a,b)=>a-b);
+  });
+  const pend = pendingFor(key); d.weeks = d.weeks || {};
+  Object.keys(r.weeks||{}).forEach(wk=>{
+    const sv = r.weeks[wk]; const loc = d.weeks[wk] || {pts:0, days:[]};
+    const days = new Set([].concat(loc.days||[], sv.days||[]));
+    d.weeks[wk] = {pts:(+sv.pts||0) + (pend[wk]||0), days:Array.from(days).sort()};   // the sheet's count is the true one
+  });
+  if(r.daily){   // daily challenges done on other phones
+    d.dailyCount = Math.max(d.dailyCount||0, +r.daily.count||0);
+    d.dailyPerfect = Math.max(d.dailyPerfect||0, +r.daily.perfect||0);
+    const today = ymd(new Date());
+    if(r.daily.days && r.daily.days[today]!==undefined && !(d.daily && d.daily.date===today)) d.daily = {date:today, score:+r.daily.days[today]||0, total:5};
+  }
+  persistAllUsersData();
+}
+function reloadCurrentUser(){
+  const d = allUsersData[state.currentUser]; if(!d) return;
+  TRACK_KEYS.forEach(tk=>{ (d[tk]||[]).forEach(i=>state.completed[tk].add(i)); });
+  saveCurrentUserProgress(); updateUserBadge(); checkBadges(false);
+  const active = document.querySelector('.screen.active');
+  if(active && active.id==='screen-home'){ renderTrackCards(); updateOverallCertRow(); renderStats(); }
+  else if(active && active.id==='screen-track'){ renderTrackScreen(); }
+}
+// A kid picked from the club list typed a code: the sheet checks it.
+async function remoteSubmit(code){
+  const kid = pin.remote;
+  const wasMode = pin.mode==='confirm' ? 'create' : pin.mode;
+  const back = (msg, mode)=>{ pin.busy = false; Object.assign(pin,{entry:'', first:'', mode:mode, msg:msg, err:true}); renderPinScreen(); };
+  if(!canReach()){ back(t('needNet'), wasMode); return; }
+  setPinBusy(true);
+  if(pin.tc){   // trainer reset of a forgotten code
+    const rr = await api({a:'resetpin', id:kid.id, pin:code, trainer:pin.tc});
+    pin.tc = '';
+    if(!rr || !rr.ok){ back(rr ? t('pinTrainerBad') : t('needNet'), 'enter'); return; }
+  }
+  const r = await api({a:'login', id:kid.id, pin:code, device:deviceId, key:pin.mergeKey||''});
+  if(r && r.ok){ pin.busy = false; selectUser(adoptRemote(r, code, pin.mergeKey)); return; }
+  if(r && r.error==='pin'){ kid.hasPin = true; back(t('pinWrong'), 'enter'); return; }
+  back(t('needNet'), wasMode);
+}
+// Make (or reuse) the profile on this phone for a kid the sheet just confirmed.
+function adoptRemote(r, code, mergeKey){
+  let key = (mergeKey && allUsersData[mergeKey]) ? mergeKey : null;
+  if(!key) key = profileList().find(k=>allUsersData[k].id === r.kid.id) || null;
+  if(!key){
+    key = (r.kid.name + ' ' + (r.kid.avatar||'')).trim();
+    if(allUsersData[key]) key = key + ' #' + r.kid.id;
+    allUsersData[key] = {konpite:[], angle:[], python:[]};
+  }
+  allUsersData[key].pinHash = pinHash(key, code);
+  applyServer(key, r);
+  return key;
+}
+
+/* --- v3: "I already have a profile" — the club list --- */
+const ROSTER_KEY = 'aprann-ak-nou-roster-v1';
+let roster = null, rosterMsg = '';
+try{ roster = JSON.parse(localStorage.getItem(ROSTER_KEY)||'null'); }catch(e){ roster = null; }
+function plainName(x){ return String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9\s]/g,' ').replace(/\s+/g,' ').trim(); }
+async function openRoster(){
+  document.getElementById('roster-search').value = '';
+  rosterMsg = canReach() ? t('rosterLoading') : t('needNet');
+  renderRoster(); showScreen('screen-roster');
+  if(!canReach()) return;
+  const r = await apiGet('?a=roster', 20000);
+  if(r && r.ok && Array.isArray(r.kids)){ roster = r.kids; rosterMsg = ''; try{ localStorage.setItem(ROSTER_KEY, JSON.stringify(roster)); }catch(e){} }
+  else rosterMsg = t('needNet');
+  renderRoster();
+}
+function renderRoster(){
+  const grid = document.getElementById('roster-grid'); grid.innerHTML = '';
+  const q = plainName(document.getElementById('roster-search').value);
+  const list = (roster||[]).filter(k=>!q || plainName(k.name).indexOf(q)===0 || plainName(k.name).split(' ').some(w=>w.indexOf(q)===0));
+  list.forEach(k=>{
+    const b = document.createElement('button'); b.className = 'profile-btn';
+    b.innerHTML = '<span class="av">'+escapeHtml(k.avatar||'👤')+'</span><span>'+escapeHtml(k.name)+'</span>';
+    b.onclick = ()=>rosterPick(k.id);
+    grid.appendChild(b);
+  });
+  const m = document.getElementById('roster-msg');
+  m.textContent = rosterMsg || ((roster && q && !list.length) ? t('rosterNone') : '');
+  m.className = 'pin-msg';
+}
+function rosterPick(id){
+  const kid = (roster||[]).find(k=>k.id===id); if(!kid) return;
+  const local = profileList().find(k=>allUsersData[k].id === id);
+  if(local){ askPin(local); return; }                      // already on this phone
+  if(!canReach()){ rosterMsg = t('needNet'); renderRoster(); return; }
+  askRemote(Object.assign({}, kid), null);
+}
+
+/* --- v3: "Is this you?" --- */
+let sim = null;
+function showSimilar(o){ sim = o; renderSimilar(); showScreen('screen-similar'); }
+function renderSimilar(){
+  const grid = document.getElementById('sim-grid'); grid.innerHTML = '';
+  document.getElementById('sim-msg').textContent = '';
+  ((sim && sim.list) || []).forEach((k,i)=>{
+    const b = document.createElement('button'); b.className = 'profile-btn';
+    b.innerHTML = '<span class="av">'+escapeHtml(k.avatar||'👤')+'</span><span>'+escapeHtml(k.name)+'</span>';
+    b.onclick = ()=>similarPick(i);
+    grid.appendChild(b);
+  });
+}
+async function similarPick(i){
+  if(!sim || sim.busy) return;
+  const kid = sim.list[i];
+  if(sim.code && canReach()){   // they just typed a code: if it is the same code, we are done
+    sim.busy = true; document.getElementById('sim-msg').textContent = t('busy');
+    const r = await api({a:'login', id:kid.id, pin:sim.code, device:deviceId, key:sim.key||''});
+    sim.busy = false; document.getElementById('sim-msg').textContent = '';
+    if(r && r.ok){ selectUser(adoptRemote(r, sim.code, sim.key)); return; }
+    kid.hasPin = true;
+  }
+  askRemote(kid, sim.key);   // otherwise ask for that profile's code
+}
+async function similarNew(){
+  if(!sim || sim.busy) return;
+  if(sim.key){   // the profile already exists on this phone: register it as a new kid
+    sim.busy = true; document.getElementById('sim-msg').textContent = t('busy');
+    await linkProfile(sim.key, sim.code, true, null);
+    sim.busy = false;
+  } else { np.force = true; goPinCreate(); }
 }
 
 function selectUser(key){
@@ -2032,6 +2669,7 @@ function selectUser(key){
   };
   if(!allUsersData[key]) saveCurrentUserProgress();
   updateUserBadge();
+  checkBadges(false);
   queueEvent('open');
   prefetchMsgs();
   goHome();
@@ -2103,7 +2741,7 @@ function weeklyStreak(d){
 }
 function renderStats(){
   const card = document.getElementById('stats-card');
-  if(!state.currentUser){ card.style.display='none'; return; }
+  if(!state.currentUser){ card.style.display='none'; renderDailyCard(); renderLevelCard(); return; }
   card.style.display='flex';
   const d = userData(); const w = (d.weeks||{})[thisWeek()] || {pts:0, days:[]};
   const {streak, saverUsedThisMonth} = weeklyStreak(d);
@@ -2117,12 +2755,171 @@ function renderStats(){
     '<div class="stat"><div class="big">⭐ '+w.pts+'</div><div class="lbl">'+t('statWeekPts')+'</div></div>'+
     '<div class="stat"><div class="big">'+w.days.length+'/7</div><div class="lbl">'+t('statDays')+' · '+t('statGoal').replace('{n}',DAYS_GOAL)+'</div><div class="day-dots">'+dots+'</div></div>'+
     '<div class="stat"><div class="big">🔥 '+streak+'</div><div class="lbl">'+t('statStreak')+'</div><div class="lbl">'+(saverUsedThisMonth?t('statSaverUsed'):t('statSaver'))+'</div></div>';
+  renderDailyCard(); renderLevelCard();
 }
 
 /* ---------------------------------------------------------
    LEADERBOARD (weekly, resets Monday) — club-wide from the Google Sheet,
    cached on the phone so it still shows something offline.
 --------------------------------------------------------- */
+/* ---------------------------------------------------------
+   v3: DAILY CHALLENGE — 5 quick questions from lessons the kid already finished.
+   One per day. 1 point per right answer. It also counts as an active day.
+--------------------------------------------------------- */
+const DAILY_N = 5;
+function dailyState(){ const d = userData(); const today = ymd(new Date()); return (d.daily && d.daily.date===today) ? d.daily : null; }
+function dailyPool(){
+  const pool = [];
+  TRACK_KEYS.forEach(tk=>{ Array.from(state.completed[tk]).sort((a,b)=>a-b).forEach(i=>{
+    const les = TRACKS[tk].lessons[i]; ((les && les.quiz) || []).forEach(q=>pool.push(q)); }); });
+  return pool;
+}
+function seededRandom(str){
+  let h = 2166136261 >>> 0; for(let i=0;i<str.length;i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
+  return ()=>{ h += 0x6D2B79F5; let x = h; x = Math.imul(x ^ (x>>>15), x | 1); x ^= x + Math.imul(x ^ (x>>>7), x | 61); return ((x ^ (x>>>14))>>>0) / 4294967296; };
+}
+function dailyPick(){
+  const pool = dailyPool(); const d = userData();
+  const rnd = seededRandom(ymd(new Date()) + '|' + (d.id || state.currentUser));   // same questions all day, new ones tomorrow
+  for(let i=pool.length-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); [pool[i],pool[j]]=[pool[j],pool[i]]; }
+  return pool.slice(0, DAILY_N);
+}
+function renderDailyCard(){
+  const card = document.getElementById('daily-card'); if(!card) return;
+  if(!state.currentUser){ card.style.display='none'; return; }
+  card.style.display='';
+  const done = dailyState(); const n = Math.min(DAILY_N, dailyPool().length);
+  let h = '<strong>'+t('dailyTitle')+'</strong>';
+  if(done) h += '<p style="margin:6px 0 0;">'+t('dailyDone').replace('{s}',done.score).replace('{n}',done.total)+'</p>';
+  else if(n < 3) h += '<p class="rules" style="margin:6px 0 0;">'+t('dailyLocked')+'</p>';
+  else h += '<p style="margin:6px 0 0;">'+t('dailySub').replace('{n}',n)+'</p><div class="row"><button class="btn gold" type="button" onclick="openDaily()">'+t('dailyBtn')+'</button></div>';
+  card.innerHTML = h;
+}
+const daily = { qs:[], correct:0, answered:[] };
+function openDaily(){
+  if(!state.currentUser || dailyState()){ goHome(); return; }
+  daily.qs = dailyPick(); daily.correct = 0; daily.answered = daily.qs.map(()=>false);
+  if(daily.qs.length < 3){ goHome(); return; }
+  const area = document.getElementById('daily-area'); area.innerHTML = '';
+  document.getElementById('daily-result').innerHTML = '';
+  const fin = document.getElementById('daily-finish'); fin.disabled = true; fin.textContent = t('dailyFinish');
+  daily.qs.forEach((q,qi)=>{
+    const block = document.createElement('div'); block.className = 'q-block';
+    block.innerHTML = '<p class="q-text">'+(qi+1)+'. '+L(q,'q').split('\n').join('<br>')+'</p><div class="q-options"></div><p class="q-feedback"></p>';
+    const wrap = block.querySelector('.q-options');
+    const opts = (lang==='en' && q.opts_en) ? q.opts_en : q.opts;
+    opts.forEach((opt,oi)=>{
+      const b = document.createElement('button'); b.className = 'q-opt'; b.textContent = opt;
+      b.onclick = ()=>{
+        if(daily.answered[qi]) return; daily.answered[qi] = true;
+        const all = wrap.querySelectorAll('.q-opt'); all.forEach(o=>o.disabled = true);
+        if(oi===q.correct){ daily.correct++; b.classList.add('correct'); }
+        else { b.classList.add('wrong'); all[q.correct].classList.add('correct'); }
+        block.querySelector('.q-feedback').textContent = L(q,'exp') || '';
+        fin.disabled = !daily.answered.every(a=>a);
+      };
+      wrap.appendChild(b);
+    });
+    area.appendChild(block);
+  });
+  showScreen('screen-daily');
+}
+function finishDaily(){
+  if(!state.currentUser || dailyState() || !daily.qs.length || !daily.answered.every(a=>a)) return;
+  const score = daily.correct, total = daily.qs.length;
+  const earned = awardPoints(score);
+  const d = userData();
+  d.daily = {date: ymd(new Date()), score: score, total: total};
+  d.dailyCount = (d.dailyCount||0) + 1;
+  if(score===total) d.dailyPerfect = (d.dailyPerfect||0) + 1;
+  saveCurrentUserProgress();
+  queueEvent('daily', {score: score, quizTotal: total, pts: earned, week: thisWeek(), weekPts: ((userData().weeks||{})[thisWeek()]||{}).pts||0});
+  celebrate('lesson'); if(score===total) playMsg('m2');
+  document.getElementById('daily-result').innerHTML = '<div class="score-banner">'+t('dailyResult').replace('{s}',score).replace('{n}',total)+'</div>'+
+    (earned>0 ? '<div class="score-banner" style="margin-top:8px;">'+t('ptsEarned').replace('{n}',earned)+'</div>' : '');
+  document.getElementById('daily-finish').disabled = true;
+  checkBadges(true);
+}
+
+/* ---------------------------------------------------------
+   v3: LEVELS (from all the points a kid ever earned) and BADGES
+--------------------------------------------------------- */
+const LEVELS = [
+  {min:0,   e:'🌱', ht:'Grenn',    en:'Seed'},
+  {min:40,  e:'🌿', ht:'Boujon',   en:'Sprout'},
+  {min:120, e:'🌳', ht:'Pyebwa',   en:'Tree'},
+  {min:250, e:'⭐', ht:'Zetwal',   en:'Star'},
+  {min:450, e:'🚀', ht:'Fize',     en:'Rocket'},
+  {min:700, e:'🏆', ht:'Chanpyon', en:'Champion'}
+];
+const BADGES = [
+  {id:'first', e:'👣', ht:'Premye pa',          en:'First step',        how_ht:'Fini premye leson ou.',                 how_en:'Finish your first lesson.',            ok:s=>s.done>=1},
+  {id:'l5',    e:'✋', ht:'5 leson',            en:'5 lessons',         how_ht:'Fini 5 leson.',                         how_en:'Finish 5 lessons.',                    ok:s=>s.done>=5},
+  {id:'l10',   e:'🔟', ht:'10 leson',           en:'10 lessons',        how_ht:'Fini 10 leson.',                        how_en:'Finish 10 lessons.',                   ok:s=>s.done>=10},
+  {id:'l20',   e:'📚', ht:'20 leson',           en:'20 lessons',        how_ht:'Fini 20 leson.',                        how_en:'Finish 20 lessons.',                   ok:s=>s.done>=20},
+  {id:'konpite',e:'💻',ht:'Mèt Konpitè',        en:'Computer master',   how_ht:'Fini tout leson Konpitè yo.',           how_en:'Finish every Computer lesson.',        ok:s=>s.tracks.konpite},
+  {id:'angle', e:'🔤', ht:'Mèt Angle',          en:'English master',    how_ht:'Fini tout leson Angle yo.',             how_en:'Finish every English lesson.',         ok:s=>s.tracks.angle},
+  {id:'python',e:'🐍', ht:'Mèt Python',         en:'Python master',     how_ht:'Fini tout leson Python yo.',            how_en:'Finish every Python lesson.',          ok:s=>s.tracks.python},
+  {id:'all',   e:'🎓', ht:'Tout kou yo',        en:'All courses',       how_ht:'Fini tout leson nan twa kou yo.',       how_en:'Finish every lesson in all 3 courses.',ok:s=>s.done>=s.all},
+  {id:'d3',    e:'📅', ht:'3 jou nan yon semèn',en:'3 days in a week',  how_ht:'Aprann 3 jou nan menm semèn nan.',      how_en:'Learn on 3 days in the same week.',    ok:s=>s.bestDays>=3},
+  {id:'s2',    e:'🔥', ht:'2 semèn youn dèyè lòt',en:'2 weeks in a row',how_ht:'Rive nan objektif la 2 semèn youn dèyè lòt.', how_en:'Reach the weekly goal 2 weeks in a row.', ok:s=>s.streak>=2},
+  {id:'s4',    e:'🌋', ht:'4 semèn youn dèyè lòt',en:'4 weeks in a row',how_ht:'Rive nan objektif la 4 semèn youn dèyè lòt.', how_en:'Reach the weekly goal 4 weeks in a row.', ok:s=>s.streak>=4},
+  {id:'c1',    e:'⚡', ht:'Premye defi',        en:'First challenge',   how_ht:'Fè yon Defi Jodi a.',                   how_en:"Do one Today's Challenge.",            ok:s=>s.daily>=1},
+  {id:'c7',    e:'💪', ht:'7 defi',             en:'7 challenges',      how_ht:'Fè 7 Defi Jodi a.',                     how_en:"Do 7 Today's Challenges.",             ok:s=>s.daily>=7},
+  {id:'p5',    e:'🎯', ht:'Defi san fot',       en:'Perfect challenge', how_ht:'Jwenn tout repons yo nan yon Defi Jodi a.', how_en:"Get every answer right in a Today's Challenge.", ok:s=>s.perfect>=1}
+];
+function totalPts(d){ return Object.keys(d.weeks||{}).reduce((n,k)=>n + (+(d.weeks[k].pts)||0), 0); }
+function levelIndex(pts){ let i = 0; LEVELS.forEach((lv,k)=>{ if(pts>=lv.min) i = k; }); return i; }
+function badgeStats(d){
+  const tracks = {}; let done = 0, all = 0;
+  TRACK_KEYS.forEach(tk=>{ const n = (d[tk]||[]).length, tot = TRACKS[tk].lessons.length; done += n; all += tot; tracks[tk] = n>=tot; });
+  const days = Object.keys(d.weeks||{}).map(k=>(d.weeks[k].days||[]).length);
+  return {done, all, tracks, bestDays: Math.max(0, ...days), streak: weeklyStreak(d).streak, daily: d.dailyCount||0, perfect: d.dailyPerfect||0};
+}
+function lvName(lv){ return lv.e + ' ' + (lang==='en' ? lv.en : lv.ht); }
+function checkBadges(announce){
+  if(!state.currentUser) return;
+  saveCurrentUserProgress();
+  const d = userData(); const s = badgeStats(d);
+  const had = new Set(d.badges||[]); const news = [];
+  BADGES.forEach(b=>{ if(b.ok(s) && !had.has(b.id)){ had.add(b.id); news.push(b); } });
+  const lvl = levelIndex(totalPts(d)); const oldLvl = (typeof d.level==='number') ? d.level : lvl;
+  d.badges = Array.from(had); d.level = Math.max(lvl, oldLvl);
+  persistAllUsersData();
+  if(announce){
+    if(lvl > oldLvl) toast(t('levelUp').replace('{name}', lvName(LEVELS[lvl])));
+    news.forEach(b=>toast(t('badgeNew').replace('{b}', b.e + ' ' + (lang==='en' ? b.en : b.ht))));
+  }
+}
+let toastWait = 0;
+function toast(text){
+  let layer = document.getElementById('toast-layer');
+  if(!layer){ layer = document.createElement('div'); layer.id = 'toast-layer'; document.body.appendChild(layer); }
+  const delay = Math.max(0, toastWait - Date.now()); toastWait = Date.now() + delay + 1400;
+  setTimeout(()=>{ const el = document.createElement('div'); el.className = 'toast'; el.textContent = text; layer.appendChild(el);
+    setTimeout(()=>{ if(el.parentNode) el.parentNode.removeChild(el); }, 4200); }, delay);
+}
+function renderLevelCard(){
+  const card = document.getElementById('level-card'); if(!card) return;
+  if(!state.currentUser){ card.style.display='none'; return; }
+  card.style.display='';
+  const d = userData(); const pts = totalPts(d); const i = levelIndex(pts); const lv = LEVELS[i], next = LEVELS[i+1];
+  const pct = next ? Math.min(100, Math.round((pts - lv.min) / (next.min - lv.min) * 100)) : 100;
+  const have = new Set(d.badges||[]);
+  let h = '<strong>'+t('levelLine').replace('{i}', i+1).replace('{name}', lvName(lv))+'</strong> <span class="rules">· '+t('levelPts').replace('{p}', pts)+'</span>';
+  h += '<div class="level-bar"><div style="width:'+pct+'%"></div></div>';
+  h += '<p class="rules" style="margin:0;">'+(next ? t('levelNext').replace('{p}', next.min - pts).replace('{name}', lvName(next)) : t('levelMax'))+'</p>';
+  h += '<p style="margin:12px 0 0;"><strong>'+t('badgesTitle').replace('{a}', BADGES.filter(b=>have.has(b.id)).length).replace('{b}', BADGES.length)+'</strong></p><div class="badge-row">';
+  BADGES.forEach(b=>{ h += '<button type="button" class="badge'+(have.has(b.id)?'':' off')+'" onclick="badgeInfo(\''+b.id+'\')">'+b.e+'</button>'; });
+  h += '</div><p class="rules" id="badge-info" style="margin:8px 0 0;">'+t('badgeTap')+'</p>';
+  card.innerHTML = h;
+}
+function badgeInfo(id){
+  const b = BADGES.find(x=>x.id===id); const el = document.getElementById('badge-info'); if(!b || !el) return;
+  const have = (userData().badges||[]).indexOf(id) >= 0;
+  el.textContent = (have ? t('badgeHave') : t('badgeLocked')) + (lang==='en' ? b.en + ' — ' + b.how_en : b.ht + ' — ' + b.how_ht);
+}
+
 const BOARD_KEY = 'aprann-ak-nou-board-v2';
 let boardCache = null;
 try{ boardCache = JSON.parse(localStorage.getItem(BOARD_KEY)||'null'); }catch(e){ boardCache = null; }
@@ -2151,31 +2948,33 @@ function isTeam(name){
 function localWeekRows(wk){
   return profileList().filter(k=>!isTeam(k)).map(k=>({student:k, pts:((allUsersData[k].weeks||{})[wk]||{}).pts||0})).filter(r=>r.pts>0).sort((a,b)=>b.pts-a.pts);
 }
-function boardRowsHtml(rows, me){
+function boardRowsHtml(rows){
   if(!rows.length) return '<p class="empty-note">'+t('boardEmpty')+'</p>';
   let h = '<table class="lb-table">';
   rows.forEach((r,i)=>{
     const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1);
-    h += '<tr class="'+(r.student===me?'me':'')+'"><td class="lb-rank">'+medal+'</td><td>'+escapeHtml(r.student)+(r.student===me?' '+t('boardYou'):'')+'</td><td class="lb-pts">⭐ '+r.pts+'</td></tr>';
+    h += '<tr class="'+(r.me?'me':'')+'"><td class="lb-rank">'+medal+'</td><td>'+escapeHtml(r.student)+(r.me?' '+t('boardYou'):'')+'</td><td class="lb-pts">⭐ '+r.pts+'</td></tr>';
   });
   return h + '</table>';
 }
-// Same student with several profiles – shown as one name (keep in sync with Code.gs).
-const SAME_KID = { 'Benira odena':'Benira Odena 🚀', 'Odena':'Benira Odena 🚀' };
-function baseName(n){ return String(n||'').replace(/\s*[^\sA-Za-z\u00C0-\u024F0-9'\u2019-]+\s*$/,'').trim(); }
-function canonical(n){ n=String(n||'').trim(); return SAME_KID[baseName(n)] || n; }
 function renderBoard(){
   const wrap = document.getElementById('board-wrap');
-  const wk = thisWeek(); const me = canonical(state.currentUser);
+  const wk = thisWeek(); const meKey = state.currentUser; const meId = (allUsersData[meKey]||{}).id || '';
   const fresh = boardCache && boardCache.week === wk;
   let h = '';
   if(fresh){
-    // merge: a kid's points on this phone may be newer than the sheet
-    const map = {}; (boardCache.top||[]).forEach(r=>{ if(!isTeam(r.student)){ const k=canonical(r.student); map[k]=(map[k]||0)+r.pts; } });
-    const loc = {}; localWeekRows(wk).forEach(r=>{ const k=canonical(r.student); loc[k]=(loc[k]||0)+r.pts; });
-    Object.keys(loc).forEach(k=>{ if(!(k in map) || loc[k] > map[k]) map[k]=loc[k]; });
-    const rows = Object.keys(map).map(k=>({student:k, pts:map[k]})).sort((a,b)=>b.pts-a.pts).slice(0,15);
-    h += '<div class="lb-card"><strong>'+t('boardTop')+'</strong>'+boardRowsHtml(rows, me)+'</div>';
+    // The sheet counts the points (each lesson once per kid). Add only what this phone has not sent yet.
+    let rows = (boardCache.top||[]).filter(r=>!isTeam(r.student)).map(r=>({id:r.id||'', student:r.student, pts:+r.pts||0}));
+    profileList().forEach(k=>{
+      if(isTeam(k)) return;
+      const d = allUsersData[k]; const pend = pendingFor(k)[wk] || 0;
+      const row = rows.find(r=> d.id ? r.id===d.id : r.student===k);
+      if(row){ row.pts += pend; if(k===meKey) row.me = true; }
+      else { const loc = ((d.weeks||{})[wk]||{}).pts || 0; if(loc>0) rows.push({id:d.id||'', student:((d.name||k)+' '+(d.avatar||'')).trim(), pts:loc, me:k===meKey}); }
+    });
+    rows.forEach(r=>{ if(meId && r.id===meId) r.me = true; });
+    rows = rows.sort((a,b)=>b.pts-a.pts).slice(0,15);
+    h += '<div class="lb-card"><strong>'+t('boardTop')+'</strong>'+boardRowsHtml(rows)+'</div>';
     if(boardCache.improved && boardCache.improved.student){
       h += '<div class="lb-card"><strong>'+t('boardImproved')+'</strong><p style="margin:6px 0 0;font-size:1.1rem;">'+escapeHtml(boardCache.improved.student)+' <span class="rules">(+'+boardCache.improved.gain+')</span></p><p class="rules" style="margin:4px 0 0;">'+t('boardImprovedNote')+'</p></div>';
     }
@@ -2188,7 +2987,7 @@ function renderBoard(){
     h += '<p class="empty-note">'+t('boardUpdated').replace('{t}', when.toLocaleString(lang==='en'?'en-US':'fr-FR',{weekday:'short',hour:'2-digit',minute:'2-digit'}))+'</p>';
   } else {
     h += '<div class="lb-card"><p class="rules" style="margin:0;">'+t('boardOffline')+'</p></div>';
-    h += '<div class="lb-card"><strong>'+t('boardPhone')+'</strong>'+boardRowsHtml(localWeekRows(wk), me)+'</div>';
+    h += '<div class="lb-card"><strong>'+t('boardPhone')+'</strong>'+boardRowsHtml(localWeekRows(wk).map(r=>Object.assign({me:r.student===meKey}, r)))+'</div>';
   }
   h += '<div class="lb-card"><p class="rules" style="margin:0;">'+t('boardRules')+'</p></div>';
   wrap.innerHTML = h;
@@ -2257,7 +3056,7 @@ function openProgressView(){
 
 function clearAllData(){
   const code = prompt(t('pinTrainerAsk'));
-  if(code===null || code.trim()!==TRAINER_CODE){ if(code!==null) alert(t('pinTrainerBad')); return; }
+  if(code===null || !trainerOk(code)){ if(code!==null) alert(t('pinTrainerBad')); return; }
   const sure = confirm(t('clearConfirm'));
   if(!sure) return;
   try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
@@ -2523,6 +3322,38 @@ function renderActivity(activity){
       zone.appendChild(btn);
     }
     placeTarget();
+  } else if(activity.type==='order'){
+    // tap the words (or lines of code) in the right order
+    const words = (lang==='en' && activity.words_en) ? activity.words_en : activity.words;
+    let bank = words.map((w,i)=>i);
+    for(let i=bank.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [bank[i],bank[j]]=[bank[j],bank[i]]; }
+    if(bank.length>1 && bank.every((v,i)=>v===i)) bank.push(bank.shift());
+    let answer = [];
+    const cls = activity.lines ? ' lines' : '';
+    area.innerHTML = `
+      <h3>${t('orderHeading')}</h3>
+      <p>${L(activity,'label')}</p>
+      <div class="order-answer${cls}" id="order-answer"></div>
+      <div class="order-bank${cls}" id="order-bank"></div>
+      <p class="rules">${t('orderHint')}</p>
+      <div class="row"><button class="btn secondary" id="order-check">${t('typingVerifyBtn')}</button> <span id="order-feedback"></span></div>
+    `;
+    const draw = ()=>{
+      const A = document.getElementById('order-answer'), Bk = document.getElementById('order-bank');
+      A.innerHTML = ''; Bk.innerHTML = '';
+      answer.forEach((wi,pos)=>{ const c=document.createElement('button'); c.type='button'; c.className='chip'; c.textContent=words[wi];
+        c.onclick=()=>{ answer.splice(pos,1); bank.push(wi); draw(); }; A.appendChild(c); });
+      bank.forEach((wi,pos)=>{ const c=document.createElement('button'); c.type='button'; c.className='chip'; c.textContent=words[wi];
+        c.onclick=()=>{ bank.splice(pos,1); answer.push(wi); draw(); }; Bk.appendChild(c); });
+    };
+    draw();
+    document.getElementById('order-check').onclick = ()=>{
+      const ok = !bank.length && answer.map(i=>words[i]).join('\u0001') === words.join('\u0001');
+      document.getElementById('order-feedback').innerHTML = ok
+        ? '<span style="color:var(--green);font-weight:600;">'+t('typingCorrect')+'</span>'
+        : '<span style="color:var(--red);">'+t('typingWrong')+'</span>';
+      if(ok && !activity.lines && state.currentTrack==='angle') say(words.join(' '));
+    };
   } else if(activity.type==='typing'){
     const target = L(activity,'target');
     area.innerHTML = `
@@ -2687,6 +3518,7 @@ function finishLesson(){
     if(earned>0) resultDiv.innerHTML += '<div class="score-banner" style="margin-top:8px;">'+t('ptsEarned').replace('{n}',earned)+'</div>';
   }
 
+  checkBadges(true);
   const btn = document.getElementById('finish-btn');
   if(btn){
     btn.textContent = t('finishBtnDone');
@@ -2708,7 +3540,7 @@ function finishLesson(){
 --------------------------------------------------------- */
 function renderCertificate(scope){
   const wrap = document.getElementById('cert-wrap');
-  const name = state.currentUser || '';
+  const name = state.currentUser ? escapeHtml(splitKey(state.currentUser).name) : '';
   const date = formatToday();
   let courseLine, titleText;
   if(scope==='all'){
