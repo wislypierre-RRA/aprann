@@ -1974,7 +1974,7 @@ const UI = {
   boardOffline:{ht:'Pa gen entènèt kounye a — n ap montre sa ki sou telefòn sa a. Klasman tout klib la ap parèt lè gen entènèt.', en:"No internet right now — showing what's on this phone. The whole club's ranking appears when there is internet."},
   boardUpdated:{ht:'Mizajou: {t}', en:'Updated: {t}'},
   boardEmpty:{ht:'Pèsonn poko fè pwen semèn sa a. Ou ka premye a! 💪', en:'Nobody has points yet this week. You can be first! 💪'},
-  boardRules:{ht:'<strong>Kijan pou fè pwen:</strong> fini yon nouvo leson = 10 pwen (jiska 5 nouvo leson pa jou), chak bon repons nan quiz la = 2 pwen, premye leson chak jou = 2 pwen bonis, Defi Jodi a = 1 pwen pou chak bon repons.<br><strong>Jwe san triche:</strong> pran omwen 1 minit pou chak leson, sinon li pa bay pwen. Si ou refè yon leson epi ou jwenn plis bon repons, ou genyen diferans lan.', en:'<strong>How to earn points:</strong> finishing a new lesson = 10 points (up to 5 new lessons a day), each right quiz answer = 2 points, the first lesson each day = 2 bonus points, the daily challenge = 1 point per right answer.<br><strong>Fair play:</strong> take at least 1 minute on each lesson, or it gives no points. If you do a lesson again and get more answers right, you earn the difference.'},
+  boardRules:{ht:'<strong>Kijan pou fè pwen:</strong> fini yon nouvo leson = 10 pwen, chak bon repons nan quiz la = 2 pwen, premye leson chak jou = 2 pwen bonis, Defi Jodi a = 1 pwen pou chak bon repons.<br><strong>Jwe san triche:</strong> pran omwen 1 minit pou chak leson, sinon li pa bay pwen. Si ou refè yon leson epi ou jwenn plis bon repons, ou genyen diferans lan.', en:'<strong>How to earn points:</strong> finishing a new lesson = 10 points, each right quiz answer = 2 points, the first lesson each day = 2 bonus points, the daily challenge = 1 point per right answer.<br><strong>Fair play:</strong> take at least 1 minute on each lesson, or it gives no points. If you do a lesson again and get more answers right, you earn the difference.'},
   boardYou:{ht:'(ou)', en:'(you)'},
   ptsEarned:{ht:'+{n} pwen! ⭐', en:'+{n} points! ⭐'},
   sayTitle:{ht:'Koute', en:'Listen'},
@@ -1998,7 +1998,7 @@ const UI = {
       'Si yon timoun bliye kòd li, fòmatè a peze "Mwen bliye kòd mwen" epi tape kòd fòmatè a pou efase l.',
       'Si telefòn nan pa montre non yon timoun ankò (oswa li sou yon lòt telefòn), li peze "Mwen deja gen yon pwofil", li chèche non li, epi li tape kòd li. Tout leson ak pwen li yo ap tounen. Sa mande entènèt.',
       'Chak timoun gen yon sèl pwofil pou tout telefòn yo. Chak leson bay pwen yon sèl fwa. Si app la mande "Èske se ou?", ede timoun nan chwazi bon non an.',
-      'Klasman an rekòmanse chak lendi. Yon leson ki fèt nan mwens pase 1 minit pa bay pwen. Sèlman 5 nouvo leson pa jou bay 10 pwen yo. Refè yon leson ak plis bon repons bay diferans lan.',
+      'Klasman an rekòmanse chak lendi. Yon leson ki fèt nan mwens pase 1 minit pa bay pwen. Refè yon leson ak plis bon repons bay diferans lan.',
       'Pwogram sa a fonksyone san entènèt — ou ka sove fichye a sou nenpòt òdinatè epi louvri l nenpòt kote.',
       'Sijere fè yon sèl leson pou chak sesyon, epi kite timoun yo eseye quiz la plizyè fwa si yo bezwen.',
       'Pwogrè chak moun sove otomatikman sou aparèy la, epi lè telefòn nan gen entènèt, li voye pwogrè a bay RRA pou Wisly ka wè ki leson yo fin fè.',
@@ -2011,7 +2011,7 @@ const UI = {
       'If a child forgets their code, the trainer taps "I forgot my code" and types the trainer code to erase it.',
       'If the phone no longer shows a child\'s name (or they are on another phone), they tap "I already have a profile", find their name and type their code. All their lessons and points come back. This needs internet.',
       'Each child has one profile for all phones. Each lesson gives points only once. If the app asks "Is this you?", help the child choose the right name.',
-      'The ranking starts over every Monday. A lesson done in under 1 minute gives no points. Only 5 new lessons a day give the 10 points. Redoing a lesson with more right answers pays the difference.',
+      'The ranking starts over every Monday. A lesson done in under 1 minute gives no points. Redoing a lesson with more right answers pays the difference.',
       'This program works offline — you can save the file on any computer and open it anywhere.',
       'We suggest doing one lesson per session, and letting kids try the quiz multiple times if they need to.',
       "Everyone's progress saves automatically on the device, and when the phone has internet it is also sent to RRA so Wisly can see which lessons are finished.",
@@ -2810,7 +2810,7 @@ function renderDailyCard(){
   if(done) h += '<p style="margin:6px 0 0;">'+t('dailyDone').replace('{s}',done.score).replace('{n}',done.total)+'</p>';
   else if(n < 3) h += '<p class="rules" style="margin:6px 0 0;">'+t('dailyLocked')+'</p>';
   else h += '<p style="margin:6px 0 0;">'+t('dailySub').replace('{n}',n)+'</p><div class="row"><button class="btn gold" type="button" onclick="openDaily()">'+t('dailyBtn')+'</button></div>';
-  h += '<p class="rules" style="margin:10px 0 0;">'+t('fairToday').replace('{a}', Math.min(DAILY_NEW, baseToday(userData()))).replace('{b}', DAILY_NEW)+'</p>';
+  if(DAILY_NEW) h += '<p class="rules" style="margin:10px 0 0;">'+t('fairToday').replace('{a}', Math.min(DAILY_NEW, baseToday(userData()))).replace('{b}', DAILY_NEW)+'</p>';
   card.innerHTML = h;
 }
 const daily = { qs:[], correct:0, answered:[] };
@@ -3505,11 +3505,11 @@ function celebrate(size){
 /* --- FAIR PLAY (v3.1) -----------------------------------------------------------
    Each lesson can give 10 "finish" points + 2 per right quiz answer, once per kid.
    1) A lesson finished in less than MIN_SECS earns nothing that time (do it again, slowly).
-   2) Only DAILY_NEW lessons per day can give the 10 finish points (come back tomorrow for more).
+   2) Optional: only DAILY_NEW lessons per day give the 10 finish points. It is OFF (0 = no limit).
    3) Doing a lesson again with a better quiz score pays the difference.
    The Google Sheet applies the same rules; its count is the true one. */
 const MIN_SECS = 60;
-const DAILY_NEW = 5;
+const DAILY_NEW = 0;      // 0 = no daily limit (same number as in Code.gs)
 function lessonKey(tk, idx){ return tk + '#' + (idx+1); }
 function paidRec(d, key, wasDone){
   d.paid = d.paid || {};
@@ -3545,7 +3545,7 @@ function finishLesson(){
     const gainQ = Math.max(0, 2*correct - rec.q); rec.q = Math.max(rec.q, 2*correct);
     let gainB = 0;
     if(!rec.b){
-      if(baseToday(d) < DAILY_NEW){
+      if(!DAILY_NEW || baseToday(d) < DAILY_NEW){
         gainB = 10; rec.b = 1;
         const td = ymd(new Date()); d.baseDays = d.baseDays || {}; d.baseDays[td] = (d.baseDays[td]||0) + 1;
       } else capped = true;
