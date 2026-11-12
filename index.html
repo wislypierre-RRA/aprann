@@ -240,7 +240,9 @@
   }
   .lesson-item.done .num{background:var(--green);color:#fff;}
   .lesson-item .title{font-weight:600;}
-  .lesson-item .check{margin-left:auto;font-size:1.2rem;color:var(--green);}
+  .lesson-item .check{margin-left:auto;font-size:1.2rem;color:var(--green);white-space:nowrap;}
+  .lesson-item .check .more{font-size:0.8rem;font-weight:700;color:#a86b00;background:#fff3cd;border-radius:10px;padding:2px 7px;}
+  .score-banner.warn{background:#fff3cd;color:#7a5200;border:1px solid #f0d58a;}
   .track-title-row{
     display:flex;align-items:center;gap:12px;flex-wrap:wrap;
     margin-top:6px;
@@ -1929,6 +1931,11 @@ const UI = {
   badgeLocked:{ht:'🔒 Poko: ', en:'🔒 Not yet: '},
   badgeNew:{ht:'🏅 Nouvo badj: {b}!', en:'🏅 New badge: {b}!'},
   levelUp:{ht:'⬆️ Nouvo nivo: {name}!', en:'⬆️ New level: {name}!'},
+  tooFast:{ht:'⏱️ Ou ale twò vit! Pran omwen 1 minit pou li leson an byen. Refè l dousman pou genyen pwen yo.', en:'⏱️ That was too fast! Take at least 1 minute to really read the lesson. Do it again slowly to earn the points.'},
+  capMsg:{ht:'🌙 Ou deja genyen 10 pwen pou {n} nouvo leson jodi a. Bon travay! Refè leson sa a demen pou pran 10 pwen li yo.', en:'🌙 You already earned the 10 points for {n} new lessons today. Good work! Do this lesson again tomorrow to get its 10 points.'},
+  improveMsg:{ht:'💡 Ou ka genyen {n} pwen anplis: refè leson an epi jwenn plis bon repons.', en:'💡 You can still earn {n} more points: do the lesson again and get more answers right.'},
+  redoBtn:{ht:'🔁 Refè leson an', en:'🔁 Do the lesson again'},
+  fairToday:{ht:'🎯 Nouvo leson ki bay 10 pwen jodi a: {a}/{b}', en:'🎯 New lessons that give 10 points today: {a}/{b}'},
   newBtn:{ht:'Nouvo', en:'New'},
   npTitle:{ht:'Bonjou! Ann kreye pwofil ou', en:"Hi! Let's make your profile"},
   npNameLabel:{ht:'Premye non ou sèlman', en:'Your first name only'},
@@ -1967,7 +1974,7 @@ const UI = {
   boardOffline:{ht:'Pa gen entènèt kounye a — n ap montre sa ki sou telefòn sa a. Klasman tout klib la ap parèt lè gen entènèt.', en:"No internet right now — showing what's on this phone. The whole club's ranking appears when there is internet."},
   boardUpdated:{ht:'Mizajou: {t}', en:'Updated: {t}'},
   boardEmpty:{ht:'Pèsonn poko fè pwen semèn sa a. Ou ka premye a! 💪', en:'Nobody has points yet this week. You can be first! 💪'},
-  boardRules:{ht:'<strong>Kijan pou fè pwen:</strong> chak nouvo leson = 10 pwen, chak bon repons nan premye eseye a = 2 pwen, chak jou ou fini yon leson = 2 pwen bonis, Defi Jodi a = 1 pwen pou chak bon repons. Refè yon leson pa bay pwen — men li bon pou pratike!', en:'<strong>How to earn points:</strong> each new lesson = 10 points, each correct answer on your first try = 2 points, each day you finish a lesson = 2 bonus points, the daily challenge = 1 point per right answer. Redoing a lesson gives no points — but it is good practice!'},
+  boardRules:{ht:'<strong>Kijan pou fè pwen:</strong> fini yon nouvo leson = 10 pwen (jiska 5 nouvo leson pa jou), chak bon repons nan quiz la = 2 pwen, premye leson chak jou = 2 pwen bonis, Defi Jodi a = 1 pwen pou chak bon repons.<br><strong>Jwe san triche:</strong> pran omwen 1 minit pou chak leson, sinon li pa bay pwen. Si ou refè yon leson epi ou jwenn plis bon repons, ou genyen diferans lan.', en:'<strong>How to earn points:</strong> finishing a new lesson = 10 points (up to 5 new lessons a day), each right quiz answer = 2 points, the first lesson each day = 2 bonus points, the daily challenge = 1 point per right answer.<br><strong>Fair play:</strong> take at least 1 minute on each lesson, or it gives no points. If you do a lesson again and get more answers right, you earn the difference.'},
   boardYou:{ht:'(ou)', en:'(you)'},
   ptsEarned:{ht:'+{n} pwen! ⭐', en:'+{n} points! ⭐'},
   sayTitle:{ht:'Koute', en:'Listen'},
@@ -1991,7 +1998,7 @@ const UI = {
       'Si yon timoun bliye kòd li, fòmatè a peze "Mwen bliye kòd mwen" epi tape kòd fòmatè a pou efase l.',
       'Si telefòn nan pa montre non yon timoun ankò (oswa li sou yon lòt telefòn), li peze "Mwen deja gen yon pwofil", li chèche non li, epi li tape kòd li. Tout leson ak pwen li yo ap tounen. Sa mande entènèt.',
       'Chak timoun gen yon sèl pwofil pou tout telefòn yo. Chak leson bay pwen yon sèl fwa. Si app la mande "Èske se ou?", ede timoun nan chwazi bon non an.',
-      'Klasman an rekòmanse chak lendi. Pwen yo sèlman pou nouvo leson — refè yon leson pa bay pwen.',
+      'Klasman an rekòmanse chak lendi. Yon leson ki fèt nan mwens pase 1 minit pa bay pwen. Sèlman 5 nouvo leson pa jou bay 10 pwen yo. Refè yon leson ak plis bon repons bay diferans lan.',
       'Pwogram sa a fonksyone san entènèt — ou ka sove fichye a sou nenpòt òdinatè epi louvri l nenpòt kote.',
       'Sijere fè yon sèl leson pou chak sesyon, epi kite timoun yo eseye quiz la plizyè fwa si yo bezwen.',
       'Pwogrè chak moun sove otomatikman sou aparèy la, epi lè telefòn nan gen entènèt, li voye pwogrè a bay RRA pou Wisly ka wè ki leson yo fin fè.',
@@ -2004,7 +2011,7 @@ const UI = {
       'If a child forgets their code, the trainer taps "I forgot my code" and types the trainer code to erase it.',
       'If the phone no longer shows a child\'s name (or they are on another phone), they tap "I already have a profile", find their name and type their code. All their lessons and points come back. This needs internet.',
       'Each child has one profile for all phones. Each lesson gives points only once. If the app asks "Is this you?", help the child choose the right name.',
-      'The ranking starts over every Monday. Points only come from new lessons — redoing a lesson gives no points.',
+      'The ranking starts over every Monday. A lesson done in under 1 minute gives no points. Only 5 new lessons a day give the 10 points. Redoing a lesson with more right answers pays the difference.',
       'This program works offline — you can save the file on any computer and open it anywhere.',
       'We suggest doing one lesson per session, and letting kids try the quiz multiple times if they need to.',
       "Everyone's progress saves automatically on the device, and when the phone has internet it is also sent to RRA so Wisly can see which lessons are finished.",
@@ -2220,7 +2227,7 @@ function saveCurrentUserProgress(){
    Nothing is lost offline: the queue waits until it can send.
 --------------------------------------------------------- */
 const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbw3BJ1LlMHffmgt34SRndJiw3xx-kbeL1cCUGt8vPrGjOM1yzENQgZNPYS_9PUrIq8POw/exec';
-const APP_VERSION = '3.0';
+const APP_VERSION = '3.1';
 const QUEUE_KEY = 'aprann-ak-nou-queue-v1';
 const DEVICE_KEY = 'aprann-ak-nou-device-v1';
 function backendOn(){ return /^https:\/\/script\.google\.com\//.test(BACKEND_URL); }
@@ -2398,16 +2405,20 @@ async function newProfileNext(){
   const key = name + ' ' + np.avatar;
   if(allUsersData[key] && key !== np.legacyKey){ err.textContent = t('npErrTaken'); return; }
   np.key = key; np.name = name; np.force = false;
+  const mine = np;   // if the kid goes Back and starts again while we wait, this answer is for the old try
   // v3: before making a new profile, ask the club list if this name already exists
   if(!np.legacyKey && canReach()){
     np.busy = true; err.className = 'pin-msg'; err.textContent = t('busy');
     const r = await apiGet('?a=check&name=' + encodeURIComponent(name), 9000);
-    np.busy = false; err.textContent = '';
+    mine.busy = false;
+    if(np !== mine || !document.getElementById('screen-newprofile').classList.contains('active')) return;
+    err.textContent = '';
     if(r && r.ok && r.similar && r.similar.length){ showSimilar({list:r.similar, key:null, code:null}); return; }
   }
   goPinCreate();
 }
 function goPinCreate(){
+  if(!np.key || !np.name){ showProfiles(); return; }   // never make a profile without a name
   resetPin({mode:'create', key:np.key, name:np.name, avatar:np.avatar, legacyKey:np.legacyKey, force:!!np.force});
   renderPinScreen(); showScreen('screen-pin');
 }
@@ -2541,6 +2552,12 @@ function applyServer(key, r){
     const days = new Set([].concat(loc.days||[], sv.days||[]));
     d.weeks[wk] = {pts:(+sv.pts||0) + (pend[wk]||0), days:Array.from(days).sort()};   // the sheet's count is the true one
   });
+  if(r.paid){   // which lessons this kid was really paid for (the sheet is the judge)
+    d.paid = {}; Object.keys(r.paid).forEach(k=>{ d.paid[k] = {b: r.paid[k][0] ? 1 : 0, q: +r.paid[k][1] || 0}; });
+    TRACK_KEYS.forEach(tk=>(d[tk]||[]).forEach(i=>{ const k = lessonKey(tk, i); if(!d.paid[k]) d.paid[k] = {b:0, q:0}; }));
+    const td = ymd(new Date()); d.baseDays = d.baseDays || {};
+    if(r.baseDays && r.baseDays[td] !== undefined) d.baseDays[td] = Math.max(d.baseDays[td]||0, +r.baseDays[td]||0);
+  }
   if(r.daily){   // daily challenges done on other phones
     d.dailyCount = Math.max(d.dailyCount||0, +r.daily.count||0);
     d.dailyPerfect = Math.max(d.dailyPerfect||0, +r.daily.perfect||0);
@@ -2793,6 +2810,7 @@ function renderDailyCard(){
   if(done) h += '<p style="margin:6px 0 0;">'+t('dailyDone').replace('{s}',done.score).replace('{n}',done.total)+'</p>';
   else if(n < 3) h += '<p class="rules" style="margin:6px 0 0;">'+t('dailyLocked')+'</p>';
   else h += '<p style="margin:6px 0 0;">'+t('dailySub').replace('{n}',n)+'</p><div class="row"><button class="btn gold" type="button" onclick="openDaily()">'+t('dailyBtn')+'</button></div>';
+  h += '<p class="rules" style="margin:10px 0 0;">'+t('fairToday').replace('{a}', Math.min(DAILY_NEW, baseToday(userData()))).replace('{b}', DAILY_NEW)+'</p>';
   card.innerHTML = h;
 }
 const daily = { qs:[], correct:0, answered:[] };
@@ -2808,13 +2826,14 @@ function openDaily(){
     block.innerHTML = '<p class="q-text">'+(qi+1)+'. '+L(q,'q').split('\n').join('<br>')+'</p><div class="q-options"></div><p class="q-feedback"></p>';
     const wrap = block.querySelector('.q-options');
     const opts = (lang==='en' && q.opts_en) ? q.opts_en : q.opts;
-    opts.forEach((opt,oi)=>{
-      const b = document.createElement('button'); b.className = 'q-opt'; b.textContent = opt;
+    answerOrder(q, opts).forEach(oi=>{
+      const opt = opts[oi];
+      const b = document.createElement('button'); b.className = 'q-opt'; b.dataset.oi = oi; b.textContent = opt;
       b.onclick = ()=>{
         if(daily.answered[qi]) return; daily.answered[qi] = true;
         const all = wrap.querySelectorAll('.q-opt'); all.forEach(o=>o.disabled = true);
         if(oi===q.correct){ daily.correct++; b.classList.add('correct'); }
-        else { b.classList.add('wrong'); all[q.correct].classList.add('correct'); }
+        else { b.classList.add('wrong'); wrap.querySelector('.q-opt[data-oi="'+q.correct+'"]').classList.add('correct'); }
         block.querySelector('.q-feedback').textContent = L(q,'exp') || '';
         fin.disabled = !daily.answered.every(a=>a);
       };
@@ -3156,6 +3175,7 @@ async function toggleVoice(btn, labelKey){
 
 function openLesson(idx){
   stopVoice();
+  state.lessonOpenedAt = Date.now();   // fair play: how long the kid really spends on the lesson
   state.currentLessonIdx = idx;
   renderLessonScreen();
   showScreen('screen-lesson');
@@ -3235,7 +3255,7 @@ function renderTrackScreen(){
     item.innerHTML = `
       <span class="num">${idx+1}</span>
       <span class="title">${L(lesson,'title')}</span>
-      ${isDone?'<span class="check">✓</span>':''}
+      ${isDone?'<span class="check">✓'+(pointsLeft(track.key, idx)>0 ? ' <span class="more">+'+pointsLeft(track.key, idx)+'⭐</span>' : '')+'</span>':''}
     `;
     list.appendChild(item);
   });
@@ -3384,6 +3404,15 @@ function checkTyping(target){
 /* ---------------------------------------------------------
    QUIZ RENDERING
 --------------------------------------------------------- */
+// v3.1: answers appear in a different order each time, so kids read them instead of remembering a position.
+// An answer like "Both" / "Tou de" must stay last, so those questions keep their order.
+function answerOrder(q, opts){
+  const order = opts.map((o,i)=>i);
+  const keep = /\b(both|all of|none of|above)\b|tou ?de|toulède|tout sa|anwo|okenn nan/i;
+  if(q.noShuffle || (q.opts||[]).concat(q.opts_en||[]).some(o=>keep.test(String(o)))) return order;
+  for(let i=order.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [order[i],order[j]]=[order[j],order[i]]; }
+  return order;
+}
 function renderQuiz(quiz){
   const area = document.getElementById('quiz-area');
   area.innerHTML='';
@@ -3398,9 +3427,11 @@ function renderQuiz(quiz){
     block.innerHTML = `<p class="q-text">${qi+1}. ${qTextHtml}</p><div class="q-options"></div><p class="q-feedback"></p>`;
     const optsWrap = block.querySelector('.q-options');
     const opts = (lang==='en' && q.opts_en) ? q.opts_en : q.opts;
-    opts.forEach((opt,oi)=>{
+    answerOrder(q, opts).forEach(oi=>{
+      const opt = opts[oi];
       const optBtn = document.createElement('button');
       optBtn.className='q-opt';
+      optBtn.dataset.oi = oi;
       optBtn.textContent = opt;
       optBtn.onclick = ()=>{
         if(answered[qi]) return;
@@ -3412,7 +3443,7 @@ function renderQuiz(quiz){
           optBtn.classList.add('correct');
         } else {
           optBtn.classList.add('wrong');
-          allOpts[q.correct].classList.add('correct');
+          optsWrap.querySelector('.q-opt[data-oi="'+q.correct+'"]').classList.add('correct');
           if(!window._triedAgainMsg){ window._triedAgainMsg = true; playMsg('m3'); }
         }
         block.querySelector('.q-feedback').textContent = L(q,'exp') || '';
@@ -3471,10 +3502,31 @@ function celebrate(size){
 /* ---------------------------------------------------------
    FINISH LESSON
 --------------------------------------------------------- */
+/* --- FAIR PLAY (v3.1) -----------------------------------------------------------
+   Each lesson can give 10 "finish" points + 2 per right quiz answer, once per kid.
+   1) A lesson finished in less than MIN_SECS earns nothing that time (do it again, slowly).
+   2) Only DAILY_NEW lessons per day can give the 10 finish points (come back tomorrow for more).
+   3) Doing a lesson again with a better quiz score pays the difference.
+   The Google Sheet applies the same rules; its count is the true one. */
+const MIN_SECS = 60;
+const DAILY_NEW = 5;
+function lessonKey(tk, idx){ return tk + '#' + (idx+1); }
+function paidRec(d, key, wasDone){
+  d.paid = d.paid || {};
+  if(!d.paid[key]) d.paid[key] = wasDone ? {b:1, q:99} : {b:0, q:0};   // finished before v3.1: counted as fully paid
+  return d.paid[key];
+}
+function baseToday(d){ return ((d.baseDays||{})[ymd(new Date())]) || 0; }
+function pointsLeft(tk, idx){
+  const d = userData(); const rec = (d.paid||{})[lessonKey(tk, idx)]; if(!rec) return 0;
+  const n = ((TRACKS[tk].lessons[idx]||{}).quiz||[]).length;
+  return (rec.b ? 0 : 10) + Math.max(0, 2*n - rec.q);
+}
 function finishLesson(){
   const track = TRACKS[state.currentTrack];
   const idx = state.currentLessonIdx;
   const alreadyDone = state.completed[track.key].has(idx);
+  const secs = state.lessonOpenedAt ? Math.max(0, Math.round((Date.now() - state.lessonOpenedAt)/1000)) : 9999;
   state.completed[track.key].add(idx);
   saveCurrentUserProgress();
 
@@ -3483,15 +3535,27 @@ function finishLesson(){
   const done = state.completed[track.key].size;
   const trackNowComplete = done>=total;
   const allNowComplete = isAllComplete();
+  const correct = (typeof window._quizCorrect==='number') ? window._quizCorrect : 0;
+  const quizLen = (track.lessons[idx].quiz||[]).length;
 
-  let earned = 0;
-  if(!alreadyDone){
+  const d = userData(); const rec = paidRec(d, lessonKey(track.key, idx), alreadyDone);
+  const fast = secs < MIN_SECS;
+  let earned = 0, capped = false;
+  if(!fast){
+    const gainQ = Math.max(0, 2*correct - rec.q); rec.q = Math.max(rec.q, 2*correct);
+    let gainB = 0;
+    if(!rec.b){
+      if(baseToday(d) < DAILY_NEW){
+        gainB = 10; rec.b = 1;
+        const td = ymd(new Date()); d.baseDays = d.baseDays || {}; d.baseDays[td] = (d.baseDays[td]||0) + 1;
+      } else capped = true;
+    }
+    earned = awardPoints(gainB + gainQ);   // also gives the +2 for the first lesson of the day
+  }
+  const left = (rec.b ? 0 : 10) + Math.max(0, 2*quizLen - rec.q);
+  if(!alreadyDone && !fast){
     celebrate(trackNowComplete ? 'track' : 'lesson');
     playMsg(trackNowComplete ? 'm4' : 'm2');
-    const correct = (typeof window._quizCorrect==='number') ? window._quizCorrect : 0;
-    earned = awardPoints(10 + 2*correct);
-  } else {
-    earned = awardPoints(0); // daily bonus still counts if this is the day's first finished lesson
   }
   saveCurrentUserProgress();
   queueEvent(alreadyDone ? 'lesson_repeat' : 'lesson_done', {
@@ -3499,23 +3563,26 @@ function finishLesson(){
     score: (typeof window._quizCorrect==='number') ? window._quizCorrect : '',
     quizTotal: (typeof window._quizTotal==='number') ? window._quizTotal : '',
     trackDone: (!alreadyDone && trackNowComplete) ? 'yes' : '', allDone: (!alreadyDone && allNowComplete) ? 'yes' : '',
-    pts: earned, week: thisWeek(), weekPts: ((userData().weeks||{})[thisWeek()]||{}).pts||0
+    secs: secs, pts: earned, week: thisWeek(), weekPts: ((userData().weeks||{})[thisWeek()]||{}).pts||0
   });
 
   if(resultDiv){
+    let h = '<div class="score-banner">✅ '+t('lessonDoneMsg')+'</div>';
     if(!alreadyDone && trackNowComplete){
-      let extra = '<div class="celebrate-banner"><p><strong>'+t('celebrateTrackTitle')+'</strong></p><p>'+t('celebrateTrackMsg')+'</p>';
+      h += '<div class="celebrate-banner"><p><strong>'+t('celebrateTrackTitle')+'</strong></p><p>'+t('celebrateTrackMsg')+'</p>';
       if(allNowComplete){
-        extra += '<p>'+t('celebrateAllMsg')+'</p><div class="row"><button class="btn gold" onclick="openCertificate(\'all\')">'+t('viewCertNowBtn')+'</button></div>';
+        h += '<p>'+t('celebrateAllMsg')+'</p><div class="row"><button class="btn gold" onclick="openCertificate(\'all\')">'+t('viewCertNowBtn')+'</button></div>';
       } else {
-        extra += '<div class="row"><button class="btn gold" onclick="openCertificate(\''+track.key+'\')">'+t('viewCertNowBtn')+'</button></div>';
+        h += '<div class="row"><button class="btn gold" onclick="openCertificate(\''+track.key+'\')">'+t('viewCertNowBtn')+'</button></div>';
       }
-      extra += '</div>';
-      resultDiv.innerHTML = '<div class="score-banner">✅ '+t('lessonDoneMsg')+'</div>'+extra;
-    } else {
-      resultDiv.innerHTML = '<div class="score-banner">✅ '+t('lessonDoneMsg')+'</div>';
+      h += '</div>';
     }
-    if(earned>0) resultDiv.innerHTML += '<div class="score-banner" style="margin-top:8px;">'+t('ptsEarned').replace('{n}',earned)+'</div>';
+    if(earned>0) h += '<div class="score-banner" style="margin-top:8px;">'+t('ptsEarned').replace('{n}',earned)+'</div>';
+    if(fast) h += '<div class="score-banner warn" style="margin-top:8px;">'+t('tooFast')+'</div>';
+    else if(capped) h += '<div class="score-banner warn" style="margin-top:8px;">'+t('capMsg').replace('{n}',DAILY_NEW)+'</div>';
+    else if(left>0) h += '<div class="score-banner warn" style="margin-top:8px;">'+t('improveMsg').replace('{n}',left)+'</div>';
+    if(left>0) h += '<div class="row"><button class="btn secondary" type="button" onclick="openLesson('+idx+')">'+t('redoBtn')+'</button></div>';
+    resultDiv.innerHTML = h;
   }
 
   checkBadges(true);
