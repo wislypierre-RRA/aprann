@@ -1030,7 +1030,7 @@ const TRACKS = {
             </table>
           `}
         ],
-        activity:{type:'typing', target:'Pa gen pwoblem, mesi', target_en:'No problem, thank you', label:'Tape sa pou di si yon moun pa vle reponn', label_en:"Type what to say if someone doesn't want to answer"},
+        activity:{type:'typing', target:'Pa gen pwoblèm, mèsi', target_en:'No problem, thank you', label:'Tape sa pou di si yon moun pa vle reponn', label_en:"Type what to say if someone doesn't want to answer"},
         quiz:[
           {q:'Ak ki moun nou dwe ale ranmase done?', q_en:'Who should we go collect data with?', opts:['Poukont nou','An ekip, ak yon granmoun toupre','Ak moun nou pa konnen','Nenpòt moun'], opts_en:['Alone','In a team, with an adult nearby','With people we do not know','Anyone'], correct:1, exp:'Toujou an ekip, lajounen, ak yon granmoun toupre.', exp_en:'Always in a team, in daylight, with an adult nearby.'},
           {q:'Ki sa nou PA dwe ekri?', q_en:'What should we NOT write down?', opts:['Konbyen timoun ki ale lekòl','Non moun yo','Pri diri a','Konbyen fontèn dlo'], opts_en:['How many children go to school','People’s names','The price of rice','How many water fountains'], correct:1, exp:'Nou konte sèlman. Pa gen non.', exp_en:'We only count. No names.'},
@@ -2043,6 +2043,7 @@ const UI = {
   typingInputPh:{ht:'Tape isit la...', en:'Type here...'},
   typingCorrect:{ht:'✓ Egzat! Byen fèt.', en:'✓ Correct! Well done.'},
   typingWrong:{ht:'Poko bon — eseye ankò.', en:'Not quite — try again.'},
+  typingHint:{ht:'Gade mo sa a byen: «{w}»', en:'Look closely at this word: "{w}"'},
   footerNote:{ht:'Fèt pou Running Revolution Ayiti — yon pwogram ki soutni edikasyon, nitrisyon ak aktivite fizik pou timoun ak jèn ann Ayiti.', en:'Made for Running Revolution Ayiti — a program supporting education, nutrition, and physical activity for children and young adults in Haiti.'},
   viewOverallCert:{ht:'Wè Sètifika Debaz Ou', en:'View Your Basic Certificate'},
   trackCertBtn:{ht:'Wè Sètifika pou Kou Sa a', en:'View Certificate for This Course'},
@@ -3391,14 +3392,26 @@ function renderActivity(activity){
   }
 }
 
+// v3.1: forgiving check. For a sentence, accents, capitals, punctuation and extra spaces don't matter
+// ("Pa gen pwoblem,mesi" = "Pa gen pwoblèm, mèsi"). For a formula or a number, only spaces and capitals are ignored.
+function typingPlain(x){ return String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9\s]/g,' ').replace(/\s+/g,' ').trim(); }
 function checkTyping(target){
-  const val = document.getElementById('type-input').value.trim().toLowerCase();
+  const raw = document.getElementById('type-input').value;
   const feedback = document.getElementById('type-feedback');
-  if(val === target.trim().toLowerCase()){
+  const exact = /^=|[0-9%]/.test(target.trim());
+  const a = exact ? raw.replace(/\s+/g,'').toLowerCase() : typingPlain(raw);
+  const b = exact ? target.replace(/\s+/g,'').toLowerCase() : typingPlain(target);
+  if(a === b){
     feedback.innerHTML = '<span style="color:var(--green);font-weight:600;">'+t('typingCorrect')+'</span>';
-  } else {
-    feedback.innerHTML = '<span style="color:var(--red);">'+t('typingWrong')+'</span>';
+    return;
   }
+  let hint = '';
+  if(!exact && a){   // show which word to look at again
+    const aw = a.split(' '), bw = b.split(' '), tw = target.replace(/[.,!?]/g,' ').trim().split(/\s+/);
+    let k = 0; while(k < bw.length && aw[k] === bw[k]) k++;
+    if(k < bw.length && tw[k]) hint = ' ' + t('typingHint').replace('{w}', escapeHtml(tw[k]));
+  }
+  feedback.innerHTML = '<span style="color:var(--red);">'+t('typingWrong')+hint+'</span>';
 }
 
 /* ---------------------------------------------------------
