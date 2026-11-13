@@ -539,6 +539,14 @@
   .mc-lbl{width:84px;font-weight:600;font-size:0.92rem;}
   .mc-bar{height:22px;background:var(--blue);border-radius:6px;display:inline-block;}
   .mc-val{font-weight:700;}
+  /* v3.2: ask RRA a question */
+  .ask-card p{margin:0 0 10px;}
+  .ask-topics{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 4px;}
+  .ask-topics button{font-size:0.98rem;background:#fff;border:2px solid var(--ring);border-radius:12px;padding:10px 12px;cursor:pointer;color:var(--ink);}
+  .ask-topics button.sel{border-color:var(--blue);background:#eef2ff;font-weight:700;}
+  textarea.text-in{font-family:inherit;resize:vertical;min-height:110px;}
+  .pin-msg.ok{color:var(--green);}
+  .track-card.locked{opacity:0.75;cursor:default;}
 </style>
 </head>
 <body>
@@ -638,6 +646,22 @@
     <div id="board-wrap"></div>
   </section>
 
+  <!-- ASK A QUESTION (v3.2): questions go to the "Questions" tab, RRA answers in the WhatsApp group -->
+  <section id="screen-ask" class="screen">
+    <button class="btn back" onclick="goHome()" id="back-btn-ask"></button>
+    <div class="intro-card">
+      <h2 style="margin:0 0 4px;" id="ask-title"></h2>
+      <p id="ask-sub" style="margin:0;"></p>
+      <span class="field-label" id="ask-topic-label"></span>
+      <div class="ask-topics" id="ask-topics"></div>
+      <label class="field-label" for="ask-text" id="ask-text-label"></label>
+      <textarea id="ask-text" class="text-in" rows="4" maxlength="500" oninput="if(!askBusy) setAskMsg('')"></textarea>
+      <p class="rules" id="ask-note"></p>
+      <p class="pin-msg" id="ask-msg"></p>
+      <div class="row"><button class="btn" id="ask-send" onclick="sendQuestion()"></button></div>
+    </div>
+  </section>
+
   <!-- HOME SCREEN -->
   <section id="screen-home" class="screen">
     <div class="intro-card">
@@ -658,6 +682,11 @@
     <div class="row" style="margin-top:18px;">
       <button class="btn" id="board-btn" onclick="openBoard()"></button>
       <button class="btn secondary" id="progress-all-btn" onclick="openProgressView()"></button>
+    </div>
+
+    <div class="lb-card ask-card" style="margin-top:18px;">
+      <p id="ask-card-text"></p>
+      <button class="btn secondary" id="ask-btn" onclick="openAsk()"></button>
     </div>
   </section>
 
@@ -1894,6 +1923,323 @@ try{
   if(savedLang === 'ht' || savedLang === 'en') lang = savedLang;
 }catch(e){}
 
+/* ---------------------------------------------------------
+   KONPITÈ PLIS (v3.2): bonus computer lessons for kids who
+   finished all the lessons of the three courses.
+   Each batch has the Monday it opens ("from"). Add next week's
+   batch at the END of the list (never in the middle), so lesson
+   numbers stay the same.
+--------------------------------------------------------- */
+const PLIS_ALL = [
+  { from:'2026-11-16',
+    title:'Limen ak etenn òdinatè a', title_en:'Turning the computer on and off',
+    sections:[
+      {h:'Bouton limen an', h_en:'The power button', body:`
+        <p>Pou <strong>limen</strong> yon òdinatè, peze <strong>bouton limen an</strong> yon sèl fwa. Li souvan gen yon senbòl: yon ti wonn ak yon ba anlè l. Apre sa, tann: òdinatè a bezwen kèk segonn pou l prepare.</p>
+        <p>Pou <strong>etenn</strong> li, pa rache fil la, pa kenbe bouton an peze. Fè l byen:</p>
+        <table class="vocab-table">
+          <tr><td><strong>Fèmen</strong> (Shut down)</td><td>Meni Kòmanse ➜ bouton limen an ➜ <em>Fèmen</em>. Òdinatè a sove tout bagay epi li etenn.</td></tr>
+          <tr><td><strong>Rekòmanse</strong> (Restart)</td><td>Li etenn epi li limen ankò. Bon remèd lè òdinatè a vin lan oswa li bloke.</td></tr>
+          <tr><td><strong>Mete l dòmi</strong> (Sleep)</td><td>Li repoze, li pa etenn nèt. Ou ka reprann travay ou vit.</td></tr>
+        </table>
+        <div class="tip">💡 Astis: Si ou rache fil la oswa ou kenbe bouton an pou fòse l etenn, ou ka pèdi travay ou pa t sove.</div>
+      `, body_en:`
+        <p>To <strong>turn on</strong> a computer, press the <strong>power button</strong> once. It often has a symbol: a small circle with a line at the top. Then wait: the computer needs a few seconds to get ready.</p>
+        <p>To <strong>turn it off</strong>, don't pull the cable, and don't hold the button down. Do it properly:</p>
+        <table class="vocab-table">
+          <tr><td><strong>Shut down</strong></td><td>Start menu ➜ power button ➜ <em>Shut down</em>. The computer saves everything and turns off.</td></tr>
+          <tr><td><strong>Restart</strong></td><td>It turns off and on again. A good fix when the computer is slow or stuck.</td></tr>
+          <tr><td><strong>Sleep</strong></td><td>It rests but doesn't turn off completely. You can get back to your work quickly.</td></tr>
+        </table>
+        <div class="tip">💡 Tip: If you pull the cable or hold the button to force it off, you can lose work you didn't save.</div>
+      `}
+    ],
+    quiz:[
+      {q:'Ki pi bon fason pou etenn yon òdinatè?', q_en:'What is the best way to turn off a computer?', opts:['Rache fil la','Meni Kòmanse ➜ Fèmen','Kenbe bouton an peze','Fèmen ekran an sèlman'], opts_en:['Pull the cable','Start menu ➜ Shut down','Hold the button down','Close only the screen'], correct:1, exp:'Fèmen nan meni an kite òdinatè a sove tout bagay anvan l etenn.', exp_en:'Shutting down from the menu lets the computer save everything before it turns off.'},
+      {q:'Òdinatè a bloke epi li vin lan. Kisa ou ka eseye an premye?', q_en:'The computer is stuck and slow. What can you try first?', opts:['Rekòmanse l','Frape l','Vide dlo sou li','Achte yon lòt'], opts_en:['Restart it','Hit it','Pour water on it','Buy another one'], correct:0, exp:'Rekòmanse se premye remèd lè yon òdinatè bloke.', exp_en:'Restarting is the first fix when a computer is stuck.'},
+      {q:'Kisa "mete l dòmi" (Sleep) fè?', q_en:'What does "Sleep" do?', opts:['Li efase tout fichye yo','Li repoze san l pa etenn nèt','Li fè òdinatè a pi vit','Li voye yon imèl'], opts_en:['It deletes all the files','It rests without turning off completely','It makes the computer faster','It sends an email'], correct:1, exp:'Lè l ap dòmi, òdinatè a repoze men ou ka reprann travay ou vit.', exp_en:'When asleep, the computer rests but you can get back to your work quickly.'}
+    ]
+  },
+  { from:'2026-11-16',
+    title:'Biwo a: ikon ak ba travay', title_en:'The desktop: icons and taskbar',
+    sections:[
+      {h:'Premye ekran an', h_en:'The first screen', body:`
+        <p>Lè òdinatè a fin limen, ou wè <strong>Biwo a</strong> (Desktop). Se tankou yon tab travay kote ou mete zouti ou yo.</p>
+        <table class="vocab-table">
+          <tr><td><strong>Ikon</strong> (Icon)</td><td>Ti imaj ki reprezante yon pwogram, yon dosye oswa yon fichye. Doub-klike sou li pou louvri l.</td></tr>
+          <tr><td><strong>Ba travay</strong> (Taskbar)</td><td>Bann anba ekran an. Li montre pwogram ki louvri yo, lè a ak batri a.</td></tr>
+          <tr><td><strong>Meni Kòmanse</strong> (Start menu)</td><td>Bouton nan kwen goch anba a. Kote ou jwenn tout pwogram yo ak bouton pou fèmen.</td></tr>
+          <tr><td><strong>Fon ekran</strong> (Wallpaper)</td><td>Imaj ki dèyè ikon yo.</td></tr>
+        </table>
+        <div class="tip">💡 Astis: Sou yon telefòn se menm lide a: <strong>ekran dakèy</strong> la gen ikon aplikasyon yo, epi ou touche yon ikon yon sèl fwa pou louvri l.</div>
+      `, body_en:`
+        <p>When the computer has turned on, you see the <strong>Desktop</strong>. It's like a work table where you put your tools.</p>
+        <table class="vocab-table">
+          <tr><td><strong>Icon</strong></td><td>A small picture for a program, a folder or a file. Double-click it to open it.</td></tr>
+          <tr><td><strong>Taskbar</strong></td><td>The strip at the bottom of the screen. It shows the open programs, the time and the battery.</td></tr>
+          <tr><td><strong>Start menu</strong></td><td>The button in the bottom-left corner. Where you find all the programs and the button to shut down.</td></tr>
+          <tr><td><strong>Wallpaper</strong></td><td>The picture behind the icons.</td></tr>
+        </table>
+        <div class="tip">💡 Tip: On a phone it's the same idea: the <strong>home screen</strong> has the app icons, and you tap an icon once to open it.</div>
+      `}
+    ],
+    quiz:[
+      {q:'Kisa yon ikon ye?', q_en:'What is an icon?', opts:['Yon ti imaj pou yon pwogram oswa yon fichye','Yon kab elektrik','Yon kalite klavye','Yon modpas'], opts_en:['A small picture for a program or file','An electric cable','A kind of keyboard','A password'], correct:0, exp:'Ikon se ti imaj ou klike sou li pou louvri yon bagay.', exp_en:'An icon is a small picture you click to open something.'},
+      {q:'Ki kote ou jwenn ba travay la anjeneral?', q_en:'Where is the taskbar usually?', opts:['Anlè ekran an','Anba ekran an','Dèyè òdinatè a','Andedan sourit la'], opts_en:['At the top of the screen','At the bottom of the screen','Behind the computer','Inside the mouse'], correct:1, exp:'Ba travay la se bann anba ekran an.', exp_en:'The taskbar is the strip at the bottom of the screen.'},
+      {q:'Ki kote ou jwenn tout pwogram yo ak bouton pou fèmen òdinatè a?', q_en:'Where do you find all the programs and the button to shut down?', opts:['Nan fon ekran an','Nan meni Kòmanse a','Nan klavye a','Nan dosye Telechajman'], opts_en:['In the wallpaper','In the Start menu','On the keyboard','In the Downloads folder'], correct:1, exp:'Meni Kòmanse a gen tout pwogram yo ak bouton pou fèmen an.', exp_en:'The Start menu has all the programs and the shut-down button.'}
+    ]
+  },
+  { from:'2026-11-16',
+    title:'Fenèt yo: louvri, redwi, fèmen', title_en:'Windows: open, minimize, close',
+    sections:[
+      {h:'Twa ti bouton yo', h_en:'The three small buttons', body:`
+        <p>Chak pwogram ou louvri parèt nan yon <strong>fenèt</strong> (window). Anlè adwat chak fenèt gen twa ti bouton:</p>
+        <table class="vocab-table">
+          <tr><td><strong>—</strong> Redwi (Minimize)</td><td>Fenèt la kache nan ba travay la. Li pa fèmen.</td></tr>
+          <tr><td><strong>☐</strong> Agrandi (Maximize)</td><td>Fenèt la pran tout ekran an.</td></tr>
+          <tr><td><strong>✕</strong> Fèmen (Close)</td><td>Pwogram nan fèmen. Sove travay ou anvan!</td></tr>
+        </table>
+        <p>Pou chanje fenèt, klike sou pwogram nan nan ba travay la, oswa peze <strong>Alt + Tab</strong> sou klavye a.</p>
+        <div class="tip">💡 Astis: Twòp fenèt louvri fè òdinatè a vin lan. Fèmen sa ou pa bezwen ankò.</div>
+      `, body_en:`
+        <p>Every program you open appears in a <strong>window</strong>. At the top right of every window there are three small buttons:</p>
+        <table class="vocab-table">
+          <tr><td><strong>—</strong> Minimize</td><td>The window hides in the taskbar. It is not closed.</td></tr>
+          <tr><td><strong>☐</strong> Maximize</td><td>The window fills the whole screen.</td></tr>
+          <tr><td><strong>✕</strong> Close</td><td>The program closes. Save your work first!</td></tr>
+        </table>
+        <p>To switch windows, click the program in the taskbar, or press <strong>Alt + Tab</strong> on the keyboard.</p>
+        <div class="tip">💡 Tip: Too many open windows make the computer slow. Close what you don't need anymore.</div>
+      `}
+    ],
+    quiz:[
+      {q:'Ki bouton ki fèmen yon fenèt?', q_en:'Which button closes a window?', opts:['—','☐','✕','⚙️'], opts_en:['—','☐','✕','⚙️'], correct:2, exp:'✕ fèmen fenèt la ak pwogram nan.', exp_en:'✕ closes the window and the program.'},
+      {q:'Ou klike sou "—" (Redwi). Kisa k rive?', q_en:'You click "—" (Minimize). What happens?', opts:['Pwogram nan efase','Fenèt la kache nan ba travay la','Òdinatè a etenn','Fenèt la pran tout ekran an'], opts_en:['The program is deleted','The window hides in the taskbar','The computer turns off','The window fills the screen'], correct:1, exp:'Redwi kache fenèt la san l pa fèmen l.', exp_en:'Minimize hides the window without closing it.'},
+      {q:'Ki touch pou chanje fenèt sou klavye a?', q_en:'Which keys switch windows on the keyboard?', opts:['Ctrl + P','Alt + Tab','Shift + A','Espas + Enter'], opts_en:['Ctrl + P','Alt + Tab','Shift + A','Space + Enter'], correct:1, exp:'Alt + Tab fè ou pase de yon fenèt a yon lòt.', exp_en:'Alt + Tab moves you from one window to another.'}
+    ]
+  },
+  { from:'2026-11-16',
+    title:'Kopye, koupe, kole, anile', title_en:'Copy, cut, paste, undo',
+    sections:[
+      {h:'Kat touch majik', h_en:'Four magic shortcuts', body:`
+        <p>Premye, <strong>chwazi</strong> (seleksyone) tèks la: kenbe bouton goch sourit la epi trennen sou mo yo. Apre sa:</p>
+        <table class="vocab-table">
+          <tr><td><strong>Ctrl + C</strong> Kopye (Copy)</td><td>Fè yon kopi. Orijinal la rete kote l ye.</td></tr>
+          <tr><td><strong>Ctrl + X</strong> Koupe (Cut)</td><td>Retire l kote l ye pou w ka mete l yon lòt kote.</td></tr>
+          <tr><td><strong>Ctrl + V</strong> Kole (Paste)</td><td>Mete sa ou kopye oswa koupe a kote ou klike a.</td></tr>
+          <tr><td><strong>Ctrl + Z</strong> Anile (Undo)</td><td>Fè bak sou dènye bagay ou fè a. Li sove w lè w fè yon erè!</td></tr>
+        </table>
+        <div class="tip">💡 Astis: Sou yon telefòn, kenbe dwèt ou sou yon mo pandan kèk segonn: meni <em>Kopye / Koupe / Kole</em> a ap parèt.</div>
+      `, body_en:`
+        <p>First, <strong>select</strong> the text: hold the left mouse button and drag over the words. Then:</p>
+        <table class="vocab-table">
+          <tr><td><strong>Ctrl + C</strong> Copy</td><td>Makes a copy. The original stays where it is.</td></tr>
+          <tr><td><strong>Ctrl + X</strong> Cut</td><td>Removes it from where it is so you can put it somewhere else.</td></tr>
+          <tr><td><strong>Ctrl + V</strong> Paste</td><td>Puts what you copied or cut where you clicked.</td></tr>
+          <tr><td><strong>Ctrl + Z</strong> Undo</td><td>Takes back the last thing you did. It saves you when you make a mistake!</td></tr>
+        </table>
+        <div class="tip">💡 Tip: On a phone, hold your finger on a word for a few seconds: the <em>Copy / Cut / Paste</em> menu appears.</div>
+      `}
+    ],
+    quiz:[
+      {q:'Ou efase yon fraz pa erè. Ki touch ki ka remete l?', q_en:'You deleted a sentence by mistake. Which keys can bring it back?', opts:['Ctrl + C','Ctrl + V','Ctrl + Z','Ctrl + X'], opts_en:['Ctrl + C','Ctrl + V','Ctrl + Z','Ctrl + X'], correct:2, exp:'Ctrl + Z anile dènye bagay ou fè a.', exp_en:'Ctrl + Z undoes the last thing you did.'},
+      {q:'Ki diferans ant Kopye ak Koupe?', q_en:"What's the difference between Copy and Cut?", opts:['Pa gen diferans','Kopye kite orijinal la, Koupe retire l','Koupe kite orijinal la, Kopye retire l','Kopye efase tout dokiman an'], opts_en:['No difference','Copy keeps the original, Cut removes it','Cut keeps the original, Copy removes it','Copy deletes the whole document'], correct:1, exp:'Kopye fè yon kopi; Koupe deplase tèks la.', exp_en:'Copy makes a copy; Cut moves the text.'},
+      {q:'Ki touch ki kole (Paste)?', q_en:'Which keys paste?', opts:['Ctrl + V','Ctrl + P','Ctrl + K','Alt + Tab'], opts_en:['Ctrl + V','Ctrl + P','Ctrl + K','Alt + Tab'], correct:0, exp:'Ctrl + V kole sa ou te kopye oswa koupe a.', exp_en:'Ctrl + V pastes what you copied or cut.'}
+    ]
+  },
+  { from:'2026-11-16',
+    title:'Sove travay ou', title_en:'Saving your work',
+    sections:[
+      {h:'Pa pèdi travay ou', h_en:"Don't lose your work", body:`
+        <p>Lè ou ekri oswa ou fè yon desen sou òdinatè a, li poko sove. Si kouran an koupe, ou ka pèdi tout bagay! Se pou sa ou dwe <strong>sove</strong> (save) souvan.</p>
+        <table class="vocab-table">
+          <tr><td><strong>Sove</strong> (Save) — Ctrl + S</td><td>Anrejistre travay la nan menm fichye a.</td></tr>
+          <tr><td><strong>Sove kòm...</strong> (Save as)</td><td>Fè yon nouvo fichye: ou chwazi yon non ak yon dosye.</td></tr>
+        </table>
+        <p>Bay fichye a yon <strong>non klè</strong>: <em>Devwa_Angle_Novanm</em> pi bon pase <em>dokiman1</em>. Konsa w ap jwenn li fasil pita.</p>
+        <div class="tip">💡 Astis: Sove chak 5 minit. Ctrl + S pran yon segonn epi li ka sove plizyè èdtan travay.</div>
+      `, body_en:`
+        <p>When you write or draw on the computer, it isn't saved yet. If the power goes out, you can lose everything! That's why you should <strong>save</strong> often.</p>
+        <table class="vocab-table">
+          <tr><td><strong>Save</strong> — Ctrl + S</td><td>Stores the work in the same file.</td></tr>
+          <tr><td><strong>Save as</strong></td><td>Makes a new file: you choose a name and a folder.</td></tr>
+        </table>
+        <p>Give the file a <strong>clear name</strong>: <em>English_Homework_November</em> is better than <em>document1</em>. That way you'll find it easily later.</p>
+        <div class="tip">💡 Tip: Save every 5 minutes. Ctrl + S takes one second and can save hours of work.</div>
+      `}
+    ],
+    quiz:[
+      {q:'Ki touch ki sove travay ou?', q_en:'Which keys save your work?', opts:['Ctrl + S','Ctrl + Z','Ctrl + C','Alt + Tab'], opts_en:['Ctrl + S','Ctrl + Z','Ctrl + C','Alt + Tab'], correct:0, exp:'Ctrl + S = Sove (Save).', exp_en:'Ctrl + S = Save.'},
+      {q:'Ki non ki pi bon pou yon fichye?', q_en:'Which name is best for a file?', opts:['dokiman1','aaaa','Devwa_Angle_Novanm','fichye'], opts_en:['document1','aaaa','English_Homework_November','file'], correct:2, exp:'Yon non klè di sa ki andedan fichye a.', exp_en:'A clear name tells what is inside the file.'},
+      {q:'Poukisa pou sove souvan?', q_en:'Why save often?', opts:['Pou òdinatè a pi bèl','Pou pa pèdi travay ou si kouran an koupe','Pou efase fichye yo','Pou chanje lang nan'], opts_en:['To make the computer prettier','So you don\'t lose your work if the power goes out','To delete the files','To change the language'], correct:1, exp:'Si kouran an koupe, sa ou pa t sove a ka pèdi.', exp_en:'If the power goes out, what you didn\'t save can be lost.'}
+    ]
+  },
+  { from:'2026-11-16',
+    title:'Ekri yon dokiman', title_en:'Writing a document',
+    sections:[
+      {h:'Pwogram pou ekri', h_en:'Programs for writing', body:`
+        <p>Pou ekri yon lèt, yon devwa oswa yon CV, nou itilize yon <strong>pwogram tretman tèks</strong>: <em>Word</em>, <em>Google Docs</em> oswa <em>LibreOffice Writer</em>.</p>
+        <table class="vocab-table">
+          <tr><td><strong>B</strong> Gra (Bold)</td><td>Fè mo a pi epè: <strong>enpòtan</strong>. (Ctrl + B)</td></tr>
+          <tr><td><em>I</em> Italik (Italic)</td><td>Fè mo a panche: <em>tit yon liv</em>. (Ctrl + I)</td></tr>
+          <tr><td><strong>Gwosè</strong> (Size)</td><td>Chanje gwosè lèt yo: pi gwo pou yon tit.</td></tr>
+          <tr><td><strong>Aliyman</strong> (Align)</td><td>Mete tèks la agoch, nan mitan oswa adwat.</td></tr>
+          <tr><td><strong>Korektè</strong> (Spell check)</td><td>Yon liy wouj anba yon mo vle di li ka mal ekri.</td></tr>
+        </table>
+        <div class="tip">💡 Astis: Ekri tout tèks ou anvan, epi apre sa chwazi mo yo pou mete gra, gwosè ak aliyman.</div>
+      `, body_en:`
+        <p>To write a letter, homework or a CV, we use a <strong>word processor</strong>: <em>Word</em>, <em>Google Docs</em> or <em>LibreOffice Writer</em>.</p>
+        <table class="vocab-table">
+          <tr><td><strong>B</strong> Bold</td><td>Makes the word thicker: <strong>important</strong>. (Ctrl + B)</td></tr>
+          <tr><td><em>I</em> Italic</td><td>Makes the word slanted: <em>a book title</em>. (Ctrl + I)</td></tr>
+          <tr><td><strong>Size</strong></td><td>Changes the size of the letters: bigger for a title.</td></tr>
+          <tr><td><strong>Align</strong></td><td>Puts the text on the left, in the middle or on the right.</td></tr>
+          <tr><td><strong>Spell check</strong></td><td>A red line under a word means it may be misspelled.</td></tr>
+        </table>
+        <div class="tip">💡 Tip: Write all your text first, then select the words to set bold, size and alignment.</div>
+      `}
+    ],
+    quiz:[
+      {q:'Ki touch ki mete yon mo an gra (bold)?', q_en:'Which keys make a word bold?', opts:['Ctrl + B','Ctrl + V','Ctrl + Z','Ctrl + S'], opts_en:['Ctrl + B','Ctrl + V','Ctrl + Z','Ctrl + S'], correct:0, exp:'Ctrl + B = Bold (gra).', exp_en:'Ctrl + B = Bold.'},
+      {q:'Ou wè yon liy wouj anba yon mo. Kisa sa vle di?', q_en:'You see a red line under a word. What does it mean?', opts:['Mo a ka mal ekri','Mo a sove','Mo a an gra','Òdinatè a pral etenn'], opts_en:['The word may be misspelled','The word is saved','The word is bold','The computer will turn off'], correct:0, exp:'Korektè a mete yon liy wouj anba mo ki ka mal ekri.', exp_en:'Spell check puts a red line under words that may be misspelled.'},
+      {q:'Ki pwogram ki fèt pou ekri yon lèt?', q_en:'Which program is made for writing a letter?', opts:['Yon jwèt','Yon pwogram tretman tèks tankou Word','Yon kalkilatris','Ba travay la'], opts_en:['A game','A word processor like Word','A calculator','The taskbar'], correct:1, exp:'Word, Google Docs ak Writer se pwogram tretman tèks.', exp_en:'Word, Google Docs and Writer are word processors.'}
+    ]
+  },
+  { from:'2026-11-16',
+    title:'Chèche byen sou entènèt', title_en:'Searching well online',
+    sections:[
+      {h:'Mo kle ak verifye', h_en:'Keywords and checking', body:`
+        <p>Pou chèche sou yon <strong>motè rechèch</strong> (tankou Google), pa ekri yon fraz long. Ekri kèk <strong>mo kle</strong> ki enpòtan.</p>
+        <table class="vocab-table">
+          <tr><td>❌ <em>mwen ta renmen konnen ki lè match la ap kòmanse jodi a</em></td><td>Twò long</td></tr>
+          <tr><td>✅ <em>match Ayiti lè jodi a</em></td><td>Kout epi klè</td></tr>
+        </table>
+        <p><strong>Tout sa ki sou entènèt pa vre.</strong> Anvan ou kwè yon bagay:</p>
+        <table class="vocab-table">
+          <tr><td><strong>1. Ki moun ki ekri l?</strong></td><td>Yon jounal, yon lekòl, yon leta? Oswa yon moun ou pa konnen?</td></tr>
+          <tr><td><strong>2. Èske lòt sit di menm bagay?</strong></td><td>Tcheke omwen 2 sous.</td></tr>
+          <tr><td><strong>3. Ki dat li ye?</strong></td><td>Yon nouvèl ki gen 5 an ka pa vre ankò.</td></tr>
+        </table>
+        <div class="tip">💡 Astis: Yon tit ki fè w pè oswa fache anpil, souvan se pou fè w klike. Tcheke l anvan ou pataje l sou WhatsApp.</div>
+      `, body_en:`
+        <p>To search on a <strong>search engine</strong> (like Google), don't type a long sentence. Type a few important <strong>keywords</strong>.</p>
+        <table class="vocab-table">
+          <tr><td>❌ <em>i would like to know what time the match starts today</em></td><td>Too long</td></tr>
+          <tr><td>✅ <em>Haiti match time today</em></td><td>Short and clear</td></tr>
+        </table>
+        <p><strong>Not everything on the internet is true.</strong> Before you believe something:</p>
+        <table class="vocab-table">
+          <tr><td><strong>1. Who wrote it?</strong></td><td>A newspaper, a school, the government? Or someone you don't know?</td></tr>
+          <tr><td><strong>2. Do other sites say the same thing?</strong></td><td>Check at least 2 sources.</td></tr>
+          <tr><td><strong>3. What's the date?</strong></td><td>News from 5 years ago may not be true anymore.</td></tr>
+        </table>
+        <div class="tip">💡 Tip: A headline that makes you very scared or angry is often made to make you click. Check it before you share it on WhatsApp.</div>
+      `}
+    ],
+    quiz:[
+      {q:'Ki pi bon rechèch?', q_en:'Which is the best search?', opts:['mwen ta renmen konnen kijan pou m fè diri','resèt diri ak pwa','diri','kijan kijan kijan'], opts_en:['i would like to know how i can make rice','rice and beans recipe','rice','how how how'], correct:1, exp:'Kèk mo kle klè bay pi bon rezilta.', exp_en:'A few clear keywords give the best results.'},
+      {q:'Èske tout sa ki sou entènèt vre?', q_en:'Is everything on the internet true?', opts:['Wi, toujou','Non, fòk ou tcheke','Sèlman si li gen foto','Sèlman si li long'], opts_en:['Yes, always','No, you have to check','Only if it has photos','Only if it is long'], correct:1, exp:'Nenpòt moun ka ekri sou entènèt. Tcheke sous la.', exp_en:'Anyone can write on the internet. Check the source.'},
+      {q:'Kijan pou tcheke si yon nouvèl vre?', q_en:'How do you check if a piece of news is true?', opts:['Pataje l tou swit','Gade si lòt sit serye di menm bagay','Kwè l si li fè w pè','Li tit la sèlman'], opts_en:['Share it right away','See if other reliable sites say the same','Believe it if it scares you','Read only the headline'], correct:1, exp:'Konpare plizyè sous serye anvan ou kwè oswa pataje.', exp_en:'Compare several reliable sources before you believe or share.'}
+    ]
+  },
+  { from:'2026-11-16',
+    title:'Imèl: ekri ak voye', title_en:'Email: writing and sending',
+    sections:[
+      {h:'Pati yon imèl', h_en:'Parts of an email', body:`
+        <p>Yon <strong>adrès imèl</strong> sanble ak sa a: <strong>non@egzanp.com</strong>. Li toujou gen yon <strong>@</strong> ("arobas") nan mitan.</p>
+        <table class="vocab-table">
+          <tr><td><strong>Pou</strong> (To)</td><td>Adrès moun ki pral resevwa l la.</td></tr>
+          <tr><td><strong>Sijè</strong> (Subject)</td><td>Kèk mo ki di sa imèl la ye: <em>Devwa angle — Wisly</em>.</td></tr>
+          <tr><td><strong>Mesaj</strong> (Body)</td><td>Bonjou + sa ou vle di + mèsi + non ou.</td></tr>
+          <tr><td><strong>📎 Atachman</strong> (Attachment)</td><td>Yon fichye ou voye avèk imèl la: yon foto, yon dokiman.</td></tr>
+          <tr><td><strong>Reponn</strong> (Reply)</td><td>Voye yon repons bay moun ki te ekri w la.</td></tr>
+        </table>
+        <div class="tip">💡 Astis: Li imèl ou yon dènye fwa anvan ou peze <em>Voye</em>. Yon imèl ou voye pa ka retounen.</div>
+      `, body_en:`
+        <p>An <strong>email address</strong> looks like this: <strong>name@example.com</strong>. It always has an <strong>@</strong> ("at") in the middle.</p>
+        <table class="vocab-table">
+          <tr><td><strong>To</strong></td><td>The address of the person who will receive it.</td></tr>
+          <tr><td><strong>Subject</strong></td><td>A few words that say what the email is: <em>English homework — Wisly</em>.</td></tr>
+          <tr><td><strong>Body</strong></td><td>Hello + what you want to say + thank you + your name.</td></tr>
+          <tr><td><strong>📎 Attachment</strong></td><td>A file you send with the email: a photo, a document.</td></tr>
+          <tr><td><strong>Reply</strong></td><td>Send an answer to the person who wrote to you.</td></tr>
+        </table>
+        <div class="tip">💡 Tip: Read your email one last time before you press <em>Send</em>. An email you sent can't come back.</div>
+      `}
+    ],
+    quiz:[
+      {q:'Ki adrès imèl ki kòrèk?', q_en:'Which email address is correct?', opts:['marie.gmail.com','marie@gmail.com','marie gmail','@marie'], opts_en:['marie.gmail.com','marie@gmail.com','marie gmail','@marie'], correct:1, exp:'Yon adrès imèl gen non an, @, epi non sit la.', exp_en:'An email address has the name, @, then the site name.'},
+      {q:'Kisa ou ekri nan "Sijè" a?', q_en:'What do you write in the "Subject"?', opts:['Tout mesaj la','Kèk mo ki di sa imèl la ye','Modpas ou','Adrès lakay ou'], opts_en:['The whole message','A few words saying what the email is about','Your password','Your home address'], correct:1, exp:'Sijè a se yon ti tit pou imèl la.', exp_en:'The subject is a short title for the email.'},
+      {q:'Ou vle voye yon foto avèk imèl la. Ki sa ou itilize?', q_en:'You want to send a photo with the email. What do you use?', opts:['📎 Atachman','Ba travay la','Ctrl + Z','Sijè a'], opts_en:['📎 Attachment','The taskbar','Ctrl + Z','The subject'], correct:0, exp:'Klip la (📎) ajoute yon fichye nan imèl la.', exp_en:'The paperclip (📎) adds a file to the email.'}
+    ]
+  },
+  { from:'2026-11-16',
+    title:'Telefòn ou: aplikasyon, Wi‑Fi ak done', title_en:'Your phone: apps, Wi‑Fi and data',
+    sections:[
+      {h:'Konprann telefòn ou', h_en:'Understanding your phone', body:`
+        <p>Yon <strong>telefòn entelijan</strong> (smartphone) se yon ti òdinatè nan pòch ou.</p>
+        <table class="vocab-table">
+          <tr><td><strong>Aplikasyon</strong> (App)</td><td>Yon pwogram sou telefòn nan: WhatsApp, kamera a, Aprann Ak Nou!</td></tr>
+          <tr><td><strong>Wi‑Fi</strong></td><td>Entènèt san fil ki soti nan yon routè. Li pa manje kat ou.</td></tr>
+          <tr><td><strong>Done mobil</strong> (Mobile data)</td><td>Entènèt ki soti nan konpayi telefòn nan (Digicel, Natcom). Li manje kat ou.</td></tr>
+          <tr><td><strong>Paramèt</strong> (Settings)</td><td>Ikon ⚙️ an. Kote ou chanje Wi‑Fi, son, limyè ekran an...</td></tr>
+          <tr><td><strong>Memwa</strong> (Storage)</td><td>Plas pou foto, videyo ak aplikasyon. Lè l plen, telefòn nan vin lan.</td></tr>
+        </table>
+        <div class="tip">💡 Astis: Videyo yo manje anpil done ak anpil memwa. Gade yo sou Wi‑Fi lè ou kapab, epi efase sa ou pa bezwen ankò.</div>
+      `, body_en:`
+        <p>A <strong>smartphone</strong> is a small computer in your pocket.</p>
+        <table class="vocab-table">
+          <tr><td><strong>App</strong></td><td>A program on the phone: WhatsApp, the camera, Aprann Ak Nou!</td></tr>
+          <tr><td><strong>Wi‑Fi</strong></td><td>Wireless internet that comes from a router. It doesn't use up your phone credit.</td></tr>
+          <tr><td><strong>Mobile data</strong></td><td>Internet that comes from the phone company (Digicel, Natcom). It uses up your phone credit.</td></tr>
+          <tr><td><strong>Settings</strong></td><td>The ⚙️ icon. Where you change Wi‑Fi, sound, screen brightness...</td></tr>
+          <tr><td><strong>Storage</strong></td><td>Space for photos, videos and apps. When it's full, the phone gets slow.</td></tr>
+        </table>
+        <div class="tip">💡 Tip: Videos use a lot of data and a lot of storage. Watch them on Wi‑Fi when you can, and delete what you don't need anymore.</div>
+      `}
+    ],
+    quiz:[
+      {q:'Ki sa ki manje kat telefòn ou?', q_en:'What uses up your phone credit?', opts:['Wi‑Fi','Done mobil','Fon ekran an','Kalkilatris la'], opts_en:['Wi‑Fi','Mobile data','The wallpaper','The calculator'], correct:1, exp:'Done mobil soti nan konpayi telefòn nan, li manje kat ou.', exp_en:'Mobile data comes from the phone company and uses up your credit.'},
+      {q:'Telefòn ou vin lan paske memwa a plen. Kisa ou ka fè?', q_en:'Your phone is slow because the storage is full. What can you do?', opts:['Telechaje plis videyo','Efase foto ak videyo ou pa bezwen','Etenn Wi‑Fi a pou toujou','Chanje fon ekran an'], opts_en:['Download more videos','Delete photos and videos you don\'t need','Turn off Wi‑Fi forever','Change the wallpaper'], correct:1, exp:'Efase sa ou pa bezwen libere plas nan memwa a.', exp_en:'Deleting what you don\'t need frees up storage.'},
+      {q:'Ki ikon ki souvan mennen nan Paramèt yo?', q_en:'Which icon usually leads to Settings?', opts:['⚙️','📷','🎵','📞'], opts_en:['⚙️','📷','🎵','📞'], correct:0, exp:'Kodenn lan (⚙️) se senbòl Paramèt yo.', exp_en:'The gear (⚙️) is the Settings symbol.'}
+    ]
+  },
+  { from:'2026-11-16',
+    title:'Pran swen aparèy ou', title_en:'Taking care of your device',
+    sections:[
+      {h:'Pou aparèy ou dire lontan', h_en:'So your device lasts a long time', body:`
+        <table class="vocab-table">
+          <tr><td><strong>Mizajou</strong> (Update)</td><td>Lè telefòn oswa òdinatè a mande yon mizajou, aksepte l (sou Wi‑Fi). Li ranje pwoblèm ak twou sekirite.</td></tr>
+          <tr><td><strong>Viris</strong> (Virus)</td><td>Yon move pwogram ki ka vòlò enfòmasyon ou oswa kraze aparèy la. Pa telechaje aplikasyon nan lyen dwòl: pran yo sèlman nan <em>Play Store</em> oswa <em>App Store</em>.</td></tr>
+          <tr><td><strong>Modpas solid</strong></td><td>Omwen 8 karaktè, ak lèt, chif ak senbòl: <em>Mango!Rouj27</em>. Pa itilize <em>1234</em> oswa non ou.</td></tr>
+          <tr><td><strong>Batri</strong></td><td>Pa kite l tonbe a 0% twò souvan. Pa kite telefòn nan chaje nan solèy cho.</td></tr>
+          <tr><td><strong>Dlo ak pousyè</strong></td><td>Kenbe l lwen dlo. Mete l nan yon ti sachè lè lapli ap tonbe.</td></tr>
+        </table>
+        <div class="tip">💡 Astis: Yon modpas se tankou yon bwòs dan: pa pataje l ak pèsonn.</div>
+      `, body_en:`
+        <table class="vocab-table">
+          <tr><td><strong>Update</strong></td><td>When the phone or computer asks for an update, accept it (on Wi‑Fi). It fixes problems and security holes.</td></tr>
+          <tr><td><strong>Virus</strong></td><td>A bad program that can steal your information or break the device. Don't download apps from strange links: get them only from the <em>Play Store</em> or the <em>App Store</em>.</td></tr>
+          <tr><td><strong>Strong password</strong></td><td>At least 8 characters, with letters, numbers and symbols: <em>Mango!Red27</em>. Don't use <em>1234</em> or your name.</td></tr>
+          <tr><td><strong>Battery</strong></td><td>Don't let it drop to 0% too often. Don't leave the phone charging in hot sun.</td></tr>
+          <tr><td><strong>Water and dust</strong></td><td>Keep it away from water. Put it in a small bag when it rains.</td></tr>
+        </table>
+        <div class="tip">💡 Tip: A password is like a toothbrush: don't share it with anyone.</div>
+      `}
+    ],
+    quiz:[
+      {q:'Ki modpas ki pi solid?', q_en:'Which password is strongest?', opts:['1234','marie','Mango!Rouj27','aaaa'], opts_en:['1234','marie','Mango!Red27','aaaa'], correct:2, exp:'Li long epi li gen lèt, chif ak senbòl.', exp_en:'It is long and has letters, numbers and symbols.'},
+      {q:'Ki kote pou telechaje aplikasyon san danje?', q_en:'Where should you download apps safely?', opts:['Nan nenpòt lyen sou WhatsApp','Nan Play Store oswa App Store','Nan yon imèl yon moun ou pa konnen','Nan yon sit ki di "gratis, klike vit!"'], opts_en:['From any link on WhatsApp','From the Play Store or App Store','From an email from someone you don\'t know','From a site that says "free, click fast!"'], correct:1, exp:'Magazen ofisyèl yo tcheke aplikasyon yo pou viris.', exp_en:'The official stores check apps for viruses.'},
+      {q:'Telefòn ou mande yon mizajou. Kisa ou fè?', q_en:'Your phone asks for an update. What do you do?', opts:['Aksepte l sou Wi‑Fi','Pa janm fè l','Etenn telefòn nan pou toujou','Efase tout aplikasyon yo'], opts_en:['Accept it on Wi‑Fi','Never do it','Turn off the phone forever','Delete all the apps'], correct:0, exp:'Mizajou yo ranje pwoblèm ak sekirite. Fè yo sou Wi‑Fi pou pa manje kat ou.', exp_en:'Updates fix problems and security. Do them on Wi‑Fi so they don\'t use your credit.'}
+    ]
+  }
+];
+TRACKS.plis = {
+  key:'plis', label:'Konpitè Plis ⭐', label_en:'Computers Plus ⭐', emoji:'🖥️', color:'var(--gold)',
+  lessons: PLIS_ALL.filter(l => l.from <= weekKeyOf(new Date()))   // only the batches that are open
+};
+
+
 const UI = {
   headerSub:{ht:'Yon pwogram aprantisaj pou timoun Running Revolution Ayiti — fonksyone san entènèt', en:'A learning program for Running Revolution Ayiti kids — works offline'},
   changeName:{ht:'Mwen fini 👋', en:"I'm done 👋"},
@@ -1974,7 +2320,7 @@ const UI = {
   boardOffline:{ht:'Pa gen entènèt kounye a — n ap montre sa ki sou telefòn sa a. Klasman tout klib la ap parèt lè gen entènèt.', en:"No internet right now — showing what's on this phone. The whole club's ranking appears when there is internet."},
   boardUpdated:{ht:'Mizajou: {t}', en:'Updated: {t}'},
   boardEmpty:{ht:'Pèsonn poko fè pwen semèn sa a. Ou ka premye a! 💪', en:'Nobody has points yet this week. You can be first! 💪'},
-  boardRules:{ht:'<strong>Kijan pou fè pwen:</strong> fini yon nouvo leson = 10 pwen, chak bon repons nan quiz la = 2 pwen, premye leson chak jou = 2 pwen bonis, Defi Jodi a = 1 pwen pou chak bon repons.<br><strong>Jwe san triche:</strong> pran omwen 1 minit pou chak leson, sinon li pa bay pwen. Si ou refè yon leson epi ou jwenn plis bon repons, ou genyen diferans lan.', en:'<strong>How to earn points:</strong> finishing a new lesson = 10 points, each right quiz answer = 2 points, the first lesson each day = 2 bonus points, the daily challenge = 1 point per right answer.<br><strong>Fair play:</strong> take at least 1 minute on each lesson, or it gives no points. If you do a lesson again and get more answers right, you earn the difference.'},
+  boardRules:{ht:'<strong>Kijan pou fè pwen:</strong> fini yon nouvo leson = 10 pwen, chak bon repons nan quiz la = 2 pwen, premye leson chak jou = 2 pwen bonis, Defi Jodi a = 1 pwen pou chak bon repons.<br><strong>Apati lendi 16 novanm:</strong> chak semèn, 10 leson ki bay pwen konte (Defi Jodi a ak bonis jou a an plis). Ou fini tout leson yo? Ou debloke <em>Konpitè Plis</em>: nouvo leson chak semèn.<br><strong>Chak semèn nou felisite:</strong> 🏆 pi plis pwen, 📈 pi gwo pwogrè, 🎟️ yon tiraj nan 10 premye yo, 🌱 elèv ki pi serye (ki travay pi plis jou nan semèn nan).<br><strong>Jwe san triche:</strong> pran omwen 1 minit pou chak leson, sinon li pa bay pwen. Si ou refè yon leson epi ou jwenn plis bon repons, ou genyen diferans lan.', en:'<strong>How to earn points:</strong> finishing a new lesson = 10 points, each right quiz answer = 2 points, the first lesson each day = 2 bonus points, the daily challenge = 1 point per right answer.<br><strong>From Monday, Nov 16:</strong> each week, 10 lessons with points count (the daily challenge and the daily bonus are extra). Finished every lesson? You unlock <em>Computers Plus</em>: new lessons every week.<br><strong>Every week we recognize:</strong> 🏆 most points, 📈 most improved, 🎟️ a draw among the top 10, 🌱 the steadiest learner (who studied on the most days that week).<br><strong>Fair play:</strong> take at least 1 minute on each lesson, or it gives no points. If you do a lesson again and get more answers right, you earn the difference.'},
   boardYou:{ht:'(ou)', en:'(you)'},
   ptsEarned:{ht:'+{n} pwen! ⭐', en:'+{n} points! ⭐'},
   sayTitle:{ht:'Koute', en:'Listen'},
@@ -2061,6 +2407,29 @@ const UI = {
   celebrateTrackMsg:{ht:'Ou fin konplete TOUT leson nan kou sa a!', en:"You've completed EVERY lesson in this course!"},
   celebrateAllMsg:{ht:'Ou fin konplete TOUT TWA kou yo! Ou merite yon Sètifika Debaz — klike anba a pou wè l.', en:"You've completed ALL THREE courses! You've earned a Basic Certificate — click below to view it."},
   viewCertNowBtn:{ht:'🏆 Wè Sètifika a Kounye a', en:'🏆 View Certificate Now'},
+  plisLocked:{ht:'Fini tout leson nan 3 kou yo pou debloke nouvo leson chak semèn!', en:'Finish every lesson in the 3 courses to unlock new lessons every week!'},
+  plisNew:{ht:'Nouvo', en:'New'},
+  plisAllDone:{ht:'Tout fini — nouvo leson lendi', en:'All done — new lessons on Monday'},
+  plisDoneMsg:{ht:'Ou fini tout leson Konpitè Plis semèn sa a! Nouvo leson ap rive lendi.', en:"You finished all of this week's Computers Plus lessons! New lessons arrive on Monday."},
+  capWeekMsg:{ht:'🎯 Bravo! Ou deja fè {n} leson ki bay pwen semèn sa a, se maksimòm lan. Ou ka kontinye aprann; leson sa a ap ka ba w pwen ankò apati lendi.', en:"🎯 Well done! You already did {n} lessons with points this week, that's the maximum. You can keep learning; this lesson can give you points again from Monday."},
+  askCardText:{ht:'Ou gen yon pwoblèm ak app la, oswa yon kesyon sou pwen yo? Mande isit la, n ap reponn ou pita nan gwoup WhatsApp la.', en:"Having a problem with the app, or a question about points? Ask here and we'll get back to you later in the WhatsApp group."},
+  askBtn:{ht:'❓ Poze yon kesyon', en:'❓ Ask a question'},
+  askTitle:{ht:'❓ Poze yon kesyon', en:'❓ Ask a question'},
+  askSub:{ht:'Ekri kesyon ou oswa pwoblèm ou genyen ak app la. RRA ap li l, epi n ap reponn ou pita nan gwoup WhatsApp la.', en:"Write your question or the problem you have with the app. RRA will read it, and we'll answer you later in the WhatsApp group."},
+  askTopicLabel:{ht:'Sou kisa?', en:'About what?'},
+  askTopicApp:{ht:'📱 Pwoblèm ak app la', en:'📱 Problem with the app'},
+  askTopicPoints:{ht:'⭐ Kesyon sou pwen', en:'⭐ Question about points'},
+  askTopicOther:{ht:'💬 Lòt kesyon', en:'💬 Something else'},
+  askTextLabel:{ht:'Kesyon ou', en:'Your question'},
+  askPlaceholder:{ht:'Ekri isit la...', en:'Write here...'},
+  askNote:{ht:'Pa ekri kòd 4 chif ou a.', en:"Don't write your 4-number code."},
+  askSend:{ht:'📨 Voye', en:'📨 Send'},
+  askEmpty:{ht:'Ekri kesyon ou anvan.', en:'Write your question first.'},
+  askTooMany:{ht:'Ou deja voye 5 kesyon jodi a. Eseye ankò demen, oswa pale ak Albert oswa Roseline.', en:'You already sent 5 questions today. Try again tomorrow, or talk to Albert or Roseline.'},
+  askSending:{ht:'⏳ N ap voye...', en:'⏳ Sending...'},
+  askSent:{ht:'✅ Mèsi! RRA resevwa kesyon ou. N ap reponn ou nan gwoup WhatsApp la.', en:"✅ Thank you! RRA got your question. We'll answer you in the WhatsApp group."},
+  askQueued:{ht:'✅ Mèsi! Kesyon ou anrejistre sou telefòn nan. L ap ale jwenn RRA lè telefòn nan konekte sou entènèt.', en:'✅ Thank you! Your question is saved on the phone. It will go to RRA when the phone is online.'},
+  askNoUser:{ht:'Chwazi pwofil ou anvan.', en:'Choose your profile first.'},
   syncAllSent:{ht:'✅ Tout pwogrè voye bay RRA.', en:'✅ All progress has been sent to RRA.'},
   syncPending:{ht:'⏳ {n} mizajou ap tann entènèt pou voye bay RRA.', en:'⏳ {n} updates waiting for internet to send to RRA.'},
   syncOff:{ht:'Voye pwogrè bay RRA poko aktive.', en:'Sending progress to RRA is not turned on yet.'}
@@ -2155,6 +2524,17 @@ function applyStaticText(){
   document.getElementById('clear-data-btn').textContent = t('clearDataBtn');
   document.getElementById('print-cert-btn').textContent = t('printCertBtn');
   document.getElementById('footer-note').textContent = t('footerNote');
+  document.getElementById('back-btn-ask').textContent = t('backBtn');
+  document.getElementById('ask-card-text').textContent = t('askCardText');
+  document.getElementById('ask-btn').textContent = t('askBtn');
+  document.getElementById('ask-title').textContent = t('askTitle');
+  document.getElementById('ask-sub').textContent = t('askSub');
+  document.getElementById('ask-topic-label').textContent = t('askTopicLabel');
+  document.getElementById('ask-text-label').textContent = t('askTextLabel');
+  document.getElementById('ask-text').placeholder = t('askPlaceholder');
+  document.getElementById('ask-note').textContent = t('askNote');
+  document.getElementById('ask-send').textContent = t('askSend');
+  renderAskTopics();
 }
 
 function rerenderCurrentScreen(){
@@ -2170,6 +2550,7 @@ function rerenderCurrentScreen(){
     case 'screen-similar': renderSimilar(); break;
     case 'screen-daily': if(dailyState()) goHome(); else openDaily(); break;
     case 'screen-board': openBoard(); break;
+    case 'screen-ask': renderAskTopics(); break;
     case 'screen-progress': openProgressView(); break;
     case 'screen-track': renderTrackScreen(); break;
     case 'screen-lesson': renderLessonScreen(); break;
@@ -2217,7 +2598,8 @@ function saveCurrentUserProgress(){
   allUsersData[state.currentUser] = Object.assign({}, allUsersData[state.currentUser] || {}, {
     konpite: Array.from(state.completed.konpite),
     angle: Array.from(state.completed.angle),
-    python: Array.from(state.completed.python)
+    python: Array.from(state.completed.python),
+    plis: Array.from(state.completed.plis || [])
   });
   persistAllUsersData();
 }
@@ -2228,7 +2610,7 @@ function saveCurrentUserProgress(){
    Nothing is lost offline: the queue waits until it can send.
 --------------------------------------------------------- */
 const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbw3BJ1LlMHffmgt34SRndJiw3xx-kbeL1cCUGt8vPrGjOM1yzENQgZNPYS_9PUrIq8POw/exec';
-const APP_VERSION = '3.1';
+const APP_VERSION = '3.2';
 const QUEUE_KEY = 'aprann-ak-nou-queue-v1';
 const DEVICE_KEY = 'aprann-ak-nou-device-v1';
 function backendOn(){ return /^https:\/\/script\.google\.com\//.test(BACKEND_URL); }
@@ -2250,6 +2632,7 @@ function queueEvent(type, extra){
     totalLessons: TRACKS.konpite.lessons.length + TRACKS.angle.lessons.length + TRACKS.python.lessons.length
   }, extra||{});
   syncQueue.push(ev); saveQueue(); flushQueue();
+  return ev;
 }
 let flushing = false;
 async function flushQueue(){
@@ -2507,6 +2890,7 @@ function forgotPin(){
 
 /* --- v3: one permanent Kid ID per kid, kept in the Google Sheet --- */
 const TRACK_KEYS = ['konpite','angle','python'];
+const ALL_KEYS = TRACK_KEYS.concat(['plis']);   // v3.2: + Konpitè Plis (not part of the certificate)
 // The right code was typed for a profile on this phone.
 async function afterLocalPin(key, code){
   const d = allUsersData[key];
@@ -2542,7 +2926,7 @@ function applyServer(key, r){
   const d = allUsersData[key]; if(!d || !r || !r.kid) return;
   d.id = r.kid.id; d.name = r.kid.name || d.name || key; d.avatar = r.kid.avatar || d.avatar || '';
   const p = r.progress || {};
-  TRACK_KEYS.forEach(tk=>{
+  ALL_KEYS.forEach(tk=>{
     const max = TRACKS[tk].lessons.length; const set = new Set(d[tk]||[]);
     (p[tk]||[]).forEach(i=>{ if(i>=0 && i<max) set.add(i); });
     d[tk] = Array.from(set).sort((a,b)=>a-b);
@@ -2555,10 +2939,25 @@ function applyServer(key, r){
   });
   if(r.paid){   // which lessons this kid was really paid for (the sheet is the judge)
     d.paid = {}; Object.keys(r.paid).forEach(k=>{ d.paid[k] = {b: r.paid[k][0] ? 1 : 0, q: +r.paid[k][1] || 0}; });
-    TRACK_KEYS.forEach(tk=>(d[tk]||[]).forEach(i=>{ const k = lessonKey(tk, i); if(!d.paid[k]) d.paid[k] = {b:0, q:0}; }));
+    ALL_KEYS.forEach(tk=>(d[tk]||[]).forEach(i=>{ const k = lessonKey(tk, i); if(!d.paid[k]) d.paid[k] = {b:0, q:0}; }));
     const td = ymd(new Date()); d.baseDays = d.baseDays || {};
     if(r.baseDays && r.baseDays[td] !== undefined) d.baseDays[td] = Math.max(d.baseDays[td]||0, +r.baseDays[td]||0);
   }
+  if(r.week && r.week.week){   // v3.2: this week's records (10-lesson limit, "pays again" weeks)
+    d.wk = {week: r.week.week, counted: (r.week.counted||[]).slice(), paid: {}};
+    Object.keys(r.week.paid||{}).forEach(k=>{ d.wk.paid[k] = {b: r.week.paid[k][0] ? 1 : 0, q: +r.week.paid[k][1] || 0}; });
+  }
+  // v3.2: lessons finished on this phone that the sheet has not received yet stay paid, so the phone never pays them twice
+  syncQueue.forEach(e=>{
+    if(e.student!==key || (e.event!=='lesson_done' && e.event!=='lesson_repeat') || !e.track || !e.lesson) return;
+    if(!((e.lp !== undefined) ? +e.lp > 0 : +e.pts > 2)) return;
+    const k = e.track + '#' + e.lesson, q2 = 2*(+e.score||0);
+    d.paid = d.paid || {}; const pr = d.paid[k] = d.paid[k] || {b:0, q:0}; pr.b = 1; pr.q = Math.max(pr.q, q2);
+    if(d.wk && e.week === d.wk.week){
+      if(!d.wk.counted.includes(k)) d.wk.counted.push(k);
+      if(REPLAY_WEEKS.includes(d.wk.week)){ const w = d.wk.paid[k] = d.wk.paid[k] || {b:0, q:0}; w.b = 1; w.q = Math.max(w.q, q2); }
+    }
+  });
   if(r.daily){   // daily challenges done on other phones
     d.dailyCount = Math.max(d.dailyCount||0, +r.daily.count||0);
     d.dailyPerfect = Math.max(d.dailyPerfect||0, +r.daily.perfect||0);
@@ -2569,7 +2968,7 @@ function applyServer(key, r){
 }
 function reloadCurrentUser(){
   const d = allUsersData[state.currentUser]; if(!d) return;
-  TRACK_KEYS.forEach(tk=>{ (d[tk]||[]).forEach(i=>state.completed[tk].add(i)); });
+  ALL_KEYS.forEach(tk=>{ (d[tk]||[]).forEach(i=>state.completed[tk].add(i)); });
   saveCurrentUserProgress(); updateUserBadge(); checkBadges(false);
   const active = document.querySelector('.screen.active');
   if(active && active.id==='screen-home'){ renderTrackCards(); updateOverallCertRow(); renderStats(); }
@@ -2683,7 +3082,8 @@ function selectUser(key){
   state.completed = {
     konpite: new Set(saved.konpite || []),
     angle: new Set(saved.angle || []),
-    python: new Set(saved.python || [])
+    python: new Set(saved.python || []),
+    plis: new Set(saved.plis || [])
   };
   if(!allUsersData[key]) saveCurrentUserProgress();
   updateUserBadge();
@@ -2788,7 +3188,7 @@ const DAILY_N = 5;
 function dailyState(){ const d = userData(); const today = ymd(new Date()); return (d.daily && d.daily.date===today) ? d.daily : null; }
 function dailyPool(){
   const pool = [];
-  TRACK_KEYS.forEach(tk=>{ Array.from(state.completed[tk]).sort((a,b)=>a-b).forEach(i=>{
+  ALL_KEYS.forEach(tk=>{ Array.from(state.completed[tk]).sort((a,b)=>a-b).forEach(i=>{
     const les = TRACKS[tk].lessons[i]; ((les && les.quiz) || []).forEach(q=>pool.push(q)); }); });
   return pool;
 }
@@ -2959,6 +3359,48 @@ async function refreshBoard(){
   if(active && active.id==='screen-board') renderBoard();
 }
 function openBoard(){ renderBoard(); showScreen('screen-board'); refreshBoard(); }
+
+/* --- v3.2: ask RRA a question. It travels like the progress (saved on the phone, sent when online)
+       and lands in the "Questions" tab of the Sheet. RRA answers in the WhatsApp group. --- */
+const ASK_KEY = 'aprann-ak-nou-ask-v1';
+const ASK_MAX_PER_DAY = 5;
+let askTopic = '', askBusy = false;
+function renderAskTopics(){
+  const box = document.getElementById('ask-topics'); if(!box) return;
+  box.innerHTML = [['app','askTopicApp'],['points','askTopicPoints'],['other','askTopicOther']].map(([k,label])=>
+    '<button type="button" class="'+(askTopic===k?'sel':'')+'" onclick="pickAskTopic(\''+k+'\')">'+escapeHtml(t(label))+'</button>').join('');
+}
+function pickAskTopic(k){ askTopic = (askTopic===k) ? '' : k; renderAskTopics(); }
+function askCountToday(){
+  try{ const o = JSON.parse(localStorage.getItem(ASK_KEY)||'{}'); return o.day===ymd(new Date()) ? (+o.n||0) : 0; }catch(e){ return 0; }
+}
+function bumpAskCount(){ try{ localStorage.setItem(ASK_KEY, JSON.stringify({day:ymd(new Date()), n:askCountToday()+1})); }catch(e){} }
+function setAskMsg(text, cls){ const m = document.getElementById('ask-msg'); m.textContent = text||''; m.className = 'pin-msg' + (cls ? ' '+cls : ''); }
+function openAsk(){
+  stopVoice();
+  if(!askBusy){ askTopic = ''; document.getElementById('ask-text').value = ''; setAskMsg(''); document.getElementById('ask-send').disabled = false; }
+  renderAskTopics();
+  showScreen('screen-ask');
+}
+async function sendQuestion(){
+  if(askBusy) return;
+  const box = document.getElementById('ask-text');
+  const text = (box.value||'').replace(/[ \t]+/g,' ').replace(/\n{3,}/g,'\n\n').trim().slice(0,500);
+  if(!text){ setAskMsg(t('askEmpty'), 'err'); box.focus(); return; }
+  if(!state.currentUser){ setAskMsg(t('askNoUser'), 'err'); return; }
+  if(askCountToday() >= ASK_MAX_PER_DAY){ setAskMsg(t('askTooMany'), 'err'); return; }
+  askBusy = true;
+  const btn = document.getElementById('ask-send'); btn.disabled = true;
+  setAskMsg(t('askSending'));
+  const ev = queueEvent('question', {topic: askTopic || 'other', question: text});
+  if(!ev){ setAskMsg(t('askNoUser'), 'err'); btn.disabled = false; askBusy = false; return; }
+  bumpAskCount();
+  box.value = ''; askTopic = ''; renderAskTopics();
+  // wait up to 8 seconds for the internet; if it can't go now, it stays saved on the phone and goes later
+  for(let i=0; i<16 && syncQueue.some(e=>e.id===ev.id); i++){ await new Promise(r=>setTimeout(r, 500)); flushQueue(); }
+  setAskMsg(syncQueue.some(e=>e.id===ev.id) ? t('askQueued') : t('askSent'), 'ok');
+  btn.disabled = false; askBusy = false;
+}
 // Team members who only did lessons to show the kids how — never shown in the ranking (same list as Code.gs).
 const NOT_KIDS = ['josue','josh','ason','albert','roseline','roselyn','roselyne','ronda','ashli','wisly','kabrit'];
 function isTeam(name){
@@ -3196,6 +3638,17 @@ function renderTrackCards(){
   container.innerHTML='';
   Object.values(TRACKS).forEach(track=>{
     const total = track.lessons.length;
+    if(track.key==='plis'){
+      if(!total) return;
+      if(!isAllComplete()){
+        const lock = document.createElement('div');
+        lock.className = 'track-card locked';
+        lock.style.setProperty('--track-color', track.color);
+        lock.innerHTML = '<span class="emoji">🔒</span><h3>'+L(track,'label')+'</h3><p>'+t('plisLocked')+'</p>';
+        container.appendChild(lock);
+        return;
+      }
+    }
     const done = state.completed[track.key].size;
     const pct = Math.round((done/total)*100);
     const complete = done>=total;
@@ -3209,7 +3662,7 @@ function renderTrackCards(){
       <p>${fmtLessonCount(total)}</p>
       <div class="progress-bar"><div style="width:${pct}%;background:${track.color}"></div></div>
       <p class="progress-label">${fmtProgress(done,total)}</p>
-      ${complete?'<span class="cert-pill">🏆 '+(lang==='en'?'Certified':'Sètifye')+'</span>':''}
+      ${track.key==='plis' ? (complete ? '<span class="cert-pill">✅ '+t('plisAllDone')+'</span>' : '<span class="cert-pill">⭐ '+t('plisNew')+'</span>') : (complete?'<span class="cert-pill">🏆 '+(lang==='en'?'Certified':'Sètifye')+'</span>':'')}
     `;
     container.appendChild(card);
   });
@@ -3238,7 +3691,7 @@ function renderTrackScreen(){
 
   const certRow = document.getElementById('track-cert-row');
   const certBtn = document.getElementById('track-cert-btn');
-  if(done>=total){
+  if(done>=total && track.key!=='plis'){
     certRow.style.display = 'flex';
     certBtn.textContent = '🏆 ' + t('trackCertBtn');
     certBtn.onclick = ()=>openCertificate(track.key);
@@ -3523,6 +3976,15 @@ function celebrate(size){
    The Google Sheet applies the same rules; its count is the true one. */
 const MIN_SECS = 60;
 const DAILY_NEW = 0;      // 0 = no daily limit (same number as in Code.gs)
+// v3.2 (same as Code.gs): weeks where a lesson done again pays once more, and the 10-lesson weekly limit
+const REPLAY_WEEKS = ['2026-11-09'];
+const WEEK_LESSONS = 10;
+const WEEK_CAP_FROM = '2026-11-16';
+function weekState(d){   // this week's lessons that already gave points
+  const wk = thisWeek();
+  if(!d.wk || d.wk.week !== wk) d.wk = {week: wk, counted: [], paid: {}};
+  return d.wk;
+}
 function lessonKey(tk, idx){ return tk + '#' + (idx+1); }
 function paidRec(d, key, wasDone){
   d.paid = d.paid || {};
@@ -3551,21 +4013,34 @@ function finishLesson(){
   const correct = (typeof window._quizCorrect==='number') ? window._quizCorrect : 0;
   const quizLen = (track.lessons[idx].quiz||[]).length;
 
-  const d = userData(); const rec = paidRec(d, lessonKey(track.key, idx), alreadyDone);
+  const d = userData(); const key = lessonKey(track.key, idx);
+  const grec = paidRec(d, key, alreadyDone);
+  const ws = weekState(d);
+  const replay = REPLAY_WEEKS.includes(ws.week);
+  const rec = replay ? (ws.paid[key] = ws.paid[key] || {b:0, q:0}) : grec;   // v3.2: in a "pays again" week, this week's record
   const fast = secs < MIN_SECS;
-  let earned = 0, capped = false;
+  let earned = 0, capped = false, wcapped = false, lessonPts = 0;
   if(!fast){
-    const gainQ = Math.max(0, 2*correct - rec.q); rec.q = Math.max(rec.q, 2*correct);
-    let gainB = 0;
-    if(!rec.b){
-      if(!DAILY_NEW || baseToday(d) < DAILY_NEW){
-        gainB = 10; rec.b = 1;
-        const td = ymd(new Date()); d.baseDays = d.baseDays || {}; d.baseDays[td] = (d.baseDays[td]||0) + 1;
-      } else capped = true;
+    const worth = Math.max(0, 2*correct - rec.q) + (rec.b ? 0 : 10);
+    if(WEEK_LESSONS && ws.week >= WEEK_CAP_FROM && worth > 0 && !ws.counted.includes(key) && ws.counted.length >= WEEK_LESSONS){
+      wcapped = true;                  // already 10 lessons with points this week: this one waits for next week
+      earned = awardPoints(0);         // still an active day (+2 the first time today)
+    } else {
+      const gainQ = Math.max(0, 2*correct - rec.q); rec.q = Math.max(rec.q, 2*correct);
+      let gainB = 0;
+      if(!rec.b){
+        if(!DAILY_NEW || baseToday(d) < DAILY_NEW){
+          gainB = 10; rec.b = 1;
+          const td = ymd(new Date()); d.baseDays = d.baseDays || {}; d.baseDays[td] = (d.baseDays[td]||0) + 1;
+        } else capped = true;
+      }
+      if(replay){ grec.b = Math.max(grec.b, rec.b); grec.q = Math.max(grec.q, rec.q); }
+      lessonPts = gainB + gainQ;
+      if(lessonPts > 0 && !ws.counted.includes(key)) ws.counted.push(key);
+      earned = awardPoints(lessonPts);   // also gives the +2 for the first lesson of the day
     }
-    earned = awardPoints(gainB + gainQ);   // also gives the +2 for the first lesson of the day
   }
-  const left = (rec.b ? 0 : 10) + Math.max(0, 2*quizLen - rec.q);
+  const left = wcapped ? 0 : (rec.b ? 0 : 10) + Math.max(0, 2*quizLen - rec.q);
   if(!alreadyDone && !fast){
     celebrate(trackNowComplete ? 'track' : 'lesson');
     playMsg(trackNowComplete ? 'm4' : 'm2');
@@ -3576,12 +4051,14 @@ function finishLesson(){
     score: (typeof window._quizCorrect==='number') ? window._quizCorrect : '',
     quizTotal: (typeof window._quizTotal==='number') ? window._quizTotal : '',
     trackDone: (!alreadyDone && trackNowComplete) ? 'yes' : '', allDone: (!alreadyDone && allNowComplete) ? 'yes' : '',
-    secs: secs, pts: earned, week: thisWeek(), weekPts: ((userData().weeks||{})[thisWeek()]||{}).pts||0
+    secs: secs, pts: earned, lp: lessonPts, week: thisWeek(), weekPts: ((userData().weeks||{})[thisWeek()]||{}).pts||0
   });
 
   if(resultDiv){
     let h = '<div class="score-banner">✅ '+t('lessonDoneMsg')+'</div>';
-    if(!alreadyDone && trackNowComplete){
+    if(!alreadyDone && trackNowComplete && track.key==='plis'){
+      h += '<div class="celebrate-banner"><p><strong>'+t('celebrateTrackTitle')+'</strong></p><p>'+t('plisDoneMsg')+'</p></div>';
+    } else if(!alreadyDone && trackNowComplete){
       h += '<div class="celebrate-banner"><p><strong>'+t('celebrateTrackTitle')+'</strong></p><p>'+t('celebrateTrackMsg')+'</p>';
       if(allNowComplete){
         h += '<p>'+t('celebrateAllMsg')+'</p><div class="row"><button class="btn gold" onclick="openCertificate(\'all\')">'+t('viewCertNowBtn')+'</button></div>';
@@ -3592,6 +4069,7 @@ function finishLesson(){
     }
     if(earned>0) h += '<div class="score-banner" style="margin-top:8px;">'+t('ptsEarned').replace('{n}',earned)+'</div>';
     if(fast) h += '<div class="score-banner warn" style="margin-top:8px;">'+t('tooFast')+'</div>';
+    else if(wcapped) h += '<div class="score-banner warn" style="margin-top:8px;">'+t('capWeekMsg').replace('{n}',WEEK_LESSONS)+'</div>';
     else if(capped) h += '<div class="score-banner warn" style="margin-top:8px;">'+t('capMsg').replace('{n}',DAILY_NEW)+'</div>';
     else if(left>0) h += '<div class="score-banner warn" style="margin-top:8px;">'+t('improveMsg').replace('{n}',left)+'</div>';
     if(left>0) h += '<div class="row"><button class="btn secondary" type="button" onclick="openLesson('+idx+')">'+t('redoBtn')+'</button></div>';
